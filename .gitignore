@@ -1,0 +1,27 @@
+﻿# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+
+# Build
+dist/
+build/
+.out/
+
+# Env
+.env
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
