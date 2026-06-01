@@ -1,8 +1,9 @@
-name: Deploy to GitHub Pages
+﻿name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -19,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.x'
           cache: 'npm'
 
       - name: Debug: show files and pwd
@@ -52,5 +53,5 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - id: deploy
+      - name: Deploy to Pages
         uses: actions/deploy-pages@v4
