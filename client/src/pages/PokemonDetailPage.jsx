@@ -35,34 +35,40 @@ const STAT_MAX = {
   'special-attack': 194, 'special-defense': 230, speed: 200,
 };
 
-const StatBar = ({ statName, value }) => {
-  const max = STAT_MAX[statName] || 255;
-  const percent = Math.min((value / max) * 100, 100);
+const StatBar = ({ label, value }) => {
+  const MAX_STAT = 200;
+  const percentage = Math.min((value / MAX_STAT) * 100, 100); // 최대 100%로 클램핑
 
-  // 수치에 따라 색상 변경
-  const color =
-    value >= 120 ? '#22c55e' :   // 초록 (높음)
-    value >= 80  ? '#3b82f6' :   // 파랑 (보통)
-    value >= 50  ? '#f59e0b' :   // 노랑 (낮음)
-                   '#ef4444';    // 빨강 (매우 낮음)
+  const getColor = (v) => {
+    if (v >= 120) return "bg-green-500";
+    if (v >= 80)  return "bg-blue-500";
+    if (v >= 50)  return "bg-yellow-400";
+    return "bg-red-500";
+  };
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="w-14 text-xs font-bold text-gray-500 text-right shrink-0">
-        {STAT_KO[statName] || statName}
+    <div className="flex items-center gap-3 mb-2">
+      {/* 라벨 */}
+      <span className="w-20 text-right text-sm text-gray-500 shrink-0">
+        {label}
       </span>
-      <span className="w-8 text-sm font-black text-gray-800 text-right shrink-0">
+
+      {/* 수치 */}
+      <span className="w-8 text-sm font-bold text-gray-800 shrink-0">
         {value}
       </span>
-      <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+
+      {/* 막대 — 전체 너비 기준으로 percentage만큼 채움 */}
+      <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${percent}%`, backgroundColor: color }}
+          className={`h-3 rounded-full ${getColor(value)}`}
+          style={{ width: `${percentage}%` }}
         />
       </div>
     </div>
   );
 };
+
 
 const PokemonDetailPage = () => {
   const { id } = useParams();
