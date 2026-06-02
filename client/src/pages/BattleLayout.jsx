@@ -11,10 +11,9 @@ export default function BattleLayoutIntegratedSidebar() {
   ];
 
   return (
-    // ✅ w-full로 전체 너비 확보
-    <div className="min-h-screen w-full bg-[#F9FAFB] flex">
+    // ✅ bg-white + items-stretch 추가
+    <div className="min-h-screen w-full bg-white flex items-stretch">
 
-      {/* ✅ 사이드바: 음수 마진 제거, 자연스러운 flex item으로 */}
       <aside
         aria-label="Battle sidebar"
         className="hidden lg:flex lg:flex-col w-64 shrink-0 bg-white border-r border-gray-100 shadow-sm p-4 sticky top-0 h-screen overflow-auto"
@@ -51,10 +50,9 @@ export default function BattleLayoutIntegratedSidebar() {
         </nav>
       </aside>
 
-      {/* ✅ 메인 컨텐츠: flex-1로 나머지 공간 전부 차지 */}
-      <main className="flex-1 p-8 overflow-auto">
+      {/* ✅ bg-white 추가 */}
+      <main className="flex-1 p-8 overflow-auto bg-white">
 
-        {/* 모바일용 상단 탭 내비 */}
         <div className="lg:hidden mb-4">
           <nav className="flex gap-2 overflow-x-auto">
             {items.map(item => {
