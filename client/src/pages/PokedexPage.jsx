@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import koreanNames from '../data/pokemonKoreanNames.json';
-import { disassembleHangul, chosungIncludes } from 'es-hangul';
+import { getChoseong } from "es-hangul";
 
 const TYPE_COLORS = {
   normal: '#A8A77A', fire: '#EE8130', water: '#6390F0',
@@ -135,7 +135,9 @@ const PokedexPage = () => {
   const matchKo = koreanName.includes(query);
 
   // 3. 초성 검색 (예: "ㅇㅅㅎ" → 이상해씨)
-  const matchChosung = koreanName ? chosungIncludes(koreanName, query) : false;
+  const matchChosung = koreanName
+    ? getChoseong(koreanName).includes(query)
+    : false;
 
   return matchEn || matchKo || matchChosung;
 });
