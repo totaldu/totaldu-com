@@ -36,8 +36,8 @@ const FORM_LABEL_KO = {
   'rock-star':   '하드록',
   'belle':       '마담',
   'pop-star':    '아이돌',
-  'phd':         '닥',
-  'libre':       '마스크',
+  'phd':         '닥터',
+  'libre':       '마스크드',
   'cosplay':     '명탐정',
   'original-cap':     '오리지널캡',
   'hoenn-cap':   '호연캡',
@@ -46,7 +46,7 @@ const FORM_LABEL_KO = {
   'kalos-cap':   '칼로스캡',
   'alola-cap':   '알로라캡',
   'partner-cap': '너로정했다캡',
-  'starter':     '파트',
+  'starter':     '파트너',
   'world-cap':   '월드캡',
   
   // 테오키스
