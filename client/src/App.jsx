@@ -5,6 +5,7 @@ import TypeChartPage from './pages/TypeChartPage';
 import BattleLayout from './pages/BattleLayout';
 import PokedexLayout from './pages/PokedexLayout';
 import PokedexPage from './pages/PokedexPage';
+import PokemonDetailPage from './pages/PokemonDetailPage';
 
 // --- 1. 상세 페이지 컴포넌트들 ---
 
@@ -210,7 +211,7 @@ const App = () => {
           <Route path="/" element={<MainHome articles={articles} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />} />
           <Route path="/pokedex" element={<PokedexLayout />}>
             <Route index element={<PokedexPage />} />
-            {/* 추후 추가: <Route path="stats" element={<StatsRankPage />} /> */}
+            <Route path=":id" element={<PokemonDetailPage />} />
           </Route>
           <Route path="/party" element={<PartyPage />} />
 
