@@ -33,8 +33,8 @@ const FORM_LABEL_KO = {
   'normal':    '(노말)',
   'attack':    '(어택)',
   'defense':   '(디펜스)',
-  'speed':     '(스피드)',       // ✅ 오타 수정 (괄호 2개 제거)
-  'ordinary':  '(통상)',          // ✅ 괄호 통일
+  'speed':     '(스피드)',
+  'ordinary':  '(통상)',
   'resolute':  '(각오)',
   'origin':    '(오리진)',
   'altered':   '(어나더)',
@@ -44,7 +44,7 @@ const FORM_LABEL_KO = {
   'wash':      '(워시)',
   'frost':     '(프로스트)',
   'fan':       '(스핀)',
-  'mow':       '(커트)',          // ✅ 닫는 따옴표 추가
+  'mow':       '(커트)',
   'aria':      '(보이스)',
   'pirouette': '(스텝)',
   'baile':     '(이글이글)',
@@ -53,12 +53,10 @@ const FORM_LABEL_KO = {
   'sensu':     '(하늘하늘)',
   'midnight':  '(한밤)',
   'dusk':      '(황혼)',
-  'dawn':      '(여명)',          // ✅ 괄호 통일
+  'dawn':      '(여명)',
 };
 
-// ✅ 여기에 추가 — getKoreanName 먼저, getFormLabel 나중
 const getKoreanName = (name) => {
-  // "deoxys-attack" 같은 경우 기본 이름("deoxys")으로 fallback
   if (koreanNames[name]) return koreanNames[name];
   const baseName = name.split('-')[0];
   return koreanNames[baseName] ?? name;
@@ -66,14 +64,10 @@ const getKoreanName = (name) => {
 
 const getFormLabel = (formName) => {
   const parts = formName.split('-');
-  // 접미사 없으면 한국어 이름 그대로
   if (parts.length === 1) return getKoreanName(formName);
-  // "deoxys-attack" → suffix = "attack" → "(어택)"
   const suffix = parts.slice(1).join('-');
   return FORM_LABEL_KO[suffix] ?? suffix;
 };
-
-// ──────────────────────────────────────────────────────────────
 
 const StatBar = ({ label, value }) => {
   const MAX_STAT = 255;
@@ -103,8 +97,6 @@ const StatBar = ({ label, value }) => {
     </div>
   );
 };
-
-// ──────────────────────────────────────────────────────────────
 
 const PokemonDetailPage = () => {
   const { id } = useParams();
@@ -198,60 +190,80 @@ const PokemonDetailPage = () => {
         </div>
       )}
 
-      {/* 메인 카드 — activeForm 기준 */}
+      {/* 메인 카드 */}
       <div className="flex flex-col md:flex-row gap-6 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-        {/* 메인 카드 — activeForm 기준 */}
-<div className="flex flex-col md:flex-row gap-6 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
 
-  {/* 왼쪽: 이미지 + 타입 */}
-  <div
-    className="flex flex-col items-center justify-center p-8 md:w-64 shrink-0"
-    style={{ backgroundColor: mainColor + '22' }}
-  >
-    <img
-      src={officialArt}
-      alt={koreanName}
-      className="w-48 h-48 object-contain drop-shadow-md"
-    />
-    <h1 className="mt-4 text-2xl font-extrabold text-gray-800">{koreanName}</h1>
-    <p className="text-gray-400 text-sm font-bold">
-      #{String(activeForm.id).padStart(3, '0')}
-    </p>
-    <div className="flex gap-2 mt-3">
-      <span
-        className="px-3 py-1 rounded-full text-white text-xs font-bold"
-        style={{ backgroundColor: TYPE_COLORS[mainType] }}
-      >
-        {TYPE_KO[mainType]}
-      </span>
-      {subType && (
-        <span
-          className="px-3 py-1 rounded-full text-white text-xs font-bold"
-          style={{ backgroundColor: TYPE_COLORS[subType] }}
+        {/* 왼쪽: 이미지 + 이름 + 타입 */}
+        <div
+          className="md:w-80 flex flex-col items-center justify-center p-10 shrink-0"
+          style={{ background: `linear-gradient(135deg, ${mainColor}33, ${mainColor}11)` }}
         >
-          {TYPE_KO[subType]}
-        </span>
-      )}
-    </div>
-  </div>
+          <img
+            src={officialArt}
+            alt={koreanName || activeForm.name}
+            className="w-56 h-56 object-contain drop-shadow-xl"
+          />
+          <p className="text-xs text-gray-400 font-mono font-bold mt-4">
+            #{String(activeForm.id).padStart(4, '0')}
+          </p>
+          <h1 className="text-3xl font-black text-gray-900 mt-1">
+            {koreanName || activeForm.name}
+          </h1>
+          {koreanName && (
+            <p className="text-sm text-gray-400 capitalize mt-0.5">{activeForm.name}</p>
+          )}
+          <div className="flex gap-2 mt-3">
+            <span
+              className="px-3 py-1 rounded-full text-sm font-bold text-white"
+              style={{ backgroundColor: mainColor }}
+            >
+              {TYPE_KO[mainType] || mainType}
+            </span>
+            {subType && (
+              <span
+                className="px-3 py-1 rounded-full text-sm font-bold text-white"
+                style={{ backgroundColor: TYPE_COLORS[subType] || '#aaa' }}
+              >
+                {TYPE_KO[subType] || subType}
+              </span>
+            )}
+          </div>
+        </div>
 
-  {/* 오른쪽: 종족값 */}
-  <div className="flex flex-col justify-center p-8 flex-1">
-    <h2 className="text-lg font-extrabold text-gray-700 mb-4">종족값</h2>
-    {activeForm.stats.map(stat => (
-      <StatBar
-        key={stat.stat.name}
-        label={STAT_KO[stat.stat.name] ?? stat.stat.name}
-        value={stat.base_stat}
-      />
-    ))}
-    <div className="mt-4 text-right text-sm font-bold text-gray-500">
-      합계: <span className="text-gray-800 text-base">{totalStats}</span>
-    </div>
-  </div>
-</div>
+        {/* 오른쪽: 키/몸무게 + 종족값 */}
+        <div className="flex-1 p-8 flex flex-col justify-center gap-6">
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gray-50 rounded-2xl p-4 text-center">
+              <p className="text-xs text-gray-400 font-bold mb-1">키</p>
+              <p className="text-xl font-black text-gray-800">{(activeForm.height / 10).toFixed(1)}m</p>
+            </div>
+            <div className="bg-gray-50 rounded-2xl p-4 text-center">
+              <p className="text-xs text-gray-400 font-bold mb-1">몸무게</p>
+              <p className="text-xl font-black text-gray-800">{(activeForm.weight / 10).toFixed(1)}kg</p>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-black text-gray-900">종족값</h2>
+              <span className="text-sm font-bold text-gray-400">
+                합계 <span className="text-[#005596] text-base">{totalStats}</span>
+              </span>
+            </div>
+            <div className="flex flex-col gap-3">
+              {activeForm.stats.map(s => (
+                <StatBar
+                  key={s.stat.name}
+                  label={STAT_KO[s.stat.name] ?? s.stat.name}
+                  value={s.base_stat}
+                />
+              ))}
+            </div>
+          </div>
+
+        </div>
       </div>
-
     </div>
   );
 };
