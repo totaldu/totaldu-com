@@ -117,10 +117,10 @@ const FORM_LABEL_KO = {
   'paldea':     '팔데아',
   
   // 배틀 기믹
-  'mega': '메가',
-  'mega-x': '메가-X',
-  'mega-y': '메가-Y',
-  'mega-z': '메가-Z',
+  'mega': '메가진화',
+  'mega-x': '메가진화-X',
+  'mega-y': '메가진화-Y',
+  'mega-z': '메가진화-Z',
   'gmax': '거다이맥스',
 };
 
