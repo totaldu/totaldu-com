@@ -129,14 +129,16 @@ const FORM_LABEL_KO = {
   'unbound':            '굴레를 벗어난 후파',
 
   // 춤추새
-  'baile':     '이글이글',
-  'pom-pom':   '파칙파칙',
-  'pau':       '훌라훌라',
-  'sensu':     '하늘하늘',
+  'baile':     '이글이글스타일',
+  'pom-pom':   '파칙파칙스타일',
+  'pau':       '훌라훌라스타일',
+  'sensu':     '하늘하늘스타',
 
   // 루가루암
-  'midnight':  '한밤',
-  'dusk':      '황혼',
+  'midday':    '한낮의 모습'
+  'midnight':  '한밤중의 모습',
+  'dusk':      '황혼의 모습',
+
   'dawn':      '여명',
 
   // 무한다이노
