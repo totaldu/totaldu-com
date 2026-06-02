@@ -146,7 +146,7 @@ const PokedexPage = () => {
         setError('상세 데이터를 불러오지 못했습니다.');
         setDetailLoading(false);
       });
-  }, [currentPage, searchQuery]);
+  }, [currentPage, searchQuery, allPokemon.length]);
 
   // 검색 시 첫 페이지로 리셋
   const handleSearch = useCallback((e) => {
