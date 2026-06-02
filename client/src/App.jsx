@@ -208,7 +208,7 @@ const App = () => {
         {/* 경로에 따른 페이지 렌더링 설정 */}
         <Routes>
           <Route path="/" element={<MainHome articles={articles} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />} />
-          Route path="/pokedex" element={<PokedexLayout />}>
+          <Route path="/pokedex" element={<PokedexLayout />}>
             <Route index element={<PokedexPage />} />
             {/* 추후 추가: <Route path="stats" element={<StatsRankPage />} /> */}
           </Route>
