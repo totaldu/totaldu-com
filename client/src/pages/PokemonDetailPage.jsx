@@ -151,7 +151,7 @@ const PokemonDetailPage = () => {
   const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const fromPage = searchParams.get('page') || 1;
+  const fromPage = Number(searchParams.get('page')) || 1;
 
   useEffect(() => {
     setLoading(true);
@@ -211,12 +211,12 @@ const PokemonDetailPage = () => {
   return (
     <div className="w-full flex flex-col gap-6">
 
-      <Link
-        to="/pokedex"
+      <button
+        onClick={() => navigate(`/pokedex?page=${fromPage}`)}
         className="inline-flex items-center gap-1 text-sm font-bold text-[#005596] hover:underline w-fit"
       >
         ← 도감으로 돌아가기
-      </Link>
+      </button>
 
       {/* 폼 전환 탭 — 2개 이상일 때만 표시 */}
       {forms.length > 1 && (
