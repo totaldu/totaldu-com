@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import koreanNames from '../data/pokemonKoreanNames.json';
 import { getChoseong } from "es-hangul";
+import { getKoreanName } from '../utils/pokemonUtils';
 
 const TYPE_COLORS = {
   normal: '#A8A77A', fire: '#EE8130', water: '#6390F0',
@@ -29,7 +30,7 @@ const PokemonCard = ({ pokemon }) => {
   const mainType = pokemon.types[0]?.type?.name || 'normal';
   const subType = pokemon.types[1]?.type?.name;
   const mainColor = TYPE_COLORS[mainType] || '#A8A77A';
-  const koreanName = koreanNames[pokemon.name];
+  const koreanName = getKoreanName(pokemon.name);
 
   return (
     <Link
@@ -127,7 +128,7 @@ const PokedexPage = () => {
 
   // ✅ 필터링: 한글명 또는 영문명으로 검색
   const filteredPokemon = allPokemon.filter((p) => {
-  const koreanName = koreanNames[p.name] || '';
+  const koreanName = getKoreanName(p.name);
   const englishName = p.name.toLowerCase();
   const query = searchQuery.toLowerCase();
 
