@@ -32,7 +32,7 @@ const PokemonCard = ({ pokemon }) => {
   const koreanName = koreanNames[pokemon.name];
 
   return (
-    <Link   {/* ✅ div → Link */}
+    <Link
       to={`/pokedex/${pokemon.id}`}  {/* ✅ 상세 페이지 경로 */}
       className="group relative flex flex-col items-center rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 overflow-hidden cursor-pointer bg-white"
     >
