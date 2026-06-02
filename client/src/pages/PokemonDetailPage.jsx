@@ -68,10 +68,16 @@ const FORM_LABEL_KO = {
   'primal':      '원시회귀',
   
   // 테오키스
-  'normal':    '노멀폼',
-  'attack':    '어택폼',
-  'defense':   '디펜스폼',
-  'speed':     '스피드',
+  'normal':      '노멀폼',
+  'attack':      '어택폼',
+  'defense':     '디펜스폼',
+  'speed':       '스피드',
+
+  // 불비달마
+  'standard':       '노말모드',
+  'zen':            '달마모드',
+  'galar-standard': '가라르의 모습/노말모드',
+  'galar-zen':      '가라르의 모습/달마모드',
 
   // 케르디오
   'ordinary':  '통상',
