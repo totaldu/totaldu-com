@@ -178,7 +178,7 @@ const PokemonDetailPage = () => {
               {pokemon.stats.map(s => (
                 <StatBar
                   key={s.stat.name}
-                  label={STAT_KO[s.stat.name] ?? s.stat.name}  {/* ✅ label로 통일 */}
+                  label={STAT_KO[s.stat.name] ?? s.stat.name}
                   value={s.base_stat}
                 />
               ))}
