@@ -10,15 +10,19 @@ permissions:
   pages: write
   id-token: write
 
+# ✅ Node.js 24 즉시 강제 적용
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2          # ✅ v4 → v4.2.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.4.0        # ✅ v4 → v4.4.0
         with:
           node-version: '22'
           cache: 'npm'
@@ -46,13 +50,11 @@ jobs:
         run: npm run build --if-present
 
       - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./client/dist
+        uses: actions/upload-pages-artifact@v3.0.1  # ✅ v3 → v3.0.1
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Pages
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4.0.5      # ✅ v4 → v4.0.5
