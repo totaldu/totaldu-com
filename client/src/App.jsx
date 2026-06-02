@@ -3,21 +3,10 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { Search, Menu, User, LogIn, ChevronRight, Info, BookOpen, Globe, FileText, Sparkles, Zap, Timer } from 'lucide-react';
 import TypeChartPage from './pages/TypeChartPage';
 import BattleLayout from './pages/BattleLayout';
+import PokedexLayout from './pages/PokedexLayout';
+import PokedexPage from './pages/PokedexPage';
 
 // --- 1. 상세 페이지 컴포넌트들 ---
-const PokedexPage = () => (
-  <div className="min-h-screen bg-white p-10 md:p-20">
-    <div className="max-w-4xl mx-auto">
-      <Link to="/" className="text-[#005596] font-bold mb-4 inline-block hover:underline">← 메인으로 돌아가기</Link>
-      <h1 className="text-4xl font-black text-gray-900 mb-8 border-b-4 border-red-500 pb-4">포켓몬 도감</h1>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {['#001 이상해꽃', '#004 리자몽', '#007 거북왕'].map(item => (
-          <div key={item} className="p-4 bg-gray-50 rounded-xl border border-gray-200 shadow-sm">{item}</div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
 
 const PartyPage = () => (
   <div className="min-h-screen bg-white p-10 md:p-20">
@@ -32,24 +21,45 @@ const PartyPage = () => (
 );
 
 const BattlePage = () => (
-  <div className="min-h-screen bg-white p-10 md:p-20">
-    <div className="max-w-4xl mx-auto">
-      <Link to="/" className="text-[#005596] font-bold mb-4 inline-block hover:underline">← 메인으로 돌아가기</Link>
-      <h1 className="text-4xl font-black text-gray-900 mb-8 border-b-4 border-blue-500 pb-4">배틀 정보</h1>
-      <ul className="space-y-4">
-        {/* 링크를 통한 상세 페이지 이동 */}
-        <Link to="/battle/type-chart" className="block p-5 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-100 flex justify-between items-center transition-all group">
-          <span className="font-bold text-blue-900 flex items-center gap-3"><Zap size={20} /> 타입 상성표</span>
-          <ChevronRight className="group-hover:translate-x-1 transition-transform" />
-        </Link>
-        <Link to="/battle/speed-rank" className="block p-5 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-100 flex justify-between items-center transition-all group">
-          <span className="font-bold text-blue-900 flex items-center gap-3"><Timer size={20} /> 스피드 종족값 순위</span>
-          <ChevronRight className="group-hover:translate-x-1 transition-transform" />
-        </Link>
-      </ul>
+  <div className="w-full h-full">
+    <h1 className="text-2xl font-black text-gray-900 mb-2">배틀 정보</h1>
+    <p className="text-gray-400 text-sm mb-8 font-medium">원하는 항목을 선택하세요.</p>
+
+    {/* ✅ 2열 그리드로 카드를 화면 너비에 맞게 꽉 채움 */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+
+      <Link
+        to="/battle/type-chart"
+        className="group flex flex-col justify-between p-8 bg-blue-50 hover:bg-blue-100 rounded-2xl border border-blue-100 transition-all hover:shadow-md"
+      >
+        <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-6">
+          <Zap size={24} color="white" />
+        </div>
+        <div>
+          <span className="font-black text-blue-900 text-xl block mb-2">타입 상성표</span>
+          <span className="text-blue-600 text-sm font-medium">공격/방어 타입 상성을 한눈에 확인</span>
+        </div>
+        <ChevronRight className="mt-6 group-hover:translate-x-1 transition-transform text-blue-400" />
+      </Link>
+
+      <Link
+        to="/battle/speed-rank"
+        className="group flex flex-col justify-between p-8 bg-teal-50 hover:bg-teal-100 rounded-2xl border border-teal-100 transition-all hover:shadow-md"
+      >
+        <div className="w-12 h-12 bg-[#0a8d87] rounded-xl flex items-center justify-center mb-6">
+          <Timer size={24} color="white" />
+        </div>
+        <div>
+          <span className="font-black text-teal-900 text-xl block mb-2">스피드 종족값 순위</span>
+          <span className="text-teal-600 text-sm font-medium">전 포켓몬 스피드 스탯 랭킹 조회</span>
+        </div>
+        <ChevronRight className="mt-6 group-hover:translate-x-1 transition-transform text-teal-400" />
+      </Link>
+
     </div>
   </div>
 );
+
 
 // --- 신규 추가: 스피드 순위 상세 페이지 ---
 const SpeedRankPage = () => (
@@ -87,13 +97,13 @@ const CommunityPage = () => (
 // --- 2. 메인 홈 화면 ---
 const MainHome = ({ articles, searchQuery, setSearchQuery }) => (
   <>
-    <section className="relative bg-gradient-to-br from-[#0a8d87] via-[#15b291] to-[#005596] py-24 px-4 overflow-hidden">
+    <section className="relative w-full bg-gradient-to-br from-[#0a8d87] via-[#15b291] to-[#005596] min-h-[calc(100vh-80px)] px-4 overflow-hidden flex items-center">
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-white rounded-full blur-3xl"></div>
         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-cyan-300 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative max-w-4xl mx-auto text-center">
+      <div className="relative max-w-4xl mx-auto text-center w-full">
         <h2 className="text-4xl md:text-5xl font-black text-white mb-4 drop-shadow-md">무엇을 도와드릴까요?</h2>
         <p className="text-white/80 text-lg mb-12 font-medium">데이터 기반의 프라이빗 위키 시스템</p>
 
@@ -175,8 +185,8 @@ const App = () => {
         <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 h-20 flex items-center sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 w-full flex justify-between items-center">
             <Link to="/" className="text-2xl font-black text-[#005596] flex items-center gap-2">
-              <span className="bg-[#005596] text-white px-3 py-1 rounded-xl text-sm tracking-widest uppercase">Private</span>
-              <span>WIKI</span>
+              <span className="bg-[#005596] text-white px-3 py-1 rounded-xl text-sm tracking-widest uppercase">Total</span>
+              <span>DU</span>
             </Link>
 
             <nav className="hidden lg:flex items-center space-x-10 font-bold text-gray-600">
@@ -198,7 +208,10 @@ const App = () => {
         {/* 경로에 따른 페이지 렌더링 설정 */}
         <Routes>
           <Route path="/" element={<MainHome articles={articles} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />} />
-          <Route path="/pokedex" element={<PokedexPage />} />
+          <Route path="/pokedex" element={<PokedexLayout />}>
+            <Route index element={<PokedexPage />} />
+            {/* 추후 추가: <Route path="stats" element={<StatsRankPage />} /> */}
+          </Route>
           <Route path="/party" element={<PartyPage />} />
 
           {/* BattleLayout을 부모로 하고 하위 라우트를 중첩합니다 */}
@@ -212,7 +225,7 @@ const App = () => {
         </Routes>
 
         <footer className="mt-auto py-12 bg-white text-center border-t border-gray-100">
-          <p className="text-gray-400 text-sm font-medium">© 2024 TotalDU Private Wiki System. All Rights Reserved.</p>
+          <p className="text-gray-400 text-sm font-medium"> 2026 TotalDU </p>
         </footer>
       </div>
     </BrowserRouter>
