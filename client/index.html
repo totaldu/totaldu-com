@@ -4,16 +4,19 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ✅ 기존 sessionStorage 방식 → ?p= 방식으로 교체 -->
     <script>
-      (function () {
-        var redirect = sessionStorage.redirect;
-        delete sessionStorage.redirect;
-        if (redirect && redirect !== location.href) {
-          history.replaceState(null, null, redirect);
+      (function() {
+        var params = new URLSearchParams(window.location.search);
+        var p = params.get('p');
+        var q = params.get('q');
+        if (p) {
+          var url = decodeURIComponent(p) + (q ? '#' + q : '');
+          window.history.replaceState(null, null, url);
         }
       })();
     </script>
-
 
     <title>TotalDU</title>
   </head>
