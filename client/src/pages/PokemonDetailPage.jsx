@@ -58,6 +58,11 @@ const FORM_LABEL_KO = {
   'paldea-combat-breed': '팔데아-컴뱃종',
   'paldea-blaze-breed':  '팔데아-블레이즈종',
   'paldea-aqua-breed':   '팔데아-워터종',
+
+  // 캐스퐁
+  'sunny':       '태양',
+  'rainy':       '빗방',
+  'snowy':       '설운',
   
   // 테오키스
   'normal':    '노말',
