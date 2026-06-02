@@ -33,7 +33,7 @@ const PokemonCard = ({ pokemon }) => {
 
   return (
     <Link
-      to={`/pokedex/${pokemon.id}`}  {/* ✅ 상세 페이지 경로 */}
+      to={`/pokedex/${pokemon.id}`}
       className="group relative flex flex-col items-center rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 overflow-hidden cursor-pointer bg-white"
     >
       <div
