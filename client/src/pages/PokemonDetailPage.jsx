@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import koreanNames from '../data/pokemonKoreanNames.json';
+import { getKoreanName } from '../utils/pokemonUtils';
 
 const TYPE_COLORS = {
   normal: '#A8A77A', fire: '#EE8130', water: '#6390F0',
@@ -54,12 +55,6 @@ const FORM_LABEL_KO = {
   'midnight':  '(한밤)',
   'dusk':      '(황혼)',
   'dawn':      '(여명)',
-};
-
-const getKoreanName = (name) => {
-  if (koreanNames[name]) return koreanNames[name];
-  const baseName = name.split('-')[0];
-  return koreanNames[baseName] ?? name;
 };
 
 const getFormLabel = (formName) => {
