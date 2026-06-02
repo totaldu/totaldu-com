@@ -52,25 +52,25 @@ const FORM_LABEL_KO = {
 
   // 마임맨
   'mime':        '마임맨',
-  'mime-galar':  '가라르',
+  'mime-galar':  '가라르의 모습',
 
   // 켄타로스
-  'paldea-combat-breed': '팔데아-컴뱃종',
-  'paldea-blaze-breed':  '팔데아-블레이즈종',
-  'paldea-aqua-breed':   '팔데아-워터종',
+  'paldea-combat-breed': '팔데아의 모습-컴뱃종',
+  'paldea-blaze-breed':  '팔데아의 모습-블레이즈종',
+  'paldea-aqua-breed':   '팔데아의 모습-워터종',
 
   // 캐스퐁
-  'sunny':       '태양',
-  'rainy':       '빗방울',
-  'snowy':       '설운',
+  'sunny':       '태양의 모습',
+  'rainy':       '빗방울의 모습',
+  'snowy':       '설운의 모습',
 
   // 가이오가, 그란돈
   'primal':      '원시회귀',
   
   // 테오키스
-  'normal':    '노말',
-  'attack':    '어택',
-  'defense':   '디펜스',
+  'normal':    '노멀폼',
+  'attack':    '어택폼',
+  'defense':   '디펜스폼',
   'speed':     '스피드',
 
   // 케르디오
@@ -78,19 +78,19 @@ const FORM_LABEL_KO = {
   'resolute':  '각오',
   
   // 디아루가, 펄기아, 기라티나
-  'origin':    '오리진',
+  'origin':    '오리진폼',
   'altered':   '어나더',
   
   // 쉐이미
-  'land':      '랜드',
+  'land':      '랜드폼',
   'sky':       '스카이',
 
-  //쉐이미
-  'heat':      '히트',
-  'wash':      '워시',
-  'frost':     '프로스트',
-  'fan':       '스핀',
-  'mow':       '커트',
+  // 로토무
+  'heat':      '히트로토무',
+  'wash':      '워시로토무',
+  'frost':     '프로스트로토무',
+  'fan':       '스핀로토무',
+  'mow':       '커트로토',
 
   // 메로엣타
   'aria':      '보이스',
@@ -137,10 +137,10 @@ const FORM_LABEL_KO = {
   'female':      '암컷의 모습',
   
   // 리전폼
-  'alola':      '알로라',
-  'galar':      '가라르',
-  'hisui':      '히스이',
-  'paldea':     '팔데아',
+  'alola':      '알로라의 모습',
+  'galar':      '가라르의 모습',
+  'hisui':      '히스이의 모습',
+  'paldea':     '팔데아의 모',
   
   // 배틀 기믹
   'mega': '메가진화',
