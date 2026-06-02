@@ -117,6 +117,7 @@ const FORM_LABEL_KO = {
   'mega': '메가',
   'mega-x': '메가-X',
   'mega-y': '메가-Y',
+  'mega-z': '메가-Z',
   'gmax': '거다이맥스',
 };
 
