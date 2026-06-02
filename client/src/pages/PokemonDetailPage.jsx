@@ -139,6 +139,10 @@ const FORM_LABEL_KO = {
   'midnight':  '한밤중의 모습',
   'dusk':      '황혼의 모습',
 
+  // 약러리
+  'solo':      '단독의 모습',
+  'school':    '군집의 모습',
+
   'dawn':      '여명',
 
   // 무한다이노
