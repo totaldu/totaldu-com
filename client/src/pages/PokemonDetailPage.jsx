@@ -29,23 +29,11 @@ const STAT_KO = {
   "speed": "스피드",
 };
 
-{data.stats.map((stat) => (
-  <StatBar
-    key={stat.stat.name}
-    label={STAT_KO[stat.stat.name] ?? stat.stat.name}
-    value={stat.base_stat}
-  />
-))}
-
-// 능력치 최대값 기준 (바 길이 계산용)
-const STAT_MAX = {
-  hp: 255, attack: 190, defense: 230,
-  'special-attack': 194, 'special-defense': 230, speed: 200,
-};
+// ✅ 위에 떠있던 data.stats.map() 블록 완전 삭제
 
 const StatBar = ({ label, value }) => {
   const MAX_STAT = 255;
-  const percentage = Math.min((value / MAX_STAT) * 100, 100); // 최대 100%로 클램핑
+  const percentage = Math.min((value / MAX_STAT) * 100, 100);
 
   const getColor = (v) => {
     if (v >= 120) return "bg-green-500";
@@ -56,17 +44,12 @@ const StatBar = ({ label, value }) => {
 
   return (
     <div className="flex items-center gap-3 mb-2">
-      {/* 라벨 */}
       <span className="w-20 text-right text-sm text-gray-500 shrink-0">
         {label}
       </span>
-
-      {/* 수치 */}
       <span className="w-8 text-sm font-bold text-gray-800 shrink-0">
         {value}
       </span>
-
-      {/* 막대 — 전체 너비 기준으로 percentage만큼 채움 */}
       <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
         <div
           className={`h-3 rounded-full ${getColor(value)}`}
@@ -76,7 +59,6 @@ const StatBar = ({ label, value }) => {
     </div>
   );
 };
-
 
 const PokemonDetailPage = () => {
   const { id } = useParams();
@@ -127,7 +109,6 @@ const PokemonDetailPage = () => {
   return (
     <div className="w-full flex flex-col gap-6">
 
-      {/* 뒤로가기 */}
       <Link
         to="/pokedex"
         className="inline-flex items-center gap-1 text-sm font-bold text-[#005596] hover:underline w-fit"
@@ -135,10 +116,8 @@ const PokemonDetailPage = () => {
         ← 도감으로 돌아가기
       </Link>
 
-      {/* 메인 카드 */}
       <div className="flex flex-col md:flex-row gap-6 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
 
-        {/* 좌측: 일러스트 */}
         <div
           className="md:w-80 flex flex-col items-center justify-center p-10 shrink-0"
           style={{ background: `linear-gradient(135deg, ${mainColor}33, ${mainColor}11)` }}
@@ -175,10 +154,8 @@ const PokemonDetailPage = () => {
           </div>
         </div>
 
-        {/* 우측: 능력치 */}
         <div className="flex-1 p-8 flex flex-col justify-center gap-6">
 
-          {/* 기본 정보 */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-gray-50 rounded-2xl p-4 text-center">
               <p className="text-xs text-gray-400 font-bold mb-1">키</p>
@@ -190,7 +167,6 @@ const PokemonDetailPage = () => {
             </div>
           </div>
 
-          {/* 종족값 */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-black text-gray-900">종족값</h2>
@@ -202,7 +178,7 @@ const PokemonDetailPage = () => {
               {pokemon.stats.map(s => (
                 <StatBar
                   key={s.stat.name}
-                  statName={s.stat.name}
+                  label={STAT_KO[s.stat.name] ?? s.stat.name}  {/* ✅ label로 통일 */}
                   value={s.base_stat}
                 />
               ))}
