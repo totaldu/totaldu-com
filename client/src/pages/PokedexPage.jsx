@@ -1,6 +1,6 @@
 // client/src/pages/PokedexPage.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom'; // ✅ useSearchParams 추가
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import koreanNames from '../data/pokemonKoreanNames.json';
 import { getChoseong } from "es-hangul";
@@ -25,8 +25,8 @@ const TYPE_KO = {
 
 const ITEMS_PER_PAGE = 30;
 
-// ✅ PokemonCard: 한글명 메인 + 영문명 서브
-const PokemonCard = ({ pokemon }) => {
+// ✅ currentPage를 props로 받아서 Link에 포함
+const PokemonCard = ({ pokemon, currentPage }) => {
   const mainType = pokemon.types[0]?.type?.name || 'normal';
   const subType = pokemon.types[1]?.type?.name;
   const mainColor = TYPE_COLORS[mainType] || '#A8A77A';
@@ -34,7 +34,7 @@ const PokemonCard = ({ pokemon }) => {
 
   return (
     <Link
-      to={`/pokedex/${pokemon.id}`}
+      to={`/pokedex/${pokemon.id}?page=${currentPage}`} // ✅ 현재 페이지 전달
       className="group relative flex flex-col items-center rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 overflow-hidden cursor-pointer bg-white"
     >
       <div
@@ -56,19 +56,14 @@ const PokemonCard = ({ pokemon }) => {
         <p className="text-[11px] text-gray-400 font-mono font-bold">
           #{String(pokemon.id).padStart(4, '0')}
         </p>
-
-        {/* ✅ 한글명 메인 */}
         <p className="text-sm font-black text-gray-800 truncate">
           {koreanName || pokemon.name}
         </p>
-
-        {/* ✅ 영문명 서브 (한글명 없으면 숨김) */}
         {koreanName && (
           <p className="text-[10px] text-gray-400 capitalize truncate -mt-0.5">
             {pokemon.name}
           </p>
         )}
-
         <div className="flex justify-center gap-1 mt-1.5 mb-1">
           <span
             className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
@@ -103,15 +98,18 @@ const SkeletonCard = () => (
 );
 
 const PokedexPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams(); // ✅ 추가
+
   const [allPokemon, setAllPokemon] = useState([]);
   const [pageData, setPageData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(
+    Number(searchParams.get('page')) || 1 // ✅ URL에서 초기 페이지 읽기
+  );
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 1. 최초 마운트: 전체 목록 fetch
   useEffect(() => {
     setLoading(true);
     fetch('https://pokeapi.co/api/v2/pokemon?limit=1025&offset=0')
@@ -126,25 +124,19 @@ const PokedexPage = () => {
       });
   }, []);
 
-  // ✅ 필터링: 한글명 또는 영문명으로 검색
   const filteredPokemon = allPokemon.filter((p) => {
-  const koreanName = getKoreanName(p.name);
-  const englishName = p.name.toLowerCase();
-  const query = searchQuery.toLowerCase();
+    const koreanName = getKoreanName(p.name);
+    const englishName = p.name.toLowerCase();
+    const query = searchQuery.toLowerCase();
 
-  // 1. 영어 이름 검색
-  const matchEn = englishName.includes(query);
+    const matchEn = englishName.includes(query);
+    const matchKo = koreanName.includes(query);
+    const matchChosung = koreanName
+      ? getChoseong(koreanName).includes(query)
+      : false;
 
-  // 2. 한글 완성형 검색 (예: "이상해")
-  const matchKo = koreanName.includes(query);
-
-  // 3. 초성 검색 (예: "ㅇㅅㅎ" → 이상해씨)
-  const matchChosung = koreanName
-    ? getChoseong(koreanName).includes(query)
-    : false;
-
-  return matchEn || matchKo || matchChosung;
-});
+    return matchEn || matchKo || matchChosung;
+  });
 
   const totalPages = Math.ceil(filteredPokemon.length / ITEMS_PER_PAGE);
   const currentSlice = filteredPokemon.slice(
@@ -152,7 +144,6 @@ const PokedexPage = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  // 2. 페이지/검색/전체목록 로드 시 상세 fetch
   useEffect(() => {
     if (currentSlice.length === 0) { setPageData([]); return; }
     setDetailLoading(true);
@@ -170,10 +161,13 @@ const PokedexPage = () => {
   const handleSearch = useCallback((e) => {
     setSearchQuery(e.target.value);
     setCurrentPage(1);
+    setSearchParams({ page: 1 }); // ✅ 검색 시 URL도 1페이지로 초기화
   }, []);
 
+  // ✅ 페이지 이동 시 URL도 함께 업데이트
   const goToPage = (page) => {
     setCurrentPage(page);
+    setSearchParams({ page });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -188,8 +182,6 @@ const PokedexPage = () => {
 
   return (
     <div className="w-full flex flex-col gap-6">
-
-      {/* 헤더 */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-gray-900">포켓몬 도감</h1>
@@ -202,7 +194,7 @@ const PokedexPage = () => {
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="이름으로 검색 (한글/영문)..." // ✅ 수정
+            placeholder="이름으로 검색 (한글/영문)..."
             value={searchQuery}
             onChange={handleSearch}
             className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0a8d87]/40 shadow-sm"
@@ -210,14 +202,12 @@ const PokedexPage = () => {
         </div>
       </div>
 
-      {/* 에러 */}
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 font-medium text-sm">
           ⚠️ {error}
         </div>
       )}
 
-      {/* 그리드 */}
       {loading ? (
         <div className="grid grid-cols-6 gap-3">
           {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => <SkeletonCard key={i} />)}
@@ -231,12 +221,17 @@ const PokedexPage = () => {
         <div className="grid grid-cols-6 gap-3">
           {detailLoading
             ? Array.from({ length: currentSlice.length }).map((_, i) => <SkeletonCard key={i} />)
-            : pageData.map(pokemon => <PokemonCard key={pokemon.id} pokemon={pokemon} />)
+            : pageData.map(pokemon => (
+                <PokemonCard
+                  key={pokemon.id}
+                  pokemon={pokemon}
+                  currentPage={currentPage} // ✅ 현재 페이지 전달
+                />
+              ))
           }
         </div>
       )}
 
-      {/* 페이지네이션 */}
       {!loading && totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-2">
           <button
