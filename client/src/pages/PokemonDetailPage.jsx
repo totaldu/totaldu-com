@@ -79,28 +79,32 @@ const FORM_LABEL_KO = {
   'galar-standard': '가라르의 모습/노말모드',
   'galar-zen':      '가라르의 모습/달마모드',
 
+  // 토네로스, 볼트로스, 랜드로스
+  'incarnate':      '화신폼',
+  'therian':        '영물폼',
+
   // 케르디오
-  'ordinary':  '통상',
-  'resolute':  '각오',
+  'ordinary':  '통상의 모습',
+  'resolute':  '각오의 모습',
   
   // 디아루가, 펄기아, 기라티나
   'origin':    '오리진폼',
-  'altered':   '어나더',
+  'altered':   '어나더폼',
   
   // 쉐이미
   'land':      '랜드폼',
-  'sky':       '스카이',
+  'sky':       '스카이폼',
 
   // 로토무
   'heat':      '히트로토무',
   'wash':      '워시로토무',
   'frost':     '프로스트로토무',
   'fan':       '스핀로토무',
-  'mow':       '커트로토',
+  'mow':       '커트로토무',
 
   // 메로엣타
-  'aria':      '보이스',
-  'pirouette': '스텝',
+  'aria':      '보이스폼',
+  'pirouette': '스텝폼',
 
   // 큐레무
   'black':     '블랙큐레무',
