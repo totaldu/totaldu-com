@@ -135,9 +135,9 @@ const FORM_LABEL_KO = {
   'sensu':     '하늘하늘스타일',
 
   // 루가루암
-  'midday':    '한낮의 모습'
+  'midday':    '한낮의 모습',
   'midnight':  '한밤중의 모습',
-  'dusk':      '황혼의 모습',
+  'dusk':      '황혼', // 네크로즈마와 공유
 
   // 약어리
   'solo':      '단독의 모습',
@@ -165,7 +165,9 @@ const FORM_LABEL_KO = {
   'totem-disguised': '주인 포켓몬-둔갑한 모습',
   'totem-busted':    '주인 포켓몬-들킨 모습',
 
-  'dawn':      '여명',
+  // 네크로즈마
+  'dawn':            '새벽',
+  'ultra':           '울트라네크로즈마',
 
   // 무한다이노
   'eternamax': '무한다이맥스',
