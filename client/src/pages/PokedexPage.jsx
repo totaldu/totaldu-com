@@ -29,10 +29,13 @@ const PokemonCard = ({ pokemon }) => {
   const mainType = pokemon.types[0]?.type?.name || 'normal';
   const subType = pokemon.types[1]?.type?.name;
   const mainColor = TYPE_COLORS[mainType] || '#A8A77A';
-  const koreanName = koreanNames[pokemon.name]; // ✅ 한글명 조회
+  const koreanName = koreanNames[pokemon.name];
 
   return (
-    <div className="group relative flex flex-col items-center rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 overflow-hidden cursor-pointer bg-white">
+    <Link   {/* ✅ div → Link */}
+      to={`/pokedex/${pokemon.id}`}  {/* ✅ 상세 페이지 경로 */}
+      className="group relative flex flex-col items-center rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 overflow-hidden cursor-pointer bg-white"
+    >
       <div
         className="w-full h-24 flex items-center justify-center"
         style={{ background: `linear-gradient(135deg, ${mainColor}33, ${mainColor}11)` }}
@@ -82,7 +85,7 @@ const PokemonCard = ({ pokemon }) => {
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
