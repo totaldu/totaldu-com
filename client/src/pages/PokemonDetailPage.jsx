@@ -115,6 +115,9 @@ const FORM_LABEL_KO = {
   'complete':           '퍼펙트폼',
   '10':                 '10%폼',
 
+  // 후파
+  'unbound':            '굴레를 벗어난 후파',
+
   // 춤추새
   'baile':     '이글이글',
   'pom-pom':   '파칙파칙',
