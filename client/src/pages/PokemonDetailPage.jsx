@@ -151,8 +151,6 @@ const FORM_LABEL_KO = {
   // 네크로즈마
   'dawn':            '새벽의 날개',
   'ultra':           '울트라네크로즈마',
-  'dusk-mane':       '황혼의 갈기',
-  'dawn-wings':      '새벽의 날개',
 
   // 마기아나
   'original':        '500년 전의 색',
@@ -255,13 +253,12 @@ const FORM_LABEL_KO = {
   'gmax':   '거다이맥스',
 };
 
-// ✅ 숨길 폼의 suffix를 정확히 일치시키는 Set
 const HIDDEN_FORM_SUFFIXES = new Set([
-  'busted',              // 미미큐 깨진 폼
-  'totem-busted',        // 미미큐 주인-깨진 폼
-  'battle-bond',         // 결속 게코가
-  '50-power-construct',  // 지가르데 50% (파워컨스트럭트) → 기본폼과 동일 외형
-  '10',                  // 10%폼
+  'busted',
+  'totem-busted',
+  'battle-bond',
+  '50-power-construct',
+  '10',
   'orange-meteor',
   'yellow-meteor',
   'green-meteor',
@@ -272,7 +269,6 @@ const HIDDEN_FORM_SUFFIXES = new Set([
   'droopy-mega',
 ]);
 
-// ✅ suffix 기반 정확한 매칭 (includes 대신 Set.has 사용 → '10'이 '10-power-construct' 오매칭 방지)
 const isHiddenForm = (formName) => {
   const parts = formName.split('-');
   const suffix = parts.slice(1).join('-');
@@ -286,25 +282,43 @@ const getFormLabel = (formName) => {
   return FORM_LABEL_KO[suffix] ?? suffix;
 };
 
-const StatBar = ({ label, value }) => {
+// ✅ initialValue: 애니메이션 시작점 (첫 로드=0, 폼 전환=이전 폼 스탯값)
+const StatBar = ({ label, value, initialValue = 0 }) => {
   const MAX_STAT = 255;
-  const percentage = Math.min((value / MAX_STAT) * 100, 100);
+  const targetPct  = Math.min((value        / MAX_STAT) * 100, 100);
+  const initialPct = Math.min((initialValue / MAX_STAT) * 100, 100);
+
+  const [width, setWidth] = useState(initialPct); // ✅ 시작점에서 출발
+
+  useEffect(() => {
+    // ✅ 브라우저가 initialPct로 그린 직후 targetPct로 전환 → CSS transition 발동
+    const raf = requestAnimationFrame(() => {
+      const timer = setTimeout(() => setWidth(targetPct), 20);
+      return () => clearTimeout(timer);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []); // ✅ 마운트 시 1회만 실행 (key 변경 = 리마운트 = 재실행)
 
   const getColor = (v) => {
-    if (v >= 120) return "bg-green-500";
-    if (v >= 80)  return "bg-blue-500";
-    if (v >= 50)  return "bg-yellow-400";
-    return "bg-red-500";
+    if (v >= 120) return '#22c55e';
+    if (v >= 80)  return '#3b82f6';
+    if (v >= 50)  return '#facc15';
+    return '#ef4444';
   };
 
   return (
-    <div className="flex items-center gap-3 mb-2">
+    <div className="flex items-center gap-3">
       <span className="w-20 text-right text-sm text-gray-500 shrink-0">{label}</span>
       <span className="w-8 text-sm font-bold text-gray-800 shrink-0">{value}</span>
       <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
         <div
-          className={`h-3 rounded-full ${getColor(value)}`}
-          style={{ width: `${percentage}%` }}
+          style={{
+            height: '100%',
+            borderRadius: '9999px',
+            backgroundColor: getColor(value),
+            width: `${width}%`,
+            transition: 'width 700ms cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
         />
       </div>
     </div>
@@ -316,6 +330,7 @@ const PokemonDetailPage = () => {
   const [pokemon, setPokemon] = useState(null);
   const [forms, setForms] = useState([]);
   const [activeForm, setActiveForm] = useState(null);
+  const [prevStats, setPrevStats] = useState({}); // ✅ 폼 전환 직전 스탯 스냅샷
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
@@ -333,6 +348,7 @@ const PokemonDetailPage = () => {
       })
       .then(async (data) => {
         setPokemon(data);
+        setPrevStats({}); // ✅ 포켓몬 자체가 바뀌면 prevStats 초기화 → 0부터 시작
         setActiveForm(data);
 
         const speciesRes = await fetch(data.species.url);
@@ -343,8 +359,6 @@ const PokemonDetailPage = () => {
           const formDetails = await Promise.all(
             varieties.map(v => fetch(v.pokemon.url).then(r => r.json()))
           );
-
-          // ✅ 핵심 수정: 필터 실제 적용
           const visibleForms = formDetails.filter(f => !isHiddenForm(f.name));
           setForms(visibleForms);
         } else {
@@ -358,6 +372,15 @@ const PokemonDetailPage = () => {
         setLoading(false);
       });
   }, [id]);
+
+  // ✅ 폼 전환: 현재 스탯을 prevStats에 저장 후 activeForm 교체
+  const handleFormChange = (form) => {
+    if (!activeForm || form.name === activeForm.name) return;
+    const snapshot = {};
+    activeForm.stats.forEach(s => { snapshot[s.stat.name] = s.base_stat; });
+    setPrevStats(snapshot);
+    setActiveForm(form);
+  };
 
   if (loading) return (
     <div className="flex items-center justify-center h-64 text-gray-400 font-bold animate-pulse">
@@ -390,13 +413,12 @@ const PokemonDetailPage = () => {
         ← 도감으로 돌아가기
       </button>
 
-      {/* 폼 전환 탭 — 2개 이상일 때만 표시 */}
       {forms.length > 1 && (
         <div className="flex gap-2 flex-wrap">
           {forms.map(form => (
             <button
               key={form.name}
-              onClick={() => setActiveForm(form)}
+              onClick={() => handleFormChange(form)} // ✅ setActiveForm → handleFormChange
               className={`px-4 py-1.5 rounded-full text-sm font-bold border transition-all ${
                 activeForm.name === form.name
                   ? 'bg-[#005596] text-white border-[#005596]'
@@ -409,10 +431,8 @@ const PokemonDetailPage = () => {
         </div>
       )}
 
-      {/* 메인 카드 */}
       <div className="flex flex-col md:flex-row gap-6 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
 
-        {/* 왼쪽: 이미지 + 이름 + 타입 */}
         <div
           className="md:w-80 flex flex-col items-center justify-center p-10 shrink-0"
           style={{ background: `linear-gradient(135deg, ${mainColor}33, ${mainColor}11)` }}
@@ -449,7 +469,6 @@ const PokemonDetailPage = () => {
           </div>
         </div>
 
-        {/* 오른쪽: 키/몸무게 + 종족값 */}
         <div className="flex-1 p-8 flex flex-col justify-center gap-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-gray-50 rounded-2xl p-4 text-center">
@@ -472,9 +491,10 @@ const PokemonDetailPage = () => {
             <div className="flex flex-col gap-3">
               {activeForm.stats.map(s => (
                 <StatBar
-                  key={s.stat.name}
+                  key={`${activeForm.name}-${s.stat.name}`} // ✅ 폼 바뀌면 리마운트
                   label={STAT_KO[s.stat.name] ?? s.stat.name}
                   value={s.base_stat}
+                  initialValue={prevStats[s.stat.name] ?? 0} // ✅ 이전 폼 값에서 시작
                 />
               ))}
             </div>
