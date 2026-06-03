@@ -62,13 +62,19 @@ const getNameFontSize = (name) => {
 
 const getFormBadgeInfo = (formName) => {
   const suffix = formName.split('-').slice(1).join('-');
-  if (suffix.startsWith('mega'))      return { type: 'mega',      label: 'MEGA',   color: '#8B5CF6' };
-  if (suffix.startsWith('gmax'))      return { type: 'gmax',      label: 'G-MAX',  color: '#DC2626' };
-  if (suffix.startsWith('primal'))    return { type: 'primal',    label: 'PRIMAL', color: '#D97706' };
-  if (suffix.startsWith('ultra'))     return { type: 'ultra',     label: 'ULTRA',  color: '#0EA5E9' };
-  if (suffix.startsWith('eternamax')) return { type: 'eternamax', label: 'E-MAX',  color: '#DC2626' };
+  if (suffix.startsWith('mega'))      return { type: 'mega',      label: 'MEGA',   color: '#8B5CF6', useSprite: true  };
+  if (suffix.startsWith('gmax'))      return { type: 'gmax',      label: 'G-MAX',  color: '#DC2626', useSprite: false };
+  if (suffix.startsWith('primal'))    return { type: 'primal',    label: 'PRIMAL', color: '#D97706', useSprite: false };
+  if (suffix.startsWith('ultra'))     return { type: 'ultra',     label: 'ULTRA',  color: '#0EA5E9', useSprite: false };
+  if (suffix.startsWith('eternamax')) return { type: 'eternamax', label: 'E-MAX',  color: '#DC2626', useSprite: false };
   return null;
 };
+
+// ✅ 폼 스프라이트 URL 가져오기 (front_default 우선, 없으면 official-artwork)
+const getFormSprite = (form) =>
+  form.sprites?.front_default
+  || form.sprites?.other?.['official-artwork']?.front_default
+  || null;
 
 const StatBar = ({ label, value, initialValue = 0 }) => {
   const MAX_STAT = 255;
@@ -188,9 +194,12 @@ const PokemonDetailPage = () => {
     || activeForm.sprites?.front_default
     || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activeForm.id}.png`;
 
-  const baseForm     = forms[0] ?? pokemon;
-  const specialForms = forms.filter(f => getFormBadgeInfo(f.name) !== null);
+  const baseForm        = forms[0] ?? pokemon;
+  const specialForms    = forms.filter(f => getFormBadgeInfo(f.name) !== null);
   const activeFormBadge = getFormBadgeInfo(activeForm.name);
+
+  // ✅ 버튼 크기 상수 (한 곳에서 관리)
+  const BTN_SIZE = 48;
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -202,7 +211,6 @@ const PokemonDetailPage = () => {
         ← 도감으로 돌아가기
       </button>
 
-      {/* 상단 탭 — 메가/거다이 제외한 폼이 2개 이상일 때만 */}
       {forms.filter(f => !getFormBadgeInfo(f.name)).length > 1 && (
         <div className="flex gap-2 flex-wrap">
           {forms.map(form => {
@@ -231,53 +239,58 @@ const PokemonDetailPage = () => {
           className="md:w-80 flex flex-col items-center justify-center p-10 shrink-0"
           style={{ background: `linear-gradient(135deg, ${mainColor}33, ${mainColor}11)` }}
         >
-          {/* ✅ 이미지 컨테이너 — overflow-visible 로 버튼이 밖으로 삐져나와도 OK */}
-          <div className="relative w-56 h-56" style={{ overflow: 'visible' }}>
+          {/* ✅ 이미지 + 오버레이 버튼 래퍼 */}
+          <div
+            className="relative"
+            style={{
+              width:    '224px',  /* w-56 */
+              height:   '224px',
+              overflow: 'visible',
+            }}
+          >
             <img
               src={officialArt}
               alt={displayName}
               className="w-full h-full object-contain drop-shadow-xl"
             />
 
-            {/* ✅ 오버레이 버튼 — 우상단, 가로 방향(row-reverse)으로 쌓임 */}
+            {/* ✅ 오버레이 버튼 — 우상단, 가로 배치, 이미지 오른쪽 밖으로 돌출 */}
             {specialForms.length > 0 && (
               <div
                 style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  display: 'flex',
-                  flexDirection: 'row',   /* ← 가로 배치 */
-                  alignItems: 'center',
-                  gap: '6px',
-                  transform: 'translateY(-50%)',  /* ← 이미지 상단 경계에 걸치게 */
+                  position:       'absolute',
+                  top:            `${-(BTN_SIZE / 2)}px`, /* 이미지 상단에 걸치기 */
+                  right:          `${-(BTN_SIZE / 2)}px`, /* ✅ 이미지 오른쪽 밖으로 돌출 */
+                  display:        'flex',
+                  flexDirection:  'row',
+                  alignItems:     'center',
+                  gap:            '8px',
                 }}
               >
-                {/* 기본 폼 복귀 버튼 (특수 폼 활성 시에만 표시) */}
+                {/* 기본 폼 복귀 버튼 */}
                 {activeFormBadge && (
                   <button
                     onClick={() => handleFormChange(baseForm)}
                     title="기본 폼으로 돌아가기"
                     style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.95)',
-                      border: '1.5px solid #D1D5DB',
-                      backdropFilter: 'blur(4px)',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      transition: 'transform 0.15s ease',
-                      flexShrink: 0,
+                      width:           `${BTN_SIZE}px`,
+                      height:          `${BTN_SIZE}px`,
+                      borderRadius:    '50%',
+                      background:      'rgba(255,255,255,0.95)',
+                      border:          '1.5px solid #D1D5DB',
+                      backdropFilter:  'blur(6px)',
+                      boxShadow:       '0 2px 8px rgba(0,0,0,0.14)',
+                      display:         'flex',
+                      alignItems:      'center',
+                      justifyContent:  'center',
+                      cursor:          'pointer',
+                      transition:      'transform 0.15s ease',
+                      flexShrink:      0,
                     }}
                     onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.12)'}
                     onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                   >
-                    {/* 포켓볼 아이콘 */}
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="10" stroke="#374151" strokeWidth="2"/>
                       <path d="M2 12h20" stroke="#374151" strokeWidth="2"/>
                       <circle cx="12" cy="12" r="3" fill="#374151"/>
@@ -285,40 +298,66 @@ const PokemonDetailPage = () => {
                   </button>
                 )}
 
-                {/* 특수 폼 버튼들 — 왼쪽에서 오른쪽 순서로 */}
+                {/* 특수 폼 버튼들 */}
                 {specialForms.map(form => {
                   const badge    = getFormBadgeInfo(form.name);
                   const isActive = activeForm.name === form.name;
+                  const sprite   = getFormSprite(form); // ✅ 해당 폼의 스프라이트
+
                   return (
                     <button
                       key={form.name}
                       onClick={() => handleFormChange(form)}
                       title={getFormLabel(form.name)}
                       style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '50%',
-                        backgroundColor: isActive ? badge.color : 'rgba(255,255,255,0.95)',
-                        border: `2px solid ${badge.color}`,
-                        color: isActive ? '#fff' : badge.color,
-                        backdropFilter: 'blur(4px)',
-                        fontSize: '0.5rem',
-                        fontWeight: 900,
-                        letterSpacing: '0.02em',
-                        boxShadow: isActive
-                          ? `0 0 12px ${badge.color}99`
-                          : '0 2px 6px rgba(0,0,0,0.12)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        flexShrink: 0,
+                        width:           `${BTN_SIZE}px`,
+                        height:          `${BTN_SIZE}px`,
+                        borderRadius:    '50%',
+                        backgroundColor: isActive ? `${badge.color}22` : 'rgba(255,255,255,0.95)',
+                        border:          `2px solid ${badge.color}`,
+                        padding:         0,
+                        overflow:        'hidden',
+                        backdropFilter:  'blur(6px)',
+                        boxShadow:       isActive
+                          ? `0 0 14px ${badge.color}99, 0 2px 8px rgba(0,0,0,0.12)`
+                          : '0 2px 8px rgba(0,0,0,0.12)',
+                        display:         'flex',
+                        alignItems:      'center',
+                        justifyContent:  'center',
+                        cursor:          'pointer',
+                        transition:      'all 0.2s ease',
+                        flexShrink:      0,
+                        outline:         isActive ? `3px solid ${badge.color}` : 'none',
+                        outlineOffset:   '2px',
                       }}
                       onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.12)'}
                       onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                     >
-                      {badge.label}
+                      {/* ✅ 메가 계열은 스프라이트 이미지, 나머지는 텍스트 레이블 */}
+                      {badge.useSprite && sprite ? (
+                        <img
+                          src={sprite}
+                          alt={getFormLabel(form.name)}
+                          style={{
+                            width:      '42px',
+                            height:     '42px',
+                            objectFit:  'contain',
+                            imageRendering: 'pixelated', /* ✅ 도트 이미지 선명하게 */
+                          }}
+                        />
+                      ) : (
+                        <span
+                          style={{
+                            fontSize:    '0.5rem',
+                            fontWeight:  900,
+                            color:       isActive ? badge.color : badge.color,
+                            letterSpacing: '0.02em',
+                            lineHeight:  1,
+                          }}
+                        >
+                          {badge.label}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
@@ -334,8 +373,8 @@ const PokemonDetailPage = () => {
             className="font-black mt-1"
             style={{
               whiteSpace: 'nowrap',
-              color: '#111827',
-              fontSize: getNameFontSize(displayName),
+              color:      '#111827',
+              fontSize:   getNameFontSize(displayName),
             }}
           >
             {displayName}
