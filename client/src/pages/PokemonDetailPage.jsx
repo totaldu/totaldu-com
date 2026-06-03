@@ -32,19 +32,11 @@ const STAT_KO = {
 };
 
 const HIDDEN_FORM_SUFFIXES = new Set([
-  'busted',
-  'totem-busted',
-  'battle-bond',
-  '50-power-construct',
-  '10',
-  'orange-meteor',
-  'yellow-meteor',
-  'green-meteor',
-  'blue-meteor',
-  'indigo-meteor',
-  'violet-meteor',
-  'curly-mega',
-  'droopy-mega',
+  'busted', 'totem-busted', 'battle-bond',
+  '50-power-construct', '10',
+  'orange-meteor', 'yellow-meteor', 'green-meteor',
+  'blue-meteor', 'indigo-meteor', 'violet-meteor',
+  'curly-mega', 'droopy-mega',
 ]);
 
 const isHiddenForm = (formName) => {
@@ -60,7 +52,6 @@ const getFormLabel = (formName) => {
   return FORM_LABEL_KO[suffix] ?? suffix;
 };
 
-// ✅ 이름 길이에 따른 폰트 크기 계산
 const getNameFontSize = (name) => {
   const len = name.length;
   if (len >= 7) return '1.05rem';
@@ -69,11 +60,21 @@ const getNameFontSize = (name) => {
   return '1.875rem';
 };
 
+// ✅ 폼 종류 판별 함수
+const getFormBadgeInfo = (formName) => {
+  const suffix = formName.split('-').slice(1).join('-');
+  if (suffix.startsWith('mega'))      return { type: 'mega',      label: 'MEGA',   color: '#8B5CF6' };
+  if (suffix.startsWith('gmax'))      return { type: 'gmax',      label: 'G-MAX',  color: '#DC2626' };
+  if (suffix.startsWith('primal'))    return { type: 'primal',    label: 'PRIMAL', color: '#D97706' };
+  if (suffix.startsWith('ultra'))     return { type: 'ultra',     label: 'ULTRA',  color: '#0EA5E9' };
+  if (suffix.startsWith('eternamax')) return { type: 'eternamax', label: 'E-MAX',  color: '#DC2626' };
+  return null;
+};
+
 const StatBar = ({ label, value, initialValue = 0 }) => {
   const MAX_STAT = 255;
   const targetPct  = Math.min((value        / MAX_STAT) * 100, 100);
   const initialPct = Math.min((initialValue / MAX_STAT) * 100, 100);
-
   const [width, setWidth] = useState(initialPct);
 
   useEffect(() => {
@@ -177,9 +178,9 @@ const PokemonDetailPage = () => {
   );
 
   const koreanName = getKoreanName(activeForm.name);
-  const displayName = koreanName || activeForm.name; // ✅ 변수로 분리
+  const displayName = koreanName || activeForm.name;
   const mainType = activeForm.types[0]?.type?.name || 'normal';
-  const subType = activeForm.types[1]?.type?.name;
+  const subType  = activeForm.types[1]?.type?.name;
   const mainColor = TYPE_COLORS[mainType] || '#A8A77A';
   const totalStats = activeForm.stats.reduce((sum, s) => sum + s.base_stat, 0);
 
@@ -187,6 +188,15 @@ const PokemonDetailPage = () => {
     activeForm.sprites?.other?.['official-artwork']?.front_default
     || activeForm.sprites?.front_default
     || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activeForm.id}.png`;
+
+  // ✅ 현재 기본 폼 (첫 번째 폼 or 이름이 순수 id인 폼)
+  const baseForm = forms[0] ?? pokemon;
+
+  // ✅ 메가/거다이 등 특수 폼만 필터링
+  const specialForms = forms.filter(f => getFormBadgeInfo(f.name) !== null);
+
+  // ✅ 현재 activeForm이 특수 폼인지 확인
+  const activeFormBadge = getFormBadgeInfo(activeForm.name);
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -198,51 +208,113 @@ const PokemonDetailPage = () => {
         ← 도감으로 돌아가기
       </button>
 
+      {/* ── 상단 폼 탭 (메가/거다이 제외한 나머지 폼이 여럿일 때만) ── */}
       {forms.length > 1 && (
         <div className="flex gap-2 flex-wrap">
-          {forms.map(form => (
-            <button
-              key={form.name}
-              onClick={() => handleFormChange(form)}
-              className={`px-4 py-1.5 rounded-full text-sm font-bold border transition-all ${
-                activeForm.name === form.name
-                  ? 'bg-[#005596] text-white border-[#005596]'
-                  : 'bg-white text-gray-500 border-gray-200 hover:border-[#005596] hover:text-[#005596]'
-              }`}
-            >
-              {getFormLabel(form.name)}
-            </button>
-          ))}
+          {forms.map(form => {
+            // 메가/거다이맥스는 탭 버튼에서 제외 (이미지 오버레이로 처리)
+            if (getFormBadgeInfo(form.name)) return null;
+            return (
+              <button
+                key={form.name}
+                onClick={() => handleFormChange(form)}
+                className={`px-4 py-1.5 rounded-full text-sm font-bold border transition-all ${
+                  activeForm.name === form.name
+                    ? 'bg-[#005596] text-white border-[#005596]'
+                    : 'bg-white text-gray-500 border-gray-200 hover:border-[#005596] hover:text-[#005596]'
+                }`}
+              >
+                {getFormLabel(form.name)}
+              </button>
+            );
+          })}
         </div>
       )}
 
       <div className="flex flex-col md:flex-row gap-6 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
 
+        {/* ── 좌측 이미지 패널 ── */}
         <div
           className="md:w-80 flex flex-col items-center justify-center p-10 shrink-0"
           style={{ background: `linear-gradient(135deg, ${mainColor}33, ${mainColor}11)` }}
         >
-          <img
-            src={officialArt}
-            alt={displayName}
-            className="w-56 h-56 object-contain drop-shadow-xl"
-          />
+          {/* ✅ 이미지 + 오버레이 버튼 래퍼 */}
+          <div className="relative w-56 h-56">
+            <img
+              src={officialArt}
+              alt={displayName}
+              className="w-full h-full object-contain drop-shadow-xl"
+            />
+
+            {/* ✅ 특수 폼 오버레이 버튼들 (우상단 세로 스택) */}
+            {specialForms.length > 0 && (
+              <div className="absolute top-1 right-1 flex flex-col gap-1.5">
+                {/* 기본 폼 복귀 버튼 (특수 폼이 활성화됐을 때만 표시) */}
+                {activeFormBadge && (
+                  <button
+                    onClick={() => handleFormChange(baseForm)}
+                    title="기본 폼으로 돌아가기"
+                    style={{
+                      background: 'rgba(255,255,255,0.92)',
+                      border: '1.5px solid #D1D5DB',
+                      backdropFilter: 'blur(4px)',
+                    }}
+                    className="w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                  >
+                    {/* 포켓볼 아이콘 (SVG) */}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="#374151" strokeWidth="2"/>
+                      <path d="M2 12h20" stroke="#374151" strokeWidth="2"/>
+                      <circle cx="12" cy="12" r="3" fill="#374151"/>
+                    </svg>
+                  </button>
+                )}
+
+                {/* 메가/거다이 등 특수 폼 버튼들 */}
+                {specialForms.map(form => {
+                  const badge = getFormBadgeInfo(form.name);
+                  const isActive = activeForm.name === form.name;
+                  return (
+                    <button
+                      key={form.name}
+                      onClick={() => handleFormChange(form)}
+                      title={getFormLabel(form.name)}
+                      style={{
+                        backgroundColor: isActive ? badge.color : 'rgba(255,255,255,0.92)',
+                        border: `2px solid ${badge.color}`,
+                        color: isActive ? '#fff' : badge.color,
+                        backdropFilter: 'blur(4px)',
+                        fontSize: '0.55rem',
+                        letterSpacing: '0.03em',
+                        boxShadow: isActive
+                          ? `0 0 10px ${badge.color}88`
+                          : '0 2px 6px rgba(0,0,0,0.12)',
+                        transition: 'all 0.2s ease',
+                      }}
+                      className="w-10 h-10 rounded-full flex items-center justify-center font-black hover:scale-110"
+                    >
+                      {badge.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* 번호 / 이름 / 영문명 / 타입 */}
           <p className="text-xs text-gray-400 font-mono font-bold mt-4">
             #{String(activeForm.id).padStart(4, '0')}
           </p>
-
-          {/* ✅ 핵심 수정: whiteSpace를 인라인 style로 이동 + 길이별 fontSize */}
           <h1
             className="font-black mt-1"
             style={{
-              whiteSpace: 'nowrap',        /* ← Tailwind 클래스 대신 인라인으로 확실하게 */
+              whiteSpace: 'nowrap',
               color: '#111827',
               fontSize: getNameFontSize(displayName),
             }}
           >
             {displayName}
           </h1>
-
           {koreanName && (
             <p className="text-sm text-gray-400 capitalize mt-0.5">{activeForm.name}</p>
           )}
@@ -264,6 +336,7 @@ const PokemonDetailPage = () => {
           </div>
         </div>
 
+        {/* ── 우측 스탯 패널 ── */}
         <div className="flex-1 p-8 flex flex-col justify-center gap-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-gray-50 rounded-2xl p-4 text-center">
