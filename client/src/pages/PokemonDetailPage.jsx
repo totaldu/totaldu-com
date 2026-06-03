@@ -113,6 +113,7 @@ const FORM_LABEL_KO = {
   'blade':       '블레이드폼',
 
   // 지가르데
+  '10-power-construct': '10%폼',
   'complete':           '퍼펙트폼',
 
   // 후파
@@ -259,6 +260,7 @@ const HIDDEN_FORM_SUFFIXES = new Set([
   'totem-busted',        // 미미큐 주인-깨진 폼
   'battle-bond',         // 결속 게코가
   '50-power-construct',  // 지가르데 50% (파워컨스트럭트) → 기본폼과 동일 외형
+  '10',                  // 10%폼
   'orange-meteor',
   'yellow-meteor',
   'green-meteor',
