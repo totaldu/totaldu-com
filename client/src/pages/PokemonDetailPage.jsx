@@ -336,13 +336,12 @@ const PokemonDetailPage = () => {
                       {/* ✅ 메가 계열은 스프라이트 이미지, 나머지는 텍스트 레이블 */}
                       {badge.useSprite && sprite ? (
                         <img
-                          src={sprite}
-                          alt={getFormLabel(form.name)}
+                          src={megaIcon}
+                          alt="MEGA"
                           style={{
                             width:      '42px',
                             height:     '42px',
                             objectFit:  'contain',
-                            imageRendering: 'pixelated', /* ✅ 도트 이미지 선명하게 */
                           }}
                         />
                       ) : (
@@ -350,9 +349,7 @@ const PokemonDetailPage = () => {
                           style={{
                             fontSize:    '0.5rem',
                             fontWeight:  900,
-                            color:       isActive ? badge.color : badge.color,
-                            letterSpacing: '0.02em',
-                            lineHeight:  1,
+                            color: badge.color 
                           }}
                         >
                           {badge.label}
