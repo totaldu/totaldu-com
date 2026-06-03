@@ -71,8 +71,6 @@ const getFormBadgeInfo = (formName) => {
   return null;
 };
 
-// ✅ 폼 스프라이트 URL 가져오기 (front_default 우선, 없으면 official-artwork)
-
 const StatBar = ({ label, value, initialValue = 0 }) => {
   const MAX_STAT = 255;
   const targetPct  = Math.min((value        / MAX_STAT) * 100, 100);
@@ -191,11 +189,9 @@ const PokemonDetailPage = () => {
     || activeForm.sprites?.front_default
     || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activeForm.id}.png`;
 
-  const baseForm        = forms[0] ?? pokemon;
-  const specialForms    = forms.filter(f => getFormBadgeInfo(f.name) !== null);
-  const activeFormBadge = getFormBadgeInfo(activeForm.name);
+  const baseForm     = forms[0] ?? pokemon;
+  const specialForms = forms.filter(f => getFormBadgeInfo(f.name) !== null);
 
-  // ✅ 버튼 크기 상수 (한 곳에서 관리)
   const BTN_SIZE = 48;
 
   return (
@@ -236,11 +232,11 @@ const PokemonDetailPage = () => {
           className="md:w-80 flex flex-col items-center justify-center p-10 shrink-0"
           style={{ background: `linear-gradient(135deg, ${mainColor}33, ${mainColor}11)` }}
         >
-          {/* ✅ 이미지 + 오버레이 버튼 래퍼 */}
+          {/* 이미지 + 오버레이 버튼 래퍼 */}
           <div
             className="relative"
             style={{
-              width:    '224px',  /* w-56 */
+              width:    '224px',
               height:   '224px',
               overflow: 'visible',
             }}
@@ -251,133 +247,109 @@ const PokemonDetailPage = () => {
               className="w-full h-full object-contain drop-shadow-xl"
             />
 
-            {/* ✅ 오버레이 버튼 — 우상단, 가로 배치, 이미지 오른쪽 밖으로 돌출 */}
             {/* 오버레이 버튼 — 우상단 돌출 */}
-{specialForms.length > 0 && (
-  <div
-    style={{
-      position:      'absolute',
-      top:           `${-(BTN_SIZE / 2)}px`,
-      right:         `${-(BTN_SIZE / 2)}px`,
-      display:       'flex',
-      flexDirection: 'row',
-      alignItems:    'center',
-      gap:           '8px',
-    }}
-  >
-    {/* ✅ 기본 폼 복귀 전용 버튼 — 완전히 제거 */}
+            {specialForms.length > 0 && (
+              <div
+                style={{
+                  position:      'absolute',
+                  top:           `${-(BTN_SIZE / 2)}px`,
+                  right:         `${-(BTN_SIZE / 2)}px`,
+                  display:       'flex',
+                  flexDirection: 'row',
+                  alignItems:    'center',
+                  gap:           '8px',
+                }}
+              >
+                {specialForms.map(form => {
+                  const badge    = getFormBadgeInfo(form.name);
+                  const isActive = activeForm.name === form.name;
 
-    {/* 특수 폼 버튼들 */}
-    {specialForms.map(form => {
-      const badge    = getFormBadgeInfo(form.name);
-      const isActive = activeForm.name === form.name;
+                  return (
+                    <button
+                      key={form.name}
+                      onClick={() => {
+                        if (isActive) {
+                          handleFormChange(baseForm);
+                        } else {
+                          handleFormChange(form);
+                        }
+                      }}
+                      title={isActive ? '기본 폼으로 돌아가기' : getFormLabel(form.name)}
+                      style={{
+                        width:           `${BTN_SIZE}px`,
+                        height:          `${BTN_SIZE}px`,
+                        borderRadius:    '50%',
+                        backgroundColor: isActive ? `${badge.color}22` : 'rgba(255,255,255,0.95)',
+                        border:          `2px solid ${badge.color}`,
+                        padding:         0,
+                        overflow:        'hidden',
+                        backdropFilter:  'blur(6px)',
+                        boxShadow:       isActive
+                          ? `0 0 14px ${badge.color}99, 0 2px 8px rgba(0,0,0,0.12)`
+                          : '0 2px 8px rgba(0,0,0,0.12)',
+                        display:         'flex',
+                        alignItems:      'center',
+                        justifyContent:  'center',
+                        cursor:          'pointer',
+                        transition:      'all 0.2s ease',
+                        flexShrink:      0,
+                        outline:         isActive ? `3px solid ${badge.color}` : 'none',
+                        outlineOffset:   '2px',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.12)'}
+                      onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                    >
+                      {/* ✅ 활성/비활성 모두 동일한 아이콘 유지 — X 아이콘 없음 */}
+                      {badge.useSprite ? (
+                        <img
+                          src={megaIcon}
+                          alt="MEGA"
+                          style={{ width: '42px', height: '42px', objectFit: 'contain' }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: '0.5rem', fontWeight: 900, color: badge.color }}>
+                          {badge.label}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
-      return (
-        <button
-          key={form.name}
-          onClick={() => {
-            // ✅ 핵심: 활성 상태에서 다시 누르면 기본 폼으로 토글
-            if (isActive) {
-              handleFormChange(baseForm);
-            } else {
-              handleFormChange(form);
-            }
-          }}
-          title={isActive ? '기본 폼으로 돌아가기' : getFormLabel(form.name)}
-          style={{
-            width:           `${BTN_SIZE}px`,
-            height:          `${BTN_SIZE}px`,
-            borderRadius:    '50%',
-            backgroundColor: isActive ? `${badge.color}22` : 'rgba(255,255,255,0.95)',
-            border:          `2px solid ${badge.color}`,
-            padding:         0,
-            overflow:        'hidden',
-            backdropFilter:  'blur(6px)',
-            boxShadow:       isActive
-              ? `0 0 14px ${badge.color}99, 0 2px 8px rgba(0,0,0,0.12)`
-              : '0 2px 8px rgba(0,0,0,0.12)',
-            display:         'flex',
-            alignItems:      'center',
-            justifyContent:  'center',
-            cursor:          'pointer',
-            transition:      'all 0.2s ease',
-            flexShrink:      0,
-            outline:         isActive ? `3px solid ${badge.color}` : 'none',
-            outlineOffset:   '2px',
-          }}
-          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.12)'}
-          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          {/* ✅ 활성 상태일 때는 X 아이콘으로 교체 — 직관적인 토글 UX */}
-          {isActive ? (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M18 6L6 18M6 6L18 18"
-                stroke={badge.color}
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          ) : badge.useSprite ? (
-            <img
-              src={megaIcon}
-              alt="MEGA"
+            {/* 번호 / 이름 / 영문명 / 타입 */}
+            <p className="text-xs text-gray-400 font-mono font-bold mt-4">
+              #{String(activeForm.id).padStart(4, '0')}
+            </p>
+            <h1
+              className="font-black mt-1"
               style={{
-                width:     '42px',
-                height:    '42px',
-                objectFit: 'contain',
-              }}
-            />
-          ) : (
-            <span
-              style={{
-                fontSize:   '0.5rem',
-                fontWeight: 900,
-                color:      badge.color,
+                whiteSpace: 'nowrap',
+                color:      '#111827',
+                fontSize:   getNameFontSize(displayName),
               }}
             >
-              {badge.label}
-            </span>
-          )}
-        </button>
-      );
-    })}
-  </div>
-)}
-
-
-          {/* 번호 / 이름 / 영문명 / 타입 */}
-          <p className="text-xs text-gray-400 font-mono font-bold mt-4">
-            #{String(activeForm.id).padStart(4, '0')}
-          </p>
-          <h1
-            className="font-black mt-1"
-            style={{
-              whiteSpace: 'nowrap',
-              color:      '#111827',
-              fontSize:   getNameFontSize(displayName),
-            }}
-          >
-            {displayName}
-          </h1>
-          {koreanName && (
-            <p className="text-sm text-gray-400 capitalize mt-0.5">{activeForm.name}</p>
-          )}
-          <div className="flex gap-2 mt-3">
-            <span
-              className="px-3 py-1 rounded-full text-sm font-bold text-white"
-              style={{ backgroundColor: mainColor }}
-            >
-              {TYPE_KO[mainType] || mainType}
-            </span>
-            {subType && (
+              {displayName}
+            </h1>
+            {koreanName && (
+              <p className="text-sm text-gray-400 capitalize mt-0.5">{activeForm.name}</p>
+            )}
+            <div className="flex gap-2 mt-3">
               <span
                 className="px-3 py-1 rounded-full text-sm font-bold text-white"
-                style={{ backgroundColor: TYPE_COLORS[subType] || '#aaa' }}
+                style={{ backgroundColor: mainColor }}
               >
-                {TYPE_KO[subType] || subType}
+                {TYPE_KO[mainType] || mainType}
               </span>
-            )}
+              {subType && (
+                <span
+                  className="px-3 py-1 rounded-full text-sm font-bold text-white"
+                  style={{ backgroundColor: TYPE_COLORS[subType] || '#aaa' }}
+                >
+                  {TYPE_KO[subType] || subType}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
