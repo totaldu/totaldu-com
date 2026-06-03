@@ -1,40 +1,43 @@
 // client/src/pages/PokedexPage.jsx
-import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom'; // ✅ useSearchParams 추가
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import koreanNames from '../data/pokemonKoreanNames.json';
-import { getChoseong } from "es-hangul";
+import { getChoseong } from 'es-hangul';
 import { getKoreanName } from '../utils/pokemonUtils';
 
-const TYPE_COLORS = {
-  normal: '#A8A77A', fire: '#EE8130', water: '#6390F0',
-  grass: '#7AC74C', electric: '#F7D02C', ice: '#96D9D6',
-  fighting: '#C22E28', poison: '#A33EA1', ground: '#E2BF65',
-  flying: '#A98FF3', psychic: '#F95587', bug: '#A6B91A',
-  rock: '#B6A136', ghost: '#735797', dragon: '#6F35FC',
-  dark: '#705746', steel: '#B7B7CE', fairy: '#D685AD',
-};
-
-const TYPE_KO = {
-  normal: '노말', fire: '불꽃', water: '물', grass: '풀',
-  electric: '전기', ice: '얼음', fighting: '격투', poison: '독',
-  ground: '땅', flying: '비행', psychic: '에스퍼', bug: '벌레',
-  rock: '바위', ghost: '고스트', dragon: '드래곤', dark: '악',
-  steel: '강철', fairy: '페어리',
-};
-
+/* ─────────────────────────────────────────────
+   상수
+───────────────────────────────────────────── */
 const ITEMS_PER_PAGE = 30;
 
-// ✅ currentPage를 props로 받아서 Link에 포함
-const PokemonCard = ({ pokemon, currentPage }) => {
-  const mainType = pokemon.types[0]?.type?.name || 'normal';
-  const subType = pokemon.types[1]?.type?.name;
+const TYPE_COLORS = {
+  normal:   '#A8A77A', fire:     '#EE8130', water:   '#6390F0',
+  grass:    '#7AC74C', electric: '#F7D02C', ice:     '#96D9D6',
+  fighting: '#C22E28', poison:   '#A33EA1', ground:  '#E2BF65',
+  flying:   '#A98FF3', psychic:  '#F95587', bug:     '#A6B91A',
+  rock:     '#B6A136', ghost:    '#735797', dragon:  '#6F35FC',
+  dark:     '#705746', steel:    '#B7B7CE', fairy:   '#D685AD',
+};
+const TYPE_KO = {
+  normal:   '노말',   fire:     '불꽃', water:   '물',    grass:   '풀',
+  electric: '전기',   ice:      '얼음', fighting:'격투',  poison:  '독',
+  ground:   '땅',     flying:   '비행', psychic: '에스퍼',bug:     '벌레',
+  rock:     '바위',   ghost:    '고스트',dragon: '드래곤',dark:    '악',
+  steel:    '강철',   fairy:    '페어리',
+};
+
+/* ─────────────────────────────────────────────
+   PokemonCard
+───────────────────────────────────────────── */
+const PokemonCard = React.memo(({ pokemon, currentPage }) => {
+  const mainType  = pokemon.types[0]?.type?.name || 'normal';
+  const subType   = pokemon.types[1]?.type?.name;
   const mainColor = TYPE_COLORS[mainType] || '#A8A77A';
   const koreanName = getKoreanName(pokemon.name);
 
   return (
     <Link
-      to={`/pokedex/${pokemon.id}?page=${currentPage}`} // ✅ 현재 페이지 전달
+      to={`/pokedex/${pokemon.id}?page=${currentPage}`}
       className="group relative flex flex-col items-center rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 overflow-hidden cursor-pointer bg-white"
     >
       <div
@@ -83,8 +86,11 @@ const PokemonCard = ({ pokemon, currentPage }) => {
       </div>
     </Link>
   );
-};
+});
 
+/* ─────────────────────────────────────────────
+   SkeletonCard
+───────────────────────────────────────────── */
 const SkeletonCard = () => (
   <div className="rounded-2xl border border-gray-100 overflow-hidden animate-pulse bg-white">
     <div className="h-24 bg-gray-100" />
@@ -97,23 +103,38 @@ const SkeletonCard = () => (
   </div>
 );
 
+/* ─────────────────────────────────────────────
+   PokedexPage
+───────────────────────────────────────────── */
 const PokedexPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams(); // ✅ 추가
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [allPokemon, setAllPokemon] = useState([]);
-  const [pageData, setPageData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(
-    Number(searchParams.get('page')) || 1 // ✅ URL에서 초기 페이지 읽기
-  );
-  const [searchQuery, setSearchQuery] = useState('');
+  // ── URL → state 동기화 (뒤로가기 등에서 URL이 바뀔 때 반응)
+  const urlPage = Number(searchParams.get('page')) || 1;
 
+  const [allPokemon,    setAllPokemon]    = useState([]);   // 전체 1025마리 목록 (url만)
+  const [pageData,      setPageData]      = useState([]);   // 현재 페이지 상세 데이터
+  const [loading,       setLoading]       = useState(true); // 전체 목록 로딩
+  const [detailLoading, setDetailLoading] = useState(false);// 상세 데이터 로딩
+  const [error,         setError]         = useState(null);
+  const [currentPage,   setCurrentPage]   = useState(urlPage);
+  const [searchQuery,   setSearchQuery]   = useState('');
+
+  /* ── ① URL page 변경 감지 → state 동기화 (뒤로/앞으로 버튼) ── */
+  useEffect(() => {
+    if (urlPage !== currentPage) {
+      setCurrentPage(urlPage);
+    }
+  }, [urlPage]); // eslint-disable-line
+
+  /* ── ② 전체 목록 최초 1회 fetch ── */
   useEffect(() => {
     setLoading(true);
     fetch('https://pokeapi.co/api/v2/pokemon?limit=1025&offset=0')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('fetch failed');
+        return res.json();
+      })
       .then(data => {
         setAllPokemon(data.results);
         setLoading(false);
@@ -124,64 +145,86 @@ const PokedexPage = () => {
       });
   }, []);
 
-  const filteredPokemon = allPokemon.filter((p) => {
-    const koreanName = getKoreanName(p.name);
-    const englishName = p.name.toLowerCase();
+  /* ── ③ 필터링 (useMemo로 불필요한 재계산 방지) ── */
+  const filteredPokemon = useMemo(() => {
+    if (!searchQuery) return allPokemon;
     const query = searchQuery.toLowerCase();
+    return allPokemon.filter(p => {
+      const ko  = getKoreanName(p.name);
+      const en  = p.name.toLowerCase();
+      return (
+        en.includes(query)
+        || ko.includes(query)
+        || (ko ? getChoseong(ko).includes(query) : false)
+      );
+    });
+  }, [allPokemon, searchQuery]);
 
-    const matchEn = englishName.includes(query);
-    const matchKo = koreanName.includes(query);
-    const matchChosung = koreanName
-      ? getChoseong(koreanName).includes(query)
-      : false;
+  const totalPages  = Math.ceil(filteredPokemon.length / ITEMS_PER_PAGE);
 
-    return matchEn || matchKo || matchChosung;
-  });
+  /* ── ④ 현재 슬라이스 (useMemo) ── */
+  const currentSlice = useMemo(() => (
+    filteredPokemon.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage       * ITEMS_PER_PAGE,
+    )
+  ), [filteredPokemon, currentPage]);
 
-  const totalPages = Math.ceil(filteredPokemon.length / ITEMS_PER_PAGE);
-  const currentSlice = filteredPokemon.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
+  /* ── ⑤ 상세 데이터 fetch: currentSlice가 바뀔 때마다 ── */
   useEffect(() => {
     if (currentSlice.length === 0) { setPageData([]); return; }
+
+    let cancelled = false;
     setDetailLoading(true);
-    Promise.all(currentSlice.map(p => fetch(p.url).then(res => res.json())))
+
+    Promise.all(currentSlice.map(p => fetch(p.url).then(r => r.json())))
       .then(results => {
+        if (cancelled) return;
         setPageData(results);
         setDetailLoading(false);
       })
       .catch(() => {
+        if (cancelled) return;
         setError('상세 데이터를 불러오지 못했습니다.');
         setDetailLoading(false);
       });
-  }, [currentPage, searchQuery, allPokemon.length]);
 
+    return () => { cancelled = true; }; // ✅ 클린업 (빠른 페이지 이동 시 이전 응답 무시)
+  }, [currentSlice]);                   // ✅ currentSlice 자체를 deps로
+
+  /* ── ⑥ 검색 핸들러 ── */
   const handleSearch = useCallback((e) => {
-    setSearchQuery(e.target.value);
+    const val = e.target.value;
+    setSearchQuery(val);
     setCurrentPage(1);
-    setSearchParams({ page: 1 }); // ✅ 검색 시 URL도 1페이지로 초기화
-  }, []);
+    setSearchParams({ page: '1' }, { replace: true }); // ✅ replace: 검색마다 히스토리 쌓지 않음
+  }, [setSearchParams]);
 
-  // ✅ 페이지 이동 시 URL도 함께 업데이트
-  const goToPage = (page) => {
-    setCurrentPage(page);
-    setSearchParams({ page });
+  /* ── ⑦ 페이지 이동 ── */
+  const goToPage = useCallback((page) => {
+    const p = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(p);
+    setSearchParams({ page: String(p) });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [totalPages, setSearchParams]);
 
-  const getPageNumbers = () => {
+  /* ── ⑧ 페이지 번호 범위 계산 ── */
+  const pageNumbers = useMemo(() => {
     const delta = 2;
     const range = [];
-    for (let i = Math.max(1, currentPage - delta); i <= Math.min(totalPages, currentPage + delta); i++) {
-      range.push(i);
-    }
+    for (
+      let i = Math.max(1, currentPage - delta);
+      i <= Math.min(totalPages, currentPage + delta);
+      i++
+    ) range.push(i);
     return range;
-  };
+  }, [currentPage, totalPages]);
 
+  /* ── 렌더 ── */
   return (
     <div className="w-full flex flex-col gap-6">
+
+      {/* 헤더 + 검색창 */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-gray-900">포켓몬 도감</h1>
@@ -194,7 +237,7 @@ const PokedexPage = () => {
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="이름으로 검색 (한글/영문)..."
+            placeholder="이름으로 검색 (한글/영문/초성)..."
             value={searchQuery}
             onChange={handleSearch}
             className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0a8d87]/40 shadow-sm"
@@ -202,12 +245,14 @@ const PokedexPage = () => {
         </div>
       </div>
 
+      {/* 에러 */}
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 font-medium text-sm">
           ⚠️ {error}
         </div>
       )}
 
+      {/* 카드 그리드 */}
       {loading ? (
         <div className="grid grid-cols-6 gap-3">
           {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => <SkeletonCard key={i} />)}
@@ -225,48 +270,88 @@ const PokedexPage = () => {
                 <PokemonCard
                   key={pokemon.id}
                   pokemon={pokemon}
-                  currentPage={currentPage} // ✅ 현재 페이지 전달
+                  currentPage={currentPage}
                 />
               ))
           }
         </div>
       )}
 
+      {/* 페이지네이션 */}
       {!loading && totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-2">
+
+          {/* 첫 페이지 */}
           <button
             onClick={() => goToPage(1)}
             disabled={currentPage === 1}
             className="px-3 py-2 rounded-lg text-sm font-bold bg-gray-100 hover:bg-gray-200 disabled:opacity-30 transition-colors"
           >«</button>
+
+          {/* 이전 */}
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage === 1}
             className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-30 transition-colors"
-          ><ChevronLeft size={16} /></button>
+          >
+            <ChevronLeft size={16} />
+          </button>
 
-          {getPageNumbers().map(num => (
+          {/* 첫 페이지 + 말줄임 */}
+          {pageNumbers[0] > 1 && (
+            <>
+              <button
+                onClick={() => goToPage(1)}
+                className="px-3 py-2 rounded-lg text-sm font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+              >1</button>
+              {pageNumbers[0] > 2 && (
+                <span className="px-1 text-gray-400 text-sm font-bold">…</span>
+              )}
+            </>
+          )}
+
+          {/* 페이지 번호 */}
+          {pageNumbers.map(num => (
             <button
               key={num}
               onClick={() => goToPage(num)}
-              className={`px-3 py-2 rounded-lg text-sm font-bold transition-colors
-                ${num === currentPage
+              className={`px-3 py-2 rounded-lg text-sm font-bold transition-colors ${
+                num === currentPage
                   ? 'bg-[#005596] text-white shadow-sm'
                   : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                }`}
+              }`}
             >{num}</button>
           ))}
 
+          {/* 끝 페이지 + 말줄임 */}
+          {pageNumbers[pageNumbers.length - 1] < totalPages && (
+            <>
+              {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
+                <span className="px-1 text-gray-400 text-sm font-bold">…</span>
+              )}
+              <button
+                onClick={() => goToPage(totalPages)}
+                className="px-3 py-2 rounded-lg text-sm font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+              >{totalPages}</button>
+            </>
+          )}
+
+          {/* 다음 */}
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-30 transition-colors"
-          ><ChevronRight size={16} /></button>
+          >
+            <ChevronRight size={16} />
+          </button>
+
+          {/* 마지막 페이지 */}
           <button
             onClick={() => goToPage(totalPages)}
             disabled={currentPage === totalPages}
             className="px-3 py-2 rounded-lg text-sm font-bold bg-gray-100 hover:bg-gray-200 disabled:opacity-30 transition-colors"
           >»</button>
+
         </div>
       )}
     </div>
