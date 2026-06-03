@@ -113,6 +113,7 @@ const FORM_LABEL_KO = {
   'blade':       '블레이드폼',
 
   // 지가르데
+  '50':                 '50%폼',
   '10-power-construct': '10%폼',
   'complete':           '퍼펙트폼',
 
