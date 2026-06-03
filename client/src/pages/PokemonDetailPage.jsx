@@ -184,7 +184,7 @@ const PokemonDetailPage = () => {
     setLoading(true);
     setError(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });   // ✅ 맨 위로 스크롤
-    navigate(`/pokemon/${targetId}?page=${fromPage}`);
+    navigate(`/pokedex/${targetId}?page=${fromPage}`);
   }, [navigate, fromPage]);
 
   /* ── 데이터 페치 ── */
