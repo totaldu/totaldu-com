@@ -343,8 +343,8 @@ const PokemonDetailPage = () => {
             className="md:w-80 flex flex-col items-center justify-center p-10 shrink-0"
             style={{
               background: subType
-                ? `linear-gradient(135deg, ${mainColor}55 0%, ${mainColor}55 50%, ${TYPE_COLORS[subType] ?? '#aaa'}55 50%, ${TYPE_COLORS[subType] ?? '#aaa'}55 100%)`
-                : `linear-gradient(135deg, ${mainColor}33, ${mainColor}11)`
+                ? `linear-gradient(135deg, ${mainColor}66 0%, ${mainColor}44 40%, ${TYPE_COLORS[subType] ?? '#aaa'}44 60%, ${TYPE_COLORS[subType] ?? '#aaa'}66 100%)`
+                : `linear-gradient(135deg, ${mainColor}44, ${mainColor}11)`
             }}
           >
             {/* 이미지 + 오버레이 버튼 */}

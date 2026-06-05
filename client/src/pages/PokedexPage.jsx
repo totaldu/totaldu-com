@@ -34,11 +34,11 @@ const TYPE_KO = {
 const getBgStyle = (mainColor, subColor) => {
   if (subColor) {
     return {
-      background: `linear-gradient(135deg, ${mainColor}55 0%, ${mainColor}55 50%, ${subColor}55 50%, ${subColor}55 100%)`,
+      background: `linear-gradient(135deg, ${mainColor}66 0%, ${mainColor}44 40%, ${subColor}44 60%, ${subColor}66 100%)`,
     };
   }
   return {
-    background: `linear-gradient(135deg, ${mainColor}33, ${mainColor}11)`,
+    background: `linear-gradient(135deg, ${mainColor}44, ${mainColor}11)`,
   };
 };
 
