@@ -535,7 +535,7 @@ const PokemonDetailPage = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <h2 className="text-lg font-black text-gray-900">종족값</h2>
-                  {isGen1Pokemon && (() => {
+                  {isGen1Pokemon && activeForm.name === baseForm.name && (() => {
                     const lastVer  = LAST_VERSION[numericId]  ?? 'LGPE';
                     const firstVer = isGen1Pokemon
                       ? 'GSC'
