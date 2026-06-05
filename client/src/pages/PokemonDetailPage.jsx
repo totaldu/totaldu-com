@@ -107,7 +107,7 @@ const getFormBadgeInfo = (formName) => {
 /* ─────────────────────────────────────────────
    StatBar
 ───────────────────────────────────────────── */
-const StatBar = ({ label, value, initialValue = 0 }) => {
+const StatBar = ({ label, value, initialValue = 0, showScale = false }) => {
   const MAX_STAT   = 255;
   const targetPct  = Math.min((value        / MAX_STAT) * 100, 100);
   const initialPct = Math.min((initialValue / MAX_STAT) * 100, 100);
@@ -133,10 +133,12 @@ const StatBar = ({ label, value, initialValue = 0 }) => {
       <span className="w-20 text-right text-sm text-gray-500 shrink-0">{label}</span>
       <span className="w-8 text-sm font-bold text-gray-800 shrink-0">{value}</span>
       <div className="flex-1 flex flex-col gap-0.5">
-        <div className="flex justify-between">
-          <span className="text-[10px] text-gray-400 leading-none">0</span>
-          <span className="text-[10px] text-gray-400 leading-none">255</span>
-        </div>
+        {showScale && (
+          <div className="flex justify-between">
+            <span className="text-[10px] text-gray-400 leading-none">0</span>
+            <span className="text-[10px] text-gray-400 leading-none">255</span>
+          </div>
+        )}
         <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
           <div style={{
             height:'100%', borderRadius:'9999px',
@@ -652,6 +654,7 @@ const PokemonDetailPage = () => {
                     label={STAT_KO[s.stat.name] ?? s.stat.name}
                     value={s.base_stat}
                     initialValue={prevStats[s.stat.name] ?? 0}
+                    showScale={s.stat.name === 'hp'}
                   />
                 ))}
               </div>
