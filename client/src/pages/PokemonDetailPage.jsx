@@ -66,8 +66,10 @@ const isHiddenForm = (formName) => {
   return HIDDEN_FORM_SUFFIXES.has(suffix);
 };
 const FORM_NAME_OVERRIDE = {
-  'eiscue-ice':    '아이스페이스',
-  'calyrex-ice':   '백마 탄 모습',
+  'eiscue-ice':      '아이스페이스',
+  'calyrex-ice':     '백마 탄 모습',
+  'lycanroc-dusk':   '황혼의 모습',
+  'necrozma-dusk':   '황혼의 갈기',
 };
 const getFormLabel = (formName) => {
   if (FORM_NAME_OVERRIDE[formName]) return FORM_NAME_OVERRIDE[formName];
