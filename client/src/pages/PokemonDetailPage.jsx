@@ -349,7 +349,8 @@ const PokemonDetailPage = () => {
             style={{
               background: subType
                 ? `linear-gradient(135deg, ${mainColor}66 0%, ${mainColor}44 40%, ${TYPE_COLORS[subType] ?? '#aaa'}44 60%, ${TYPE_COLORS[subType] ?? '#aaa'}66 100%)`
-                : `linear-gradient(135deg, ${mainColor}44, ${mainColor}11)`
+                : `linear-gradient(135deg, ${mainColor}44, ${mainColor}11)`,
+              transition: 'background 0.6s ease',
             }}
           >
             {/* 이미지 + 오버레이 버튼 */}
