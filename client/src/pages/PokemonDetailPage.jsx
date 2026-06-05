@@ -347,8 +347,14 @@ const PokemonDetailPage = () => {
   // Gen 1 모드에서는 special-attack·special-defense를 특수 하나로 교체
   const displayStats = (() => {
     if (showGen1View) {
+      // Gen 1 뷰에서도 STAT_CHANGES 적용 (6~9세대에 변경된 HP·공격·방어·스피드 보정)
+      const change = FORM_STAT_CHANGES[activeForm.name] ?? STAT_CHANGES[numericId];
+      const correctedStats = activeForm.stats.map(s => ({
+        ...s,
+        base_stat: change?.oldStats[s.stat.name] ?? s.base_stat,
+      }));
       return [
-        ...activeForm.stats.filter(s => s.stat.name !== 'special-attack' && s.stat.name !== 'special-defense'),
+        ...correctedStats.filter(s => s.stat.name !== 'special-attack' && s.stat.name !== 'special-defense'),
         { stat: { name: 'special' }, base_stat: gen1Special },
       ].sort((a, b) => {
         const order = ['hp','attack','defense','special','speed'];
