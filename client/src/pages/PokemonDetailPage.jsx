@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { getKoreanName } from '../utils/pokemonUtils';
 import { FORM_LABEL_KO } from '@/constants/formLabels';
+import { GEN1_SPECIAL }  from '@/constants/gen1Special';
 import megaIcon from '@/assets/mega-icon.png';
 
 /* ─────────────────────────────────────────────
@@ -29,6 +30,7 @@ const TYPE_KO = {
 const STAT_KO = {
   'hp':'HP', 'attack':'공격', 'defense':'방어',
   'special-attack':'특수공격', 'special-defense':'특수방어', 'speed':'스피드',
+  'special':'특수',
 };
 const HIDDEN_FORM_SUFFIXES = new Set([
   'busted','totem-busted','battle-bond',
@@ -199,6 +201,7 @@ const PokemonDetailPage = () => {
   const [error,      setError]      = useState(null);
   const [bgOverlay,  setBgOverlay]  = useState(null);  // 구 배경 fade-out
   const [bgFading,   setBgFading]   = useState(false);
+  const [genView,    setGenView]    = useState('modern'); // 'modern' | 'gen1'
 
   /* ── 내비게이션 ── */
   const handleNav = useCallback((targetId) => {
@@ -264,10 +267,11 @@ const PokemonDetailPage = () => {
     return () => { cancelled = true; };   // ✅ 클린업: 이전 fetch 무시
   }, [id]);                               // ✅ id 변경 시마다 재실행
 
-  /* 포켓몬 변경 시 오버레이 초기화 */
+  /* 포켓몬 변경 시 상태 초기화 */
   useEffect(() => {
     setBgOverlay(null);
     setBgFading(false);
+    setGenView('modern');
   }, [id]);
 
   /* ── 키보드 내비게이션 ── */
@@ -316,7 +320,23 @@ const PokemonDetailPage = () => {
   const mainType    = activeForm.types[0]?.type?.name || 'normal';
   const subType     = activeForm.types[1]?.type?.name;
   const mainColor   = TYPE_COLORS[mainType] || '#A8A77A';
-  const totalStats  = activeForm.stats.reduce((sum, s) => sum + s.base_stat, 0);
+
+  const isGen1Pokemon = numericId >= 1 && numericId <= 151;
+  const showGen1View  = isGen1Pokemon && genView === 'gen1';
+  const gen1Special   = GEN1_SPECIAL[numericId];
+
+  // Gen 1 모드에서는 special-attack·special-defense를 특수 하나로 교체
+  const displayStats = showGen1View
+    ? [
+        ...activeForm.stats.filter(s => s.stat.name !== 'special-attack' && s.stat.name !== 'special-defense'),
+        { stat: { name: 'special' }, base_stat: gen1Special },
+        // 스피드는 원래 stats 순서 유지를 위해 filter에서 포함됨
+      ].sort((a, b) => {
+        const order = ['hp','attack','defense','special','speed'];
+        return order.indexOf(a.stat.name) - order.indexOf(b.stat.name);
+      })
+    : activeForm.stats;
+  const totalStats = displayStats.reduce((sum, s) => sum + s.base_stat, 0);
 
   const officialArt =
     activeForm.sprites?.other?.['official-artwork']?.front_default
@@ -507,15 +527,29 @@ const PokemonDetailPage = () => {
 
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-black text-gray-900">종족값</h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-lg font-black text-gray-900">종족값</h2>
+                  {isGen1Pokemon && (
+                    <div className="flex rounded-lg overflow-hidden border border-gray-200 text-xs font-bold">
+                      <button
+                        onClick={() => setGenView('modern')}
+                        className={`px-2.5 py-1 transition-colors ${genView === 'modern' ? 'bg-[#005596] text-white' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
+                      >현대</button>
+                      <button
+                        onClick={() => setGenView('gen1')}
+                        className={`px-2.5 py-1 transition-colors ${genView === 'gen1' ? 'bg-[#005596] text-white' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
+                      >1세대</button>
+                    </div>
+                  )}
+                </div>
                 <span className="text-sm font-bold text-gray-400">
                   합계 <span className="text-[#005596] text-base">{totalStats}</span>
                 </span>
               </div>
               <div className="flex flex-col gap-3">
-                {activeForm.stats.map(s => (
+                {displayStats.map(s => (
                   <StatBar
-                    key={`${activeForm.name}-${s.stat.name}`}
+                    key={`${activeForm.name}-${s.stat.name}-${genView}`}
                     label={STAT_KO[s.stat.name] ?? s.stat.name}
                     value={s.base_stat}
                     initialValue={prevStats[s.stat.name] ?? 0}
