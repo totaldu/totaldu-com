@@ -6,6 +6,7 @@ import { FORM_LABEL_KO } from '@/constants/formLabels';
 import { GEN1_SPECIAL }  from '@/constants/gen1Special';
 import { LAST_VERSION }  from '@/constants/lastVersion';
 import { FIRST_VERSION } from '@/constants/firstVersion';
+import { STAT_CHANGES, GEN_LAST_VERSION, GEN_FIRST_VERSION } from '@/constants/statChanges';
 import megaIcon from '@/assets/mega-icon.png';
 
 /* ─────────────────────────────────────────────
@@ -332,16 +333,25 @@ const PokemonDetailPage = () => {
   const gen1Special   = GEN1_SPECIAL[numericId];
 
   // Gen 1 모드에서는 special-attack·special-defense를 특수 하나로 교체
-  const displayStats = showGen1View
-    ? [
+  const displayStats = (() => {
+    if (showGen1View) {
+      return [
         ...activeForm.stats.filter(s => s.stat.name !== 'special-attack' && s.stat.name !== 'special-defense'),
         { stat: { name: 'special' }, base_stat: gen1Special },
-        // 스피드는 원래 stats 순서 유지를 위해 filter에서 포함됨
       ].sort((a, b) => {
         const order = ['hp','attack','defense','special','speed'];
         return order.indexOf(a.stat.name) - order.indexOf(b.stat.name);
-      })
-    : activeForm.stats;
+      });
+    }
+    if (genView === 'oldStat' && STAT_CHANGES[numericId]) {
+      const overrides = STAT_CHANGES[numericId].oldStats;
+      return activeForm.stats.map(s => ({
+        ...s,
+        base_stat: overrides[s.stat.name] ?? s.base_stat,
+      }));
+    }
+    return activeForm.stats;
+  })();
   const totalStats = displayStats.reduce((sum, s) => sum + s.base_stat, 0);
 
   const officialArt =
@@ -535,16 +545,39 @@ const PokemonDetailPage = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <h2 className="text-lg font-black text-gray-900">종족값</h2>
-                  {isGen1Pokemon && activeForm.name === baseForm.name && (() => {
-                    const lastVer  = LAST_VERSION[numericId]  ?? 'LGPE';
-                    const firstVer = isGen1Pokemon
-                      ? 'GSC'
-                      : (FIRST_VERSION[numericId] ?? 'GSC');
-                    const GEN_OPTIONS = [
-                      { value: 'gen1',   label: 'RGBY'                     },
-                      { value: 'modern', label: `${firstVer} - ${lastVer} (최신)` },
-                    ];
-                    const idx = GEN_OPTIONS.findIndex(o => o.value === genView);
+                  {activeForm.name === baseForm.name && (() => {
+                    const lastVer  = LAST_VERSION[numericId]  ?? 'SV';
+                    const firstVer = FIRST_VERSION[numericId] ?? 'RGBY';
+                    const change   = STAT_CHANGES[numericId];
+
+                    const GEN_OPTIONS = [];
+                    if (isGen1Pokemon) {
+                      GEN_OPTIONS.push({ value: 'gen1', label: 'RGBY' });
+                    }
+                    if (change) {
+                      const prevGen  = change.changedInGen - 1;
+                      const lastOld  = GEN_LAST_VERSION[prevGen]          ?? 'BW2';
+                      const firstNew = GEN_FIRST_VERSION[change.changedInGen] ?? 'XY';
+                      const oldFirst = isGen1Pokemon ? 'GSC' : firstVer;
+                      GEN_OPTIONS.push({
+                        value: 'oldStat',
+                        label: `${oldFirst} - ${lastOld} (${prevGen}세대까지)`,
+                      });
+                      GEN_OPTIONS.push({
+                        value: 'modern',
+                        label: `${firstNew} - ${lastVer} (최신, ${change.changedInGen}세대부터)`,
+                      });
+                    } else if (isGen1Pokemon) {
+                      GEN_OPTIONS.push({
+                        value: 'modern',
+                        label: `GSC - ${lastVer} (최신)`,
+                      });
+                    }
+
+                    if (GEN_OPTIONS.length < 2) return null;
+
+                    const safeView = GEN_OPTIONS.some(o => o.value === genView) ? genView : GEN_OPTIONS[GEN_OPTIONS.length - 1].value;
+                    const idx = GEN_OPTIONS.findIndex(o => o.value === safeView);
                     return (
                       <div className="flex items-center gap-1">
                         <button
@@ -553,7 +586,7 @@ const PokemonDetailPage = () => {
                           aria-label="이전 버전"
                         >◀</button>
                         <select
-                          value={genView}
+                          value={safeView}
                           onChange={e => setGenView(e.target.value)}
                           className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-medium shadow-sm"
                         >
