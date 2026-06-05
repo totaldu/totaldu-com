@@ -75,7 +75,7 @@ export const LAST_VERSION = {
   414:'USUM',415:'USUM',416:'USUM',417:'USUM',418:'USUM',419:'USUM',420:'USUM',421:'USUM',422:'USUM',
   423:'USUM',424:'USUM',425:'USUM',426:'USUM',427:'USUM',428:'Champions',429:'USUM',430:'USUM',431:'USUM',
   432:'USUM',433:'USUM',434:'USUM',435:'USUM',436:'USUM',437:'USUM',438:'USUM',439:'USUM',440:'USUM',
-  441:'USUM',442:'USUM',443:'USUM',444:'USUM',445:'Champions',446:'USUM',447:'USUM',448:'Champions',449:'USUM',
+  441:'USUM',442:'Champions',443:'USUM',444:'USUM',445:'Champions',446:'USUM',447:'USUM',448:'Champions',449:'USUM',
   450:'Champions',451:'USUM',452:'Champions',453:'USUM',454:'USUM',455:'USUM',456:'USUM',457:'USUM',458:'USUM',
   459:'USUM',460:'Champions',461:'Champions',462:'USUM',463:'USUM',464:'Champions',465:'USUM',466:'USUM',467:'USUM',
   468:'USUM',469:'USUM',470:'Champions',471:'Champions',472:'Champions',473:'Champions',474:'USUM',475:'Champions',476:'USUM',
@@ -91,7 +91,7 @@ export const LAST_VERSION = {
   539:'USUM',540:'USUM',541:'USUM',542:'USUM',543:'USUM',544:'USUM',545:'USUM',546:'USUM',547:'Champions',
   548:'USUM',549:'USUM',550:'USUM',551:'USUM',552:'USUM',553:'USUM',554:'USUM',555:'USUM',556:'USUM',
   557:'USUM',558:'USUM',559:'USUM',560:'Champions',561:'USUM',562:'USUM',563:'USUM',564:'USUM',565:'USUM',
-  566:'USUM',567:'USUM',568:'USUM',569:'USUM',570:'USUM',571:'Champions',572:'USUM',573:'USUM',574:'USUM',
+  566:'USUM',567:'USUM',568:'USUM',569:'Champions',570:'USUM',571:'Champions',572:'USUM',573:'USUM',574:'USUM',
   575:'USUM',576:'USUM',577:'USUM',578:'USUM',579:'Champions',580:'USUM',581:'Champions',582:'USUM',583:'USUM',
   584:'Champions',585:'USUM',586:'USUM',587:'Champions',588:'USUM',589:'USUM',590:'USUM',591:'USUM',592:'USUM',
   593:'USUM',594:'USUM',595:'USUM',596:'USUM',597:'USUM',598:'USUM',599:'USUM',600:'USUM',601:'USUM',
@@ -134,8 +134,8 @@ export const LAST_VERSION = {
   864:'SwSh',865:'SwSh',866:'Champions',867:'SwSh',868:'SwSh',869:'Champions',870:'SwSh',871:'SwSh',872:'SwSh',
   873:'SwSh',874:'SwSh',875:'SwSh',876:'SwSh',877:'Champions',878:'SwSh',879:'SwSh',880:'SwSh',881:'SwSh',
   882:'SwSh',883:'SwSh',884:'SwSh',885:'SwSh',886:'SwSh',887:'Champions',888:'SV',  889:'SV',  890:'SwSh',
-  891:'SwSh',892:'SwSh',893:'SwSh',894:'SwSh',895:'SwSh',896:'SwSh',897:'SwSh',898:'SwSh',899:'SwSh',
-  900:'SwSh',901:'SwSh',902:'SwSh',903:'SwSh',904:'SwSh',905:'SwSh',
+  891:'SwSh',892:'SwSh',893:'SwSh',894:'SwSh',895:'SwSh',896:'SwSh',897:'SwSh',898:'SwSh',899:'Champions',
+  900:'Champions',901:'SwSh',902:'Champions',903:'Champions',904:'SwSh',905:'SwSh',
 
   // ── Gen 9 (906-1025) 기본값: SV ──
    906:'SV', 907:'SV', 908:'Champions', 909:'SV', 910:'SV', 911:'Champions', 912:'SV', 913:'SV', 914:'Champions',
