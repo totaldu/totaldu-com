@@ -69,8 +69,17 @@ export const STAT_CHANGES = {
   558: { changedInGen: 7, oldStats: { 'attack': 95 } },                  // 이와파르도
   614: { changedInGen: 7, oldStats: { 'attack': 110 } },                 // 두빈곰
   615: { changedInGen: 7, oldStats: { 'hp': 70, 'attack': 30 } },        // 크류폼
+
+  // ── 8세대(SwSh)부터 변경 ─────────────────────────────────────
+  // 6세대
+  681: { changedInGen: 8, oldStats: { 'defense': 150, 'special-defense': 150 } }, // 애기슬래시
+
+  // ── 9세대(SV)부터 변경 ──────────────────────────────────────
+  // 8세대
+  888: { changedInGen: 9, oldStats: { 'attack': 130 } },                 // 자시안
+  889: { changedInGen: 9, oldStats: { 'attack': 130 } },                 // 자마젠타
 };
 
 // 세대 경계 버전 상수
-export const GEN_LAST_VERSION  = { 5: 'BW2', 6: 'ORAS' };
-export const GEN_FIRST_VERSION = { 6: 'XY',  7: 'SM'   };
+export const GEN_LAST_VERSION  = { 5: 'BW2', 6: 'ORAS', 7: 'USUM', 8: 'PLA' };
+export const GEN_FIRST_VERSION = { 6: 'XY',  7: 'SM',   8: 'SwSh', 9: 'SV'  };
