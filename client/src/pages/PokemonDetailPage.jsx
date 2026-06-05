@@ -361,6 +361,10 @@ const PokemonDetailPage = () => {
               />
 
               {specialForms.length > 0 && (
+                activeForm.name === baseForm.name ||
+                getFormBadgeInfo(activeForm.name) !== null ||
+                activeForm.name === 'magearna-original'
+              ) && (
                 <div style={{
                   position:      'absolute',
                   top:           '-28px',
