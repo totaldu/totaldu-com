@@ -183,8 +183,9 @@ const PokemonDetailPage = () => {
   const [forms,      setForms]      = useState([]);
   const [activeForm, setActiveForm] = useState(null);
   const [prevStats,  setPrevStats]  = useState({});
+  const [bgFixed,    setBgFixed]    = useState(null);
   const [bgOverlay,  setBgOverlay]  = useState(null);
-  const [bgFading,   setBgFading]   = useState(false);
+  const [bgVisible,  setBgVisible]  = useState(false);
   const [loading,    setLoading]    = useState(true);
   const [error,      setError]      = useState(null);
 
@@ -262,6 +263,16 @@ const PokemonDetailPage = () => {
     return () => window.removeEventListener('keydown', handler);
   }, [numericId, handleNav]);
 
+  /* activeForm 초기 세팅 시 bgFixed 동기화 */
+  useEffect(() => {
+    if (!activeForm) return;
+    const t = activeForm.types[0]?.type?.name || 'normal';
+    const s = activeForm.types[1]?.type?.name;
+    setBgFixed(computeBg(TYPE_COLORS[t] || '#A8A77A', s));
+    setBgOverlay(null);
+    setBgVisible(false);
+  }, [id]);   // 포켓몬이 바뀔 때만 고정 배경 리셋
+
   /* ── 폼 변경 ── */
   const handleFormChange = (form) => {
     if (!activeForm || form.name === activeForm.name) return;
@@ -269,12 +280,13 @@ const PokemonDetailPage = () => {
     activeForm.stats.forEach(s => { snapshot[s.stat.name] = s.base_stat; });
     setPrevStats(snapshot);
 
-    const curMainType  = activeForm.types[0]?.type?.name || 'normal';
-    const curSubType   = activeForm.types[1]?.type?.name;
-    const curMainColor = TYPE_COLORS[curMainType] || '#A8A77A';
-    setBgOverlay(computeBg(curMainColor, curSubType));
-    setBgFading(false);
-    requestAnimationFrame(() => requestAnimationFrame(() => setBgFading(true)));
+    const newMainType  = form.types[0]?.type?.name || 'normal';
+    const newSubType   = form.types[1]?.type?.name;
+    const newBg = computeBg(TYPE_COLORS[newMainType] || '#A8A77A', newSubType);
+
+    setBgOverlay(newBg);
+    setBgVisible(false);
+    requestAnimationFrame(() => requestAnimationFrame(() => setBgVisible(true)));
 
     setActiveForm(form);
   };
@@ -363,20 +375,24 @@ const PokemonDetailPage = () => {
             className="md:w-80 flex flex-col items-center justify-center p-10 shrink-0"
             style={{
               position: 'relative',
-              background: computeBg(mainColor, subType),
+              background: bgFixed ?? computeBg(mainColor, subType),
             }}
           >
             {bgOverlay && (
               <div
                 style={{
-                  position:   'absolute',
-                  inset:       0,
-                  background:  bgOverlay,
-                  opacity:     bgFading ? 0 : 1,
-                  transition:  'opacity 0.6s ease',
+                  position:      'absolute',
+                  inset:          0,
+                  background:     bgOverlay,
+                  opacity:        bgVisible ? 1 : 0,
+                  transition:     'opacity 0.6s ease',
                   pointerEvents: 'none',
                 }}
-                onTransitionEnd={() => setBgOverlay(null)}
+                onTransitionEnd={() => {
+                  setBgFixed(bgOverlay);
+                  setBgOverlay(null);
+                  setBgVisible(false);
+                }}
               />
             )}
             {/* 이미지 + 오버레이 버튼 */}
