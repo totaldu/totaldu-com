@@ -529,18 +529,36 @@ const PokemonDetailPage = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <h2 className="text-lg font-black text-gray-900">종족값</h2>
-                  {isGen1Pokemon && (
-                    <div className="flex rounded-lg overflow-hidden border border-gray-200 text-xs font-bold">
-                      <button
-                        onClick={() => setGenView('modern')}
-                        className={`px-2.5 py-1 transition-colors ${genView === 'modern' ? 'bg-[#005596] text-white' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
-                      >현대</button>
-                      <button
-                        onClick={() => setGenView('gen1')}
-                        className={`px-2.5 py-1 transition-colors ${genView === 'gen1' ? 'bg-[#005596] text-white' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
-                      >1세대</button>
-                    </div>
-                  )}
+                  {isGen1Pokemon && (() => {
+                    const GEN_OPTIONS = [
+                      { value: 'modern', label: '최신' },
+                      { value: 'gen1',   label: 'RGBY' },
+                    ];
+                    const idx = GEN_OPTIONS.findIndex(o => o.value === genView);
+                    return (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setGenView(GEN_OPTIONS[Math.max(0, idx - 1)].value)}
+                          className="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-xs transition-colors"
+                          aria-label="이전 버전"
+                        >◀</button>
+                        <select
+                          value={genView}
+                          onChange={e => setGenView(e.target.value)}
+                          className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-medium shadow-sm"
+                        >
+                          {GEN_OPTIONS.map(o => (
+                            <option key={o.value} value={o.value}>{o.label}</option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={() => setGenView(GEN_OPTIONS[Math.min(GEN_OPTIONS.length - 1, idx + 1)].value)}
+                          className="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-xs transition-colors"
+                          aria-label="다음 버전"
+                        >▶</button>
+                      </div>
+                    );
+                  })()}
                 </div>
                 <span className="text-sm font-bold text-gray-400">
                   합계 <span className="text-[#005596] text-base">{totalStats}</span>
