@@ -600,7 +600,7 @@ const PokemonDetailPage = () => {
               return (
                 <div className="bg-gray-50 rounded-2xl p-4">
                   <p className="text-xs text-gray-400 font-bold mb-2">특성</p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 justify-center">
                     {regular.map(a => (
                       <span key={a.ability.name}
                         className="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm font-semibold text-gray-700 shadow-sm">
@@ -608,7 +608,7 @@ const PokemonDetailPage = () => {
                       </span>
                     ))}
                     {hidden && (
-                      <span className="px-3 py-1 bg-white border border-dashed border-gray-300 rounded-full text-sm font-semibold text-gray-400 flex items-center gap-1.5">
+                      <span className="px-3 py-1 bg-white border border-dashed border-gray-300 rounded-full text-sm font-semibold text-gray-700 flex items-center gap-1.5">
                         <span className="text-[10px] font-bold text-gray-300 leading-none">숨겨진</span>
                         {abilityKo[hidden.ability.name] ?? hidden.ability.name}
                       </span>
