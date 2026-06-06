@@ -26,15 +26,43 @@ const EXCLUDED_NAMES = new Set([
   'pikachu-alola-cap',  // 알로라캡 피카츄 — 리전폼이 아닌 의상 폼
 ]);
 
-// 기본 폼이거나 메가진화/원시회귀/리전폼인 경우에만 표시
-const shouldShowInAbilityList = (pokemonName) => {
-  if (EXCLUDED_NAMES.has(pokemonName)) return false;       // 명시적 제외
+// 이름 패턴 기반 기본 판별 (nameMap 없이 바로 결정 가능한 것만)
+const isDefinitelyBase = (pokemonName) => {
+  if (EXCLUDED_NAMES.has(pokemonName)) return null;        // null → 명시적 제외
   if (!pokemonName.includes('-')) return true;             // 하이픈 없음 → 기본 폼
   if (HYPHENATED_BASE_NAMES.has(pokemonName)) return true; // 하이픈 포함 기본 폼
-  if (pokemonName.includes('mega')) return true;           // 메가진화 예외
-  if (pokemonName.includes('primal')) return true;         // 원시회귀 예외 (그란돈/가이오가)
-  if (REGIONAL_KEYWORDS.some(r => pokemonName.includes(r))) return true; // 리전폼 예외
-  return false;
+  if (pokemonName.includes('mega')) return true;           // 메가진화 → 항상 표시
+  if (pokemonName.includes('primal')) return true;         // 원시회귀 (그란돈/가이오가)
+  if (REGIONAL_KEYWORDS.some(r => pokemonName.includes(r))) return true; // 리전폼
+  return false; // false → nameMap으로 추가 판단 필요
+};
+
+// 전체 목록(nameMap)을 활용해 폼 변경 시 특성이 달라지는 폼도 포함
+const buildPokemonList = (allEntries) => {
+  // 이름 → 엔트리 맵 (기본 폼 특성 역할 비교용)
+  const nameMap = Object.fromEntries(allEntries.map(p => [p.name, p]));
+
+  return allEntries.filter(p => {
+    const base = isDefinitelyBase(p.name);
+    if (base === null) return false;   // 명시적 제외
+    if (base === true)  return true;   // 확실한 표시 대상
+
+    // base === false: 기타 폼 → nameMap으로 판단
+    const baseName  = p.name.split('-')[0];
+    const baseEntry = nameMap[baseName];
+
+    if (!baseEntry) {
+      // 기본 폼(baseName)이 이 특성을 아예 갖지 않음
+      // → 이 폼만의 고유 특성 → 표시 (큐레무 블랙/화이트, 칼로스 빙마 등)
+      return true;
+    }
+
+    // 기본 폼이 이 특성을 숨겨진 특성으로 갖고, 이 폼은 일반 특성으로 가짐
+    // → 폼 변경 시 특성 역할이 달라짐 → 표시 (토네로스/썬더루스/랜드로스 영물폼 등)
+    if (!p.is_hidden && baseEntry.is_hidden) return true;
+
+    return false;
+  });
 };
 
 const AbilityDetailPage = () => {
@@ -77,15 +105,13 @@ const AbilityDetailPage = () => {
       .trim();
   const description = getDesc('ko') ?? abilityKoDescs[name] ?? getDesc('en') ?? '설명 없음';
 
-  // 배울 수 있는 포켓몬: 기본 폼 + 메가진화 + 리전폼만 표시, ID 순 정렬
-  const pokemonList = data.pokemon
-    .map(p => {
-      const url = p.pokemon.url;
-      const id  = parseInt(url.split('/').filter(Boolean).pop(), 10);
-      return { id, name: p.pokemon.name, is_hidden: p.is_hidden };
-    })
-    .filter(p => shouldShowInAbilityList(p.name))
-    .sort((a, b) => a.id - b.id);
+  // 배울 수 있는 포켓몬: ID 순 정렬 후 필터
+  const allPokemon = data.pokemon.map(p => {
+    const url = p.pokemon.url;
+    const id  = parseInt(url.split('/').filter(Boolean).pop(), 10);
+    return { id, name: p.pokemon.name, is_hidden: p.is_hidden };
+  });
+  const pokemonList = buildPokemonList(allPokemon).sort((a, b) => a.id - b.id);
 
   // normal / hidden 분리
   const regular = pokemonList.filter(p => !p.is_hidden);
