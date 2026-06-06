@@ -335,64 +335,95 @@ const getEvoCondition = (details) => {
 };
 
 const EvoNode = ({ node, currentSpeciesId }) => {
-  const speciesId  = parseInt(node.species.url.split('/').filter(Boolean).pop(), 10);
-  const isCurrent  = speciesId === currentSpeciesId;
-  const koName     = getKoreanName(node.species.name) || node.species.name;
-  const champUrl   = getChampionsSpriteUrl(node.species.name);
+  const speciesId   = parseInt(node.species.url.split('/').filter(Boolean).pop(), 10);
+  const isCurrent   = speciesId === currentSpeciesId;
+  const koName      = getKoreanName(node.species.name) || node.species.name;
+  const champUrl    = getChampionsSpriteUrl(node.species.name);
   const fallbackUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${speciesId}.png`;
-  const sprite     = champUrl ?? fallbackUrl;
+  const sprite      = champUrl ?? fallbackUrl;
 
-  return (
-    <div className="flex items-center gap-1">
-      {/* 포켓몬 버블 */}
-      <Link
-        to={`/pokedex/${speciesId}`}
-        className={`flex flex-col items-center gap-0.5 p-2 rounded-xl border-2 transition-all hover:shadow-md
-          ${isCurrent
-            ? 'border-[#005596] bg-blue-50 shadow-sm'
-            : 'border-gray-100 bg-white hover:border-[#005596]'}`}
-        style={{ minWidth:'68px' }}
-      >
-        <img
-          src={sprite}
-          alt={koName}
-          className="w-12 h-12 object-contain"
-          loading="lazy"
-          onError={e => { e.target.onerror = null; e.target.src = fallbackUrl; }}
-        />
-        <span className="text-[10px] font-bold text-gray-700 text-center leading-tight"
-              style={{ maxWidth:'60px', wordBreak:'keep-all' }}>
-          {koName}
-        </span>
-        <span className="text-[9px] text-gray-400 font-mono">
-          #{String(speciesId).padStart(3,'0')}
-        </span>
-      </Link>
+  // 포켓몬 버블 (공통)
+  const bubble = (
+    <Link
+      to={`/pokedex/${speciesId}`}
+      className={`flex flex-col items-center gap-0.5 p-2 rounded-xl border-2 transition-all hover:shadow-md
+        ${isCurrent
+          ? 'border-[#005596] bg-blue-50 shadow-sm'
+          : 'border-gray-100 bg-white hover:border-[#005596]'}`}
+      style={{ minWidth:'68px' }}
+    >
+      <img
+        src={sprite}
+        alt={koName}
+        className="w-12 h-12 object-contain"
+        loading="lazy"
+        onError={e => { e.target.onerror = null; e.target.src = fallbackUrl; }}
+      />
+      <span className="text-[10px] font-bold text-gray-700 text-center leading-tight"
+            style={{ maxWidth:'60px', wordBreak:'keep-all' }}>
+        {koName}
+      </span>
+      <span className="text-[9px] text-gray-400 font-mono">
+        #{String(speciesId).padStart(3,'0')}
+      </span>
+    </Link>
+  );
 
-      {/* 자식 진화들 */}
-      {node.evolves_to.length > 0 && (
-        <div className={`flex flex-col ${node.evolves_to.length > 1 ? 'gap-3' : ''}`}>
+  // 진화 없음
+  if (node.evolves_to.length === 0) return bubble;
+
+  // ── 분기 3개 이상 → 그리드 레이아웃 ─────────────────────────────────────
+  if (node.evolves_to.length >= 3) {
+    const cols      = node.evolves_to.length <= 3 ? 3 : 4;
+    const gridStyle = { display:'grid', gridTemplateColumns:`repeat(${cols}, minmax(0, 1fr))`, gap:'16px 12px' };
+    return (
+      <div className="flex items-center gap-6">
+        {bubble}
+        <div style={gridStyle}>
           {node.evolves_to.map((evo, i) => {
             const cond = getEvoCondition(evo.evolution_details);
             return (
-              <div key={i} className="flex items-center gap-1">
-                {/* 화살표 + 조건 */}
-                <div className="flex flex-col items-center justify-center gap-0.5 px-1"
-                     style={{ minWidth:'64px' }}>
-                  {cond && (
-                    <span className="text-[9px] text-gray-500 text-center leading-tight"
-                          style={{ maxWidth:'64px', wordBreak:'keep-all' }}>
-                      {cond}
-                    </span>
-                  )}
-                  <span className="text-gray-300 text-xl leading-none">→</span>
-                </div>
+              <div key={i} className="flex flex-col items-center gap-0.5">
+                {cond && (
+                  <span className="text-[9px] text-gray-500 text-center leading-tight"
+                        style={{ maxWidth:'80px', wordBreak:'keep-all' }}>
+                    {cond}
+                  </span>
+                )}
+                <span className="text-gray-300 text-xl leading-none">↓</span>
                 <EvoNode node={evo} currentSpeciesId={currentSpeciesId} />
               </div>
             );
           })}
         </div>
-      )}
+      </div>
+    );
+  }
+
+  // ── 분기 1~2개 → 기존 인라인 레이아웃 ───────────────────────────────────
+  return (
+    <div className="flex items-center gap-1">
+      {bubble}
+      <div className={`flex flex-col ${node.evolves_to.length > 1 ? 'gap-3' : ''}`}>
+        {node.evolves_to.map((evo, i) => {
+          const cond = getEvoCondition(evo.evolution_details);
+          return (
+            <div key={i} className="flex items-center gap-1">
+              <div className="flex flex-col items-center justify-center gap-0.5 px-1"
+                   style={{ minWidth:'64px' }}>
+                {cond && (
+                  <span className="text-[9px] text-gray-500 text-center leading-tight"
+                        style={{ maxWidth:'64px', wordBreak:'keep-all' }}>
+                    {cond}
+                  </span>
+                )}
+                <span className="text-gray-300 text-xl leading-none">→</span>
+              </div>
+              <EvoNode node={evo} currentSpeciesId={currentSpeciesId} />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
