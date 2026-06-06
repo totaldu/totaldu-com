@@ -483,9 +483,9 @@ const PokemonDetailPage = () => {
   return (
     <div className="w-full flex flex-col gap-6">
 
-      {/* 도감으로 돌아가기 */}
+      {/* 도감으로 돌아가기 — 해당 포켓몬의 도감번호 기준 페이지로 이동 */}
       <button
-        onClick={() => navigate(`/pokedex?page=${fromPage}`)}
+        onClick={() => navigate(`/pokedex?page=${Math.ceil(numericId / 30)}`)}
         className="inline-flex items-center gap-1 text-sm font-bold text-[#005596] hover:underline w-fit"
       >
         ← 도감으로 돌아가기
