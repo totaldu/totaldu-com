@@ -22,9 +22,10 @@ const HYPHENATED_BASE_NAMES = new Set([
 
 const REGIONAL_KEYWORDS = ['alola','galar','hisui','paldea'];
 
-// 리전 키워드가 포함되더라도 실제 리전폼이 아닌 폼 (명시적 제외)
+// 특성 목록에서 명시적으로 제외할 폼
 const EXCLUDED_NAMES = new Set([
-  'pikachu-alola-cap',  // 알로라캡 피카츄 — 리전폼이 아닌 의상 폼
+  'pikachu-alola-cap',        // 알로라캡 피카츄 — 리전폼이 아닌 의상 폼
+  'maushold-family-of-three', // 파밀리쥐 세 식구 — 네 식구(기본)만 표시
 ]);
 
 // 이름 패턴 기반 기본 판별 (nameMap 없이 바로 결정 가능한 것만)
@@ -34,6 +35,8 @@ const isDefinitelyBase = (pokemonName) => {
   if (HYPHENATED_BASE_NAMES.has(pokemonName)) return true; // 하이픈 포함 기본 폼
   if (pokemonName.includes('mega')) return true;           // 메가진화 → 항상 표시
   if (pokemonName.includes('primal')) return true;         // 원시회귀 (그란돈/가이오가)
+  // 거다이맥스: 기본 폼과 동일 특성이지만 PokeAPI nameMap 조회 실패로 오노출되므로 명시 제외
+  if (pokemonName.includes('gmax')) return null;
   if (REGIONAL_KEYWORDS.some(r => pokemonName.includes(r))) return true; // 리전폼
   return false; // false → nameMap으로 추가 판단 필요
 };
