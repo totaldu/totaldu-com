@@ -666,17 +666,32 @@ const PokemonDetailPage = () => {
                   })()}
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowAvgLine(v => !v)}
-                    title="챔피언스 등장 포켓몬(184마리) 기준 평균선 표시"
-                    className={`text-xs px-2 py-0.5 rounded border font-medium transition-all ${
-                      showAvgLine
-                        ? 'bg-gray-700 text-white border-gray-700'
-                        : 'bg-white text-gray-400 border-gray-200 hover:border-gray-500 hover:text-gray-600'
-                    }`}
-                  >
-                    평균선
-                  </button>
+                  <div className="relative group">
+                    <button
+                      onClick={() => setShowAvgLine(v => !v)}
+                      className={`text-xs px-2 py-0.5 rounded border font-medium transition-all ${
+                        showAvgLine
+                          ? 'bg-gray-700 text-white border-gray-700'
+                          : 'bg-white text-gray-400 border-gray-200 hover:border-gray-500 hover:text-gray-600'
+                      }`}
+                    >
+                      평균
+                    </button>
+                    {/* 말풍선 툴팁 */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 pointer-events-none">
+                      <div className="bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-lg"
+                        style={{ whiteSpace: 'nowrap' }}>
+                        pokémon champions에 등장하는 포켓몬들의 종족값 평균입니다.
+                      </div>
+                      <div className="w-0 h-0 mx-auto"
+                        style={{
+                          borderLeft:  '6px solid transparent',
+                          borderRight: '6px solid transparent',
+                          borderTop:   '6px solid #1f2937',
+                        }}
+                      />
+                    </div>
+                  </div>
                   <span className="text-sm font-bold text-gray-400">
                     합계 <span className="text-[#005596] text-base">{totalStats}</span>
                   </span>
