@@ -4,6 +4,31 @@ import { useParams, Link } from 'react-router-dom';
 import abilityKo from '@/data/abilityKoreanNames.json';
 import { getKoreanName } from '../utils/pokemonUtils';
 
+// 이름에 하이픈이 포함되어 있지만 기본 폼인 포켓몬 목록
+const HYPHENATED_BASE_NAMES = new Set([
+  'mr-mime','mime-jr','mr-rime','ho-oh','porygon-z','type-null',
+  'jangmo-o','hakamo-o','kommo-o',
+  'tapu-koko','tapu-lele','tapu-bulu','tapu-fini',
+  'wo-chien','chien-pao','ting-lu','chi-yu',
+  'iron-treads','iron-bundle','iron-hands','iron-jugulis',
+  'iron-moth','iron-thorns','iron-valiant','iron-leaves',
+  'iron-boulder','iron-crown',
+  'great-tusk','scream-tail','brute-bonnet','flutter-mane',
+  'slither-wing','sandy-shocks','roaring-moon',
+  'walking-wake','gouging-fire','raging-bolt',
+]);
+
+const REGIONAL_KEYWORDS = ['alola','galar','hisui','paldea'];
+
+// 기본 폼이거나 메가진화/리전폼인 경우에만 표시
+const shouldShowInAbilityList = (pokemonName) => {
+  if (!pokemonName.includes('-')) return true;           // 하이픈 없음 → 기본 폼
+  if (HYPHENATED_BASE_NAMES.has(pokemonName)) return true; // 하이픈 포함 기본 폼
+  if (pokemonName.includes('mega')) return true;          // 메가진화 예외
+  if (REGIONAL_KEYWORDS.some(r => pokemonName.includes(r))) return true; // 리전폼 예외
+  return false;
+};
+
 const AbilityDetailPage = () => {
   const { name } = useParams();
   const [data,    setData]    = useState(null);
@@ -44,13 +69,14 @@ const AbilityDetailPage = () => {
       .trim();
   const description = getDesc('ko') ?? getDesc('en') ?? '설명 없음';
 
-  // 배울 수 있는 포켓몬: ID 순 정렬, 중복 base name 제거
+  // 배울 수 있는 포켓몬: 기본 폼 + 메가진화 + 리전폼만 표시, ID 순 정렬
   const pokemonList = data.pokemon
     .map(p => {
       const url = p.pokemon.url;
       const id  = parseInt(url.split('/').filter(Boolean).pop(), 10);
       return { id, name: p.pokemon.name, is_hidden: p.is_hidden };
     })
+    .filter(p => shouldShowInAbilityList(p.name))
     .sort((a, b) => a.id - b.id);
 
   // normal / hidden 분리
