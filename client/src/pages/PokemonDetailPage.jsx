@@ -88,8 +88,20 @@ const FORM_NAME_OVERRIDE = {
 };
 const getFormLabel = (formName) => {
   if (FORM_NAME_OVERRIDE[formName]) return FORM_NAME_OVERRIDE[formName];
-  const parts  = formName.split('-');
+  const parts = formName.split('-');
   if (parts.length === 1) return getKoreanName(formName);
+
+  // 메가진화: 이름에 'mega'가 포함된 경우 → 메가[한국어이름] (X/Y/Z)
+  const megaIdx = parts.indexOf('mega');
+  if (megaIdx !== -1) {
+    const baseKo    = getKoreanName(parts[0]) || parts[0];
+    const middle    = parts.slice(1, megaIdx).join('-');
+    const middleStr = middle ? ` (${FORM_LABEL_KO[middle] ?? middle})` : '';
+    const variant   = parts[megaIdx + 1];
+    const variantStr = ['x','y','z'].includes(variant) ? ` ${variant.toUpperCase()}` : '';
+    return `메가${baseKo}${middleStr}${variantStr}`;
+  }
+
   const suffix = parts.slice(1).join('-');
   return FORM_LABEL_KO[suffix] ?? suffix;
 };

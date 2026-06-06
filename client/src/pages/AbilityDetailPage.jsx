@@ -57,8 +57,21 @@ const AbilityDetailPage = () => {
   const regular = pokemonList.filter(p => !p.is_hidden);
   const hidden  = pokemonList.filter(p =>  p.is_hidden);
 
+  // 메가진화 폼 포함 표시 이름
+  const getDisplayName = (pokemonName) => {
+    const parts    = pokemonName.split('-');
+    const megaIdx  = parts.indexOf('mega');
+    if (megaIdx !== -1) {
+      const baseKo    = getKoreanName(parts[0]) || parts[0];
+      const variant   = parts[megaIdx + 1];
+      const variantStr = ['x','y','z'].includes(variant) ? ` ${variant.toUpperCase()}` : '';
+      return `메가${baseKo}${variantStr}`;
+    }
+    return getKoreanName(pokemonName) || pokemonName;
+  };
+
   const PokemonCard = ({ p }) => {
-    const komonName = getKoreanName(p.name) || p.name;
+    const komonName = getDisplayName(p.name);
     return (
       <Link
         to={`/pokedex/${p.id}`}
