@@ -67,6 +67,10 @@ const isHiddenForm = (formName) => {
   return HIDDEN_FORM_SUFFIXES.has(suffix);
 };
 
+// 클릭 토글로 기본 폼 복귀가 불가능한 리전 폼 판별
+const isRegionalForm = (formName) =>
+  ['alola', 'galar', 'hisui', 'paldea'].some(r => formName.includes(r));
+
 // 특수 폼이 기본 폼이 아닌 특정 폼에서만 전환되어야 하는 경우
 // key: 특수 폼 이름, value: 부모 폼 이름
 const SPECIAL_FORM_PARENT = {
@@ -426,7 +430,13 @@ const PokemonDetailPage = () => {
             return (
               <button
                 key={form.name}
-                onClick={() => handleFormChange(form)}
+                onClick={() => {
+                  if (activeForm.name === form.name && !isRegionalForm(form.name)) {
+                    handleFormChange(baseForm);
+                  } else {
+                    handleFormChange(form);
+                  }
+                }}
                 className={`px-4 py-1.5 rounded-full text-sm font-bold border transition-all ${
                   activeForm.name === form.name
                     ? 'bg-[#005596] text-white border-[#005596]'
