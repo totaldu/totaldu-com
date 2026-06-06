@@ -685,7 +685,7 @@ const PokemonDetailPage = () => {
                     {desc && (
                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block z-50 pointer-events-none"
                            style={{ width: '220px' }}>
-                        <div className="bg-white text-gray-700 text-xs rounded-lg px-3 py-2 shadow-lg border border-gray-200 leading-relaxed">
+                        <div className="bg-white text-gray-700 text-xs rounded-lg px-3 py-2 shadow-lg border border-gray-200 leading-relaxed break-keep">
                           {desc}
                         </div>
                       </div>
