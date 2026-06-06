@@ -1,8 +1,10 @@
 // client/src/pages/AbilityDetailPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import SparkMD5 from 'spark-md5';
 import abilityKo from '@/data/abilityKoreanNames.json';
 import abilityKoDescs from '@/data/abilityKoreanDescs.json';
+import nameToId from '@/data/pokemonNameToId.json';
 import { getKoreanName } from '../utils/pokemonUtils';
 
 // 이름에 하이픈이 포함되어 있지만 기본 폼인 포켓몬 목록
@@ -20,6 +22,57 @@ const HYPHENATED_BASE_NAMES = new Set([
 ]);
 
 const REGIONAL_KEYWORDS = ['alola','galar','hisui','paldea'];
+
+// ─── Champions 메뉴 스프라이트 URL 생성 ───────────────────────────────────────
+// Bulbagarden Archives: URL = media/upload/{md5[0]}/{md5[0:2]}/{filename}
+const getChampionsSpriteUrl = (pokemonName) => {
+  // 기본 폼 직접 조회 (하이픈 포함 기본 폼도 포함)
+  if (nameToId[pokemonName] !== undefined) {
+    const dexNum = nameToId[pokemonName];
+    const padded = String(dexNum).padStart(4, '0');
+    const filename = `Menu_CP_${padded}.png`;
+    const hash = SparkMD5.hash(filename);
+    return `https://archives.bulbagarden.net/media/upload/${hash[0]}/${hash.slice(0, 2)}/${filename}`;
+  }
+
+  // 폼 접미사 파싱
+  const parts = pokemonName.split('-');
+  let champSuffix = '';
+  let baseParts = [...parts];
+
+  const megaIdx = parts.indexOf('mega');
+  if (megaIdx !== -1) {
+    const next = parts[megaIdx + 1];
+    if (next === 'x')      champSuffix = '-Mega_X';
+    else if (next === 'y') champSuffix = '-Mega_Y';
+    else                   champSuffix = '-Mega';
+    baseParts = parts.slice(0, megaIdx);
+  } else if (parts.includes('primal')) {
+    champSuffix = '-Primal';
+    baseParts   = parts.filter(p => p !== 'primal');
+  } else if (parts.includes('alola')) {
+    champSuffix = '-Alola';
+    baseParts   = parts.filter(p => p !== 'alola');
+  } else if (parts.includes('galar')) {
+    champSuffix = '-Galar';
+    baseParts   = parts.filter(p => p !== 'galar');
+  } else if (parts.includes('hisui')) {
+    champSuffix = '-Hisui';
+    baseParts   = parts.filter(p => p !== 'hisui');
+  } else if (parts.includes('paldea')) {
+    champSuffix = '-Paldea';
+    baseParts   = parts.filter(p => p !== 'paldea');
+  }
+
+  const baseName = baseParts.join('-');
+  const dexNum   = nameToId[baseName];
+  if (dexNum === undefined) return null; // 알 수 없는 폼 → null (fallback)
+
+  const padded   = String(dexNum).padStart(4, '0');
+  const filename = `Menu_CP_${padded}${champSuffix}.png`;
+  const hash     = SparkMD5.hash(filename);
+  return `https://archives.bulbagarden.net/media/upload/${hash[0]}/${hash.slice(0, 2)}/${filename}`;
+};
 
 // 리전 키워드가 포함되더라도 실제 리전폼이 아닌 폼 (명시적 제외)
 const EXCLUDED_NAMES = new Set([
@@ -65,6 +118,46 @@ const buildPokemonList = (allEntries) => {
   });
 };
 
+// ─── 표시 이름 (메가진화 등 처리) ─────────────────────────────────────────────
+const getDisplayName = (pokemonName) => {
+  const parts   = pokemonName.split('-');
+  const megaIdx = parts.indexOf('mega');
+  if (megaIdx !== -1) {
+    const baseKo    = getKoreanName(parts[0]) || parts[0];
+    const variant   = parts[megaIdx + 1];
+    const variantStr = ['x','y','z'].includes(variant) ? ` ${variant.toUpperCase()}` : '';
+    return `메가${baseKo}${variantStr}`;
+  }
+  return getKoreanName(pokemonName) || pokemonName;
+};
+
+// ─── 포켓몬 카드 컴포넌트 ────────────────────────────────────────────────────
+const PokemonCard = ({ p }) => {
+  const komonName  = getDisplayName(p.name);
+  const champUrl   = getChampionsSpriteUrl(p.name);
+  const fallbackUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
+
+  return (
+    <Link
+      to={`/pokedex/${p.id}`}
+      className="flex flex-col items-center gap-1 p-2.5 bg-white rounded-2xl border border-gray-100
+                 hover:border-[#005596] hover:shadow-md transition-all"
+    >
+      <img
+        src={champUrl ?? fallbackUrl}
+        alt={komonName}
+        className="w-14 h-16 object-contain"
+        loading="lazy"
+        onError={e => { e.target.onerror = null; e.target.src = fallbackUrl; }}
+      />
+      <span className="text-[11px] font-bold text-gray-700 text-center leading-tight line-clamp-2">
+        {komonName}
+      </span>
+    </Link>
+  );
+};
+
+// ─── 메인 페이지 ─────────────────────────────────────────────────────────────
 const AbilityDetailPage = () => {
   const { name } = useParams();
   const [data,    setData]    = useState(null);
@@ -116,40 +209,6 @@ const AbilityDetailPage = () => {
   // normal / hidden 분리
   const regular = pokemonList.filter(p => !p.is_hidden);
   const hidden  = pokemonList.filter(p =>  p.is_hidden);
-
-  // 메가진화 폼 포함 표시 이름
-  const getDisplayName = (pokemonName) => {
-    const parts    = pokemonName.split('-');
-    const megaIdx  = parts.indexOf('mega');
-    if (megaIdx !== -1) {
-      const baseKo    = getKoreanName(parts[0]) || parts[0];
-      const variant   = parts[megaIdx + 1];
-      const variantStr = ['x','y','z'].includes(variant) ? ` ${variant.toUpperCase()}` : '';
-      return `메가${baseKo}${variantStr}`;
-    }
-    return getKoreanName(pokemonName) || pokemonName;
-  };
-
-  const PokemonCard = ({ p }) => {
-    const komonName = getDisplayName(p.name);
-    return (
-      <Link
-        to={`/pokedex/${p.id}`}
-        className="flex flex-col items-center gap-1 p-2.5 bg-white rounded-2xl border border-gray-100
-                   hover:border-[#005596] hover:shadow-md transition-all"
-      >
-        <img
-          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`}
-          alt={komonName}
-          className="w-14 h-14 object-contain"
-          loading="lazy"
-        />
-        <span className="text-[11px] font-bold text-gray-700 text-center leading-tight line-clamp-2">
-          {komonName}
-        </span>
-      </Link>
-    );
-  };
 
   return (
     <div className="w-full flex flex-col gap-6">
