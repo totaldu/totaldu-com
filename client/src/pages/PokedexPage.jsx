@@ -155,8 +155,14 @@ const PokedexPage = () => {
   }, []);
 
   /* ── ③ 필터링 */
-  // 겹자음을 분리 초성으로 확장 (예: ㄽ→ㄹㅅ, ㄳ→ㄱㅅ)
-  const expandConsonants = (q) => q.replace(/ㄳ/g, 'ㄱㅅ').replace(/ㄽ/g, 'ㄹㅅ');
+  // 겹자음을 분리 초성으로 확장
+  const expandConsonants = (q) => q
+    .replace(/ㄳ/g, 'ㄱㅅ')
+    .replace(/ㄶ/g, 'ㄴㅎ')
+    .replace(/ㄻ/g, 'ㄹㅁ')
+    .replace(/ㄼ/g, 'ㄹㅂ')
+    .replace(/ㄽ/g, 'ㄹㅅ')
+    .replace(/ㅀ/g, 'ㄹㅎ');
 
   const filteredPokemon = useMemo(() => {
     if (!searchQuery) return allPokemon;
