@@ -6,7 +6,7 @@ import { FORM_LABEL_KO } from '@/constants/formLabels';
 import { GEN1_SPECIAL }  from '@/constants/gen1Special';
 import { LAST_VERSION }  from '@/constants/lastVersion';
 import { FIRST_VERSION } from '@/constants/firstVersion';
-import { STAT_CHANGES, FORM_STAT_CHANGES, GEN_LAST_VERSION, GEN_FIRST_VERSION } from '@/constants/statChanges';
+import { STAT_CHANGES, FORM_STAT_CHANGES, GEN_LAST_VERSION, GEN_FIRST_VERSION, CHAMPIONS_AVG_STATS } from '@/constants/statChanges';
 import megaIcon from '@/assets/mega-icon.png';
 
 /* ─────────────────────────────────────────────
@@ -107,7 +107,7 @@ const getFormBadgeInfo = (formName) => {
 /* ─────────────────────────────────────────────
    StatBar
 ───────────────────────────────────────────── */
-const StatBar = ({ label, value, initialValue = 0, showScale = false }) => {
+const StatBar = ({ label, value, initialValue = 0, showScale = false, avgValue, showAvg = false }) => {
   const MAX_STAT   = 255;
   const targetPct  = Math.min((value        / MAX_STAT) * 100, 100);
   const initialPct = Math.min((initialValue / MAX_STAT) * 100, 100);
@@ -128,6 +128,8 @@ const StatBar = ({ label, value, initialValue = 0, showScale = false }) => {
     return '#ef4444';
   };
 
+  const avgPct = (avgValue != null) ? Math.min((avgValue / MAX_STAT) * 100, 100) : null;
+
   return (
     <div className="flex items-center gap-3">
       <span className="w-20 text-right text-sm text-gray-500 shrink-0">{label}</span>
@@ -139,13 +141,32 @@ const StatBar = ({ label, value, initialValue = 0, showScale = false }) => {
             <span className="text-[10px] text-gray-400 leading-none">255</span>
           </div>
         )}
-        <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
-          <div style={{
-            height:'100%', borderRadius:'9999px',
-            backgroundColor: getColor(value),
-            width:`${width}%`,
-            transition:'width 700ms cubic-bezier(0.4,0,0.2,1)',
-          }} />
+        <div className="relative">
+          <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div style={{
+              height:'100%', borderRadius:'9999px',
+              backgroundColor: getColor(value),
+              width:`${width}%`,
+              transition:'width 700ms cubic-bezier(0.4,0,0.2,1)',
+            }} />
+          </div>
+          {showAvg && avgPct != null && (
+            <div
+              title={`챔피언스 평균: ${avgValue}`}
+              style={{
+                position:        'absolute',
+                top:             '-3px',
+                left:            `${avgPct}%`,
+                height:          'calc(100% + 6px)',
+                width:           '2px',
+                backgroundColor: '#374151',
+                transform:       'translateX(-50%)',
+                borderRadius:    '1px',
+                pointerEvents:   'none',
+                opacity:         0.65,
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -220,9 +241,10 @@ const PokemonDetailPage = () => {
   const [prevStats,  setPrevStats]  = useState({});
   const [loading,    setLoading]    = useState(true);
   const [error,      setError]      = useState(null);
-  const [bgOverlay,  setBgOverlay]  = useState(null);  // 구 배경 fade-out
-  const [bgFading,   setBgFading]   = useState(false);
-  const [genView,    setGenView]    = useState('modern'); // 'modern' | 'gen1'
+  const [bgOverlay,   setBgOverlay]  = useState(null);  // 구 배경 fade-out
+  const [bgFading,    setBgFading]   = useState(false);
+  const [genView,     setGenView]    = useState('modern'); // 'modern' | 'gen1'
+  const [showAvgLine, setShowAvgLine] = useState(false);  // 챔피언스 평균선
 
   /* ── 내비게이션 ── */
   const handleNav = useCallback((targetId) => {
@@ -643,9 +665,22 @@ const PokemonDetailPage = () => {
                     );
                   })()}
                 </div>
-                <span className="text-sm font-bold text-gray-400">
-                  합계 <span className="text-[#005596] text-base">{totalStats}</span>
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowAvgLine(v => !v)}
+                    title="챔피언스 등장 포켓몬(184마리) 기준 평균선 표시"
+                    className={`text-xs px-2 py-0.5 rounded border font-medium transition-all ${
+                      showAvgLine
+                        ? 'bg-gray-700 text-white border-gray-700'
+                        : 'bg-white text-gray-400 border-gray-200 hover:border-gray-500 hover:text-gray-600'
+                    }`}
+                  >
+                    평균선
+                  </button>
+                  <span className="text-sm font-bold text-gray-400">
+                    합계 <span className="text-[#005596] text-base">{totalStats}</span>
+                  </span>
+                </div>
               </div>
               <div className="flex flex-col gap-3">
                 {displayStats.map(s => (
@@ -655,6 +690,8 @@ const PokemonDetailPage = () => {
                     value={s.base_stat}
                     initialValue={prevStats[s.stat.name] ?? 0}
                     showScale={s.stat.name === 'hp'}
+                    avgValue={CHAMPIONS_AVG_STATS[s.stat.name]}
+                    showAvg={showAvgLine}
                   />
                 ))}
               </div>

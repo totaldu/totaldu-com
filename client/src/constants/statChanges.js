@@ -89,3 +89,13 @@ export const GEN_FIRST_VERSION = { 6: 'XY',  7: 'SM',   8: 'SwSh', 9: 'SV'  };
 export const FORM_STAT_CHANGES = {
   'alakazam-mega': { changedInGen: 7, firstVersion: 'XY', oldStats: { 'special-defense': 95 } },
 };
+
+// Champions 등장 포켓몬(184마리) 기준 스탯 평균값
+export const CHAMPIONS_AVG_STATS = {
+  'hp':               79.8,
+  'attack':           89.9,
+  'defense':          80.9,
+  'special-attack':   81.1,
+  'special-defense':  81.7,
+  'speed':            76.2,
+};
