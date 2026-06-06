@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { getKoreanName } from '../utils/pokemonUtils';
+import { getChampionsSpriteUrl } from '../utils/championsSprite';
 import { FORM_LABEL_KO } from '@/constants/formLabels';
 import { GEN1_SPECIAL }  from '@/constants/gen1Special';
 import { LAST_VERSION }  from '@/constants/lastVersion';
@@ -334,10 +335,12 @@ const getEvoCondition = (details) => {
 };
 
 const EvoNode = ({ node, currentSpeciesId }) => {
-  const speciesId = parseInt(node.species.url.split('/').filter(Boolean).pop(), 10);
-  const isCurrent = speciesId === currentSpeciesId;
-  const koName    = getKoreanName(node.species.name) || node.species.name;
-  const sprite    = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${speciesId}.png`;
+  const speciesId  = parseInt(node.species.url.split('/').filter(Boolean).pop(), 10);
+  const isCurrent  = speciesId === currentSpeciesId;
+  const koName     = getKoreanName(node.species.name) || node.species.name;
+  const champUrl   = getChampionsSpriteUrl(node.species.name);
+  const fallbackUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${speciesId}.png`;
+  const sprite     = champUrl ?? fallbackUrl;
 
   return (
     <div className="flex items-center gap-1">
@@ -350,7 +353,13 @@ const EvoNode = ({ node, currentSpeciesId }) => {
             : 'border-gray-100 bg-white hover:border-[#005596]'}`}
         style={{ minWidth:'68px' }}
       >
-        <img src={sprite} alt={koName} className="w-12 h-12 object-contain" loading="lazy" />
+        <img
+          src={sprite}
+          alt={koName}
+          className="w-12 h-12 object-contain"
+          loading="lazy"
+          onError={e => { e.target.onerror = null; e.target.src = fallbackUrl; }}
+        />
         <span className="text-[10px] font-bold text-gray-700 text-center leading-tight"
               style={{ maxWidth:'60px', wordBreak:'keep-all' }}>
           {koName}
