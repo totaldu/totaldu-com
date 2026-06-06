@@ -155,16 +155,22 @@ const PokedexPage = () => {
   }, []);
 
   /* ── ③ 필터링 */
+  // 겹자음을 분리 초성으로 확장 (예: ㄽ→ㄹㅅ, ㄳ→ㄱㅅ)
+  const expandConsonants = (q) => q.replace(/ㄳ/g, 'ㄱㅅ').replace(/ㄽ/g, 'ㄹㅅ');
+
   const filteredPokemon = useMemo(() => {
     if (!searchQuery) return allPokemon;
-    const query = searchQuery.toLowerCase();
+    const query        = searchQuery.toLowerCase();
+    const expandedQuery = expandConsonants(query);
     return allPokemon.filter(p => {
-      const ko = getKoreanName(p.name);
-      const en = p.name.toLowerCase();
+      const ko       = getKoreanName(p.name);
+      const en       = p.name.toLowerCase();
+      const choseong = ko ? getChoseong(ko) : '';
       return (
         en.includes(query)
         || ko.includes(query)
-        || (ko ? getChoseong(ko).includes(query) : false)
+        || choseong.includes(query)
+        || choseong.includes(expandedQuery)
       );
     });
   }, [allPokemon, searchQuery]);
