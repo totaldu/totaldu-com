@@ -87,7 +87,11 @@ export const GEN_FIRST_VERSION = { 6: 'XY',  7: 'SM',   8: 'SwSh', 9: 'SV'  };
 // 특정 폼(메가 등)의 세대별 종족값 변경
 // firstVersion: 해당 폼이 처음 등장한 버전
 export const FORM_STAT_CHANGES = {
-  'alakazam-mega': { changedInGen: 7, firstVersion: 'XY', oldStats: { 'special-defense': 95 } },
+  'alakazam-mega':    { changedInGen: 7, firstVersion: 'XY',  oldStats: { 'special-defense': 95 } },
+  // 자시안 검왕: SwSh 공격 170 → SV에서 하향
+  'zacian-crowned':    { changedInGen: 9, firstVersion: 'SwSh', oldStats: { 'attack': 170 } },
+  // 자마젠타 방패왕: SwSh 92/130/145/80/145/128 → SV에서 변경
+  'zamazenta-crowned': { changedInGen: 9, firstVersion: 'SwSh', oldStats: { 'hp': 92, 'attack': 130, 'defense': 145, 'special-attack': 80, 'special-defense': 145, 'speed': 128 } },
 };
 
 // Champions 등장 포켓몬(184마리) 기준 스탯 평균값
