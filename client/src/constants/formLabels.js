@@ -206,6 +206,12 @@ export const FORM_LABEL_KO = {
   'terastal':           '테라스탈폼',
   'stellar':            '스텔라폼',
 
+  // 펌킨인·호박귀 크기 폼
+  'small':   '소과종',
+  'average': '중과종',
+  'large':   '대과종',
+  'super':   '특대과종',
+
   // 성별
   'male':        '수컷의 모습',
   'female':      '암컷의 모습',

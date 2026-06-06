@@ -527,7 +527,18 @@ const PokemonDetailPage = () => {
 
         if (cancelled) return;
         const visibleForms = formResults.filter(f => !isHiddenForm(f.name));
-        setForms(visibleForms.length > 0 ? visibleForms : [data]);
+        // 크기 폼(소·중·대·특대과종) 순서 정렬
+        const SIZE_ORDER = ['small', 'average', 'large', 'super'];
+        const getSizeIdx = (name) => {
+          const idx = SIZE_ORDER.indexOf(name.split('-').pop());
+          return idx === -1 ? Infinity : idx;
+        };
+        const base = visibleForms.length > 0 ? visibleForms : [data];
+        const hasSizeForm = base.some(f => getSizeIdx(f.name) !== Infinity);
+        const finalForms  = hasSizeForm
+          ? [...base].sort((a, b) => getSizeIdx(a.name) - getSizeIdx(b.name))
+          : base;
+        setForms(finalForms);
         setEvolutionChain(chainData.chain);
         setLoading(false);
       })
