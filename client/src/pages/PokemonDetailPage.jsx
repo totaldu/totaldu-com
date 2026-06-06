@@ -1,6 +1,6 @@
 // client/src/pages/PokemonDetailPage.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { getKoreanName } from '../utils/pokemonUtils';
 import { FORM_LABEL_KO } from '@/constants/formLabels';
 import { GEN1_SPECIAL }  from '@/constants/gen1Special';
@@ -262,7 +262,8 @@ const PokemonDetailPage = () => {
   const [bgOverlay,   setBgOverlay]  = useState(null);  // 구 배경 fade-out
   const [bgFading,    setBgFading]   = useState(false);
   const [genView,     setGenView]    = useState('modern'); // 'modern' | 'gen1'
-  const [showAvgLine, setShowAvgLine] = useState(false);  // 챔피언스 평균선
+  const [showAvgLine,  setShowAvgLine]  = useState(false);  // 챔피언스 평균선
+  const [abilityDescs, setAbilityDescs] = useState({});    // 특성 설명 캐시
 
   /* ── 내비게이션 ── */
   const handleNav = useCallback((targetId) => {
@@ -333,7 +334,35 @@ const PokemonDetailPage = () => {
     setBgOverlay(null);
     setBgFading(false);
     setGenView('modern');
+    setAbilityDescs({});
   }, [id]);
+
+  /* 폼(activeForm) 변경 시 특성 설명 fetch */
+  useEffect(() => {
+    if (!activeForm?.abilities?.length) return;
+    let cancelled = false;
+    Promise.all(
+      activeForm.abilities.map(a =>
+        fetch(`https://pokeapi.co/api/v2/ability/${a.ability.name}`)
+          .then(r => r.json())
+          .then(d => {
+            const get = (lang) =>
+              d.flavor_text_entries
+                .filter(e => e.language.name === lang)
+                .pop()
+                ?.flavor_text
+                ?.replace(/[\n\f]/g, ' ')
+                .trim();
+            return [a.ability.name, get('ko') ?? get('en') ?? null];
+          })
+          .catch(() => [a.ability.name, null])
+      )
+    ).then(results => {
+      if (cancelled) return;
+      setAbilityDescs(Object.fromEntries(results.filter(([, v]) => v)));
+    });
+    return () => { cancelled = true; };
+  }, [activeForm?.name]);
 
   /* ── 키보드 내비게이션 ── */
   useEffect(() => {
@@ -610,22 +639,40 @@ const PokemonDetailPage = () => {
             {(() => {
               const regular = activeForm.abilities.filter(a => !a.is_hidden);
               const hidden  = activeForm.abilities.find(a => a.is_hidden);
+
+              const renderPill = (a, isHidden) => {
+                const desc = abilityDescs[a.ability.name];
+                return (
+                  <div key={a.ability.name} className="relative group">
+                    <Link
+                      to={`/pokedex/ability/${a.ability.name}`}
+                      className={`px-3 py-1 bg-white border rounded-full text-sm font-semibold text-gray-700
+                        hover:border-[#005596] hover:text-[#005596] transition-all flex items-center gap-1.5
+                        ${isHidden ? 'border-dashed border-gray-300' : 'border-gray-200 shadow-sm'}`}
+                    >
+                      {isHidden && (
+                        <span className="text-[10px] font-bold text-gray-700 leading-none">숨겨진</span>
+                      )}
+                      {abilityKo[a.ability.name] ?? a.ability.name}
+                    </Link>
+                    {desc && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block z-50 pointer-events-none"
+                           style={{ width: '220px' }}>
+                        <div className="bg-white text-gray-700 text-xs rounded-lg px-3 py-2 shadow-lg border border-gray-200 leading-relaxed">
+                          {desc}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              };
+
               return (
                 <div className="bg-gray-50 rounded-2xl px-4 pt-2 pb-4">
                   <p className="text-xs text-gray-400 font-bold text-center mb-3">특성</p>
                   <div className="flex flex-wrap gap-2 justify-center">
-                    {regular.map(a => (
-                      <span key={a.ability.name}
-                        className="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm font-semibold text-gray-700 shadow-sm">
-                        {abilityKo[a.ability.name] ?? a.ability.name}
-                      </span>
-                    ))}
-                    {hidden && (
-                      <span className="px-3 py-1 bg-white border border-dashed border-gray-300 rounded-full text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                        <span className="text-[10px] font-bold text-gray-700 leading-none">숨겨진</span>
-                        {abilityKo[hidden.ability.name] ?? hidden.ability.name}
-                      </span>
-                    )}
+                    {regular.map(a => renderPill(a, false))}
+                    {hidden && renderPill(hidden, true)}
                   </div>
                 </div>
               );
