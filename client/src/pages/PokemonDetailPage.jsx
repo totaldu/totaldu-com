@@ -265,6 +265,144 @@ const NavArrowButton = ({ direction, onClick, disabled }) => {
 };
 
 /* ─────────────────────────────────────────────
+   진화 트리
+───────────────────────────────────────────── */
+const ITEM_KO = {
+  'water-stone':'물의돌',      'fire-stone':'불꽃의돌',    'thunder-stone':'천둥의돌',
+  'leaf-stone':'풀잎의돌',     'moon-stone':'달의돌',      'sun-stone':'태양의돌',
+  'shiny-stone':'빛나는돌',    'dusk-stone':'어둠의돌',    'dawn-stone':'각성의돌',
+  'ice-stone':'얼음의돌',      'oval-stone':'타원돌',
+  'kings-rock':'왕의징표석',   'metal-coat':'메탈코트',    'dragon-scale':'용의비늘',
+  'up-grade':'업그레이드',     'prism-scale':'프리즘비늘',
+  'deep-sea-tooth':'심해의이빨','deep-sea-scale':'심해의비늘',
+  'protector':'방호조끼',      'electirizer':'일렉티라이저','magmarizer':'마그마라이저',
+  'dubious-disc':'의심스러운CD','reaper-cloth':'저승의천',
+  'razor-claw':'예리한손톱',   'razor-fang':'예리한송곳니',
+  'black-augurite':'흑요석',   'peat-block':'진흙탄',
+  'linking-cord':'통신케이블', 'scroll-of-darkness':'암흑두루마리',
+  'scroll-of-waters':'물의두루마리','sachet':'포푸리','whipped-dream':'휘핑드림',
+  'tart-apple':'새콤한사과',   'sweet-apple':'달콤한사과',
+  'cracked-pot':'금간주전자',  'chipped-pot':'이빠진주전자',
+  'auspicious-armor':'길조의갑옷','malicious-armor':'흉조의갑옷',
+  'syrupy-apple':'즙많은사과', 'galarica-cuff':'갈라르망초팔찌',
+  'galarica-wreath':'갈라르망초화환',
+};
+
+const getEvoCondition = (details) => {
+  if (!details?.length) return '';
+  const d = details[0];
+  const parts = [];
+
+  if (d.gender === 1) parts.push('♀');
+  if (d.gender === 2) parts.push('♂');
+
+  const trigger = d.trigger?.name;
+  if (trigger === 'use-item') {
+    parts.push(ITEM_KO[d.item?.name] ?? d.item?.name ?? '아이템');
+  } else if (trigger === 'trade') {
+    if (d.held_item)          parts.push(`${ITEM_KO[d.held_item.name] ?? d.held_item.name} 교환`);
+    else if (d.trade_species) parts.push('교환');
+    else                      parts.push('통신교환');
+  } else if (trigger === 'shed')               parts.push('탈피');
+  else if   (trigger === 'spin')               parts.push('회전');
+  else if   (trigger === 'three-critical-hits')parts.push('급소 3회');
+  else if   (trigger === 'take-damage')        parts.push('49 이상 피해');
+  else if   (trigger === 'other')              parts.push('특별 조건');
+  else {
+    if      (d.min_level)                      parts.push(`Lv.${d.min_level}`);
+    else if (d.min_happiness)                  parts.push('친밀도 ↑');
+    else if (d.min_beauty)                     parts.push('아름다움 ↑');
+    else if (d.known_move)                     parts.push('기술 습득');
+    else if (d.known_move_type)                parts.push('특정 타입 기술');
+    else if (d.relative_physical_stats === 1)  parts.push('공격 > 방어');
+    else if (d.relative_physical_stats === -1) parts.push('공격 < 방어');
+    else if (d.relative_physical_stats === 0)  parts.push('공격 = 방어');
+    else                                       parts.push('레벨업');
+  }
+
+  if (d.held_item && trigger !== 'trade') parts.push(`${ITEM_KO[d.held_item.name] ?? d.held_item.name} 소지`);
+  if (d.time_of_day === 'day')   parts.push('낮');
+  if (d.time_of_day === 'night') parts.push('밤');
+  if (d.time_of_day === 'dusk')  parts.push('황혼');
+  if (d.needs_overworld_rain)    parts.push('비');
+  if (d.turn_upside_down)        parts.push('뒤집기');
+  if (d.location)                parts.push('특정 장소');
+  if (d.party_species)           parts.push('파티 조건');
+  if (d.party_type)              parts.push('파티 타입');
+
+  return parts.join(' · ');
+};
+
+const EvoNode = ({ node, currentSpeciesId }) => {
+  const speciesId = parseInt(node.species.url.split('/').filter(Boolean).pop(), 10);
+  const isCurrent = speciesId === currentSpeciesId;
+  const koName    = getKoreanName(node.species.name) || node.species.name;
+  const sprite    = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${speciesId}.png`;
+
+  return (
+    <div className="flex items-center gap-1">
+      {/* 포켓몬 버블 */}
+      <Link
+        to={`/pokedex/${speciesId}`}
+        className={`flex flex-col items-center gap-0.5 p-2 rounded-xl border-2 transition-all hover:shadow-md
+          ${isCurrent
+            ? 'border-[#005596] bg-blue-50 shadow-sm'
+            : 'border-gray-100 bg-white hover:border-[#005596]'}`}
+        style={{ minWidth:'68px' }}
+      >
+        <img src={sprite} alt={koName} className="w-12 h-12 object-contain" loading="lazy" />
+        <span className="text-[10px] font-bold text-gray-700 text-center leading-tight"
+              style={{ maxWidth:'60px', wordBreak:'keep-all' }}>
+          {koName}
+        </span>
+        <span className="text-[9px] text-gray-400 font-mono">
+          #{String(speciesId).padStart(3,'0')}
+        </span>
+      </Link>
+
+      {/* 자식 진화들 */}
+      {node.evolves_to.length > 0 && (
+        <div className={`flex flex-col ${node.evolves_to.length > 1 ? 'gap-3' : ''}`}>
+          {node.evolves_to.map((evo, i) => {
+            const cond = getEvoCondition(evo.evolution_details);
+            return (
+              <div key={i} className="flex items-center gap-1">
+                {/* 화살표 + 조건 */}
+                <div className="flex flex-col items-center justify-center gap-0.5 px-1"
+                     style={{ minWidth:'64px' }}>
+                  {cond && (
+                    <span className="text-[9px] text-gray-500 text-center leading-tight"
+                          style={{ maxWidth:'64px', wordBreak:'keep-all' }}>
+                      {cond}
+                    </span>
+                  )}
+                  <span className="text-gray-300 text-xl leading-none">→</span>
+                </div>
+                <EvoNode node={evo} currentSpeciesId={currentSpeciesId} />
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const EvolutionChainDisplay = ({ chain, currentSpeciesId }) => {
+  if (!chain?.evolves_to?.length) return null;
+  return (
+    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+      <h2 className="text-base font-black text-gray-900 mb-4">진화</h2>
+      <div className="overflow-x-auto pb-1">
+        <div className="inline-flex items-center min-w-max">
+          <EvoNode node={chain} currentSpeciesId={currentSpeciesId} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ─────────────────────────────────────────────
    PokemonDetailPage
 ───────────────────────────────────────────── */
 const PokemonDetailPage = () => {
@@ -285,6 +423,7 @@ const PokemonDetailPage = () => {
   const [genView,     setGenView]    = useState('modern'); // 'modern' | 'gen1'
   const [showAvgLine,  setShowAvgLine]  = useState(false);  // 챔피언스 평균선
   const [abilityDescs, setAbilityDescs] = useState({});    // 특성 설명 캐시
+  const [evolutionChain, setEvolutionChain] = useState(null); // 진화 체인
 
   /* ── 내비게이션 ── */
   const handleNav = useCallback((targetId) => {
@@ -327,17 +466,18 @@ const PokemonDetailPage = () => {
         if (cancelled) return;
         const varieties = speciesData.varieties;
 
-        if (varieties.length > 1) {
-          const formDetails = await Promise.all(
-            varieties.map(v => fetch(v.pokemon.url).then(r => r.json()))
-          );
-          if (cancelled) return;
-          const visibleForms = formDetails.filter(f => !isHiddenForm(f.name));
-          setForms(visibleForms);
-        } else {
-          setForms([data]);
-        }
+        // 폼 목록 + 진화 체인 병렬 fetch
+        const [formResults, chainData] = await Promise.all([
+          varieties.length > 1
+            ? Promise.all(varieties.map(v => fetch(v.pokemon.url).then(r => r.json())))
+            : Promise.resolve([data]),
+          fetch(speciesData.evolution_chain.url).then(r => r.json()),
+        ]);
 
+        if (cancelled) return;
+        const visibleForms = formResults.filter(f => !isHiddenForm(f.name));
+        setForms(visibleForms.length > 0 ? visibleForms : [data]);
+        setEvolutionChain(chainData.chain);
         setLoading(false);
       })
       .catch((e) => {
@@ -356,6 +496,7 @@ const PokemonDetailPage = () => {
     setBgFading(false);
     setGenView('modern');
     setAbilityDescs({});
+    setEvolutionChain(null);
   }, [id]);
 
   /* 폼(activeForm) 변경 시 특성 설명 fetch */
@@ -835,6 +976,12 @@ const PokemonDetailPage = () => {
 
         </div>
       </div>
+
+      {/* 진화 트리 */}
+      {evolutionChain && (
+        <EvolutionChainDisplay chain={evolutionChain} currentSpeciesId={numericId} />
+      )}
+
     </div>
   );
 };
