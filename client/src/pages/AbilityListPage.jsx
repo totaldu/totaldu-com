@@ -8,6 +8,7 @@ import abilityKo from '@/data/abilityKoreanNames.json';
 // 겹자음 → 분리 초성 확장 (PokedexPage와 동일)
 const expandConsonants = (q) => q
   .replace(/ㄳ/g, 'ㄱㅅ')
+  .replace(/ㄵ/g, 'ㄴㅈ')
   .replace(/ㄶ/g, 'ㄴㅎ')
   .replace(/ㄻ/g, 'ㄹㅁ')
   .replace(/ㄼ/g, 'ㄹㅂ')

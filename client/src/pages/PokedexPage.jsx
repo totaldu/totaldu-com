@@ -158,6 +158,7 @@ const PokedexPage = () => {
   // 겹자음을 분리 초성으로 확장
   const expandConsonants = (q) => q
     .replace(/ㄳ/g, 'ㄱㅅ')
+    .replace(/ㄵ/g, 'ㄴㅈ')
     .replace(/ㄶ/g, 'ㄴㅎ')
     .replace(/ㄻ/g, 'ㄹㅁ')
     .replace(/ㄼ/g, 'ㄹㅂ')
