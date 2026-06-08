@@ -160,7 +160,7 @@ const AbilityDetailPage = () => {
   const [data,       setData]       = useState(null);
   const [loading,    setLoading]    = useState(true);
   const [error,      setError]      = useState(null);
-  const [showDetail, setShowDetail] = useState(false);
+  const [showDetail, setShowDetail] = useState(true);
 
   useEffect(() => {
     setLoading(true);
@@ -231,8 +231,9 @@ const AbilityDetailPage = () => {
           {(() => {
             const label = getFirstVersionLabel(data.flavor_text_entries);
             return label ? (
-              <span className="absolute right-0 top-0 text-xs font-bold text-white bg-[#005596] rounded-full px-3 py-1">
-                첫 등장 {label}
+              <span className="absolute right-0 top-0 text-xs font-bold text-white bg-[#005596] rounded-xl px-3 py-1.5 flex flex-col items-center leading-tight">
+                <span>첫 등장</span>
+                <span>{label}</span>
               </span>
             ) : null;
           })()}
