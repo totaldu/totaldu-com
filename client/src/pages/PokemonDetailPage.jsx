@@ -79,9 +79,11 @@ const isRegionalForm = (formName) =>
 // value: 이 특수 폼으로 진입 가능한 부모 폼 이름(들)
 // 단일 문자열 또는 문자열 배열 지원
 const SPECIAL_FORM_PARENT = {
-  'floette-mega':   'floette-eternal',
-  'necrozma-ultra': ['necrozma-dusk', 'necrozma-dawn'], // 황혼의 갈기·새벽의 날개에서만 진입
-  'zygarde-mega':   'zygarde-complete',                 // 퍼펙트폼에서만 진입
+  'floette-mega':              'floette-eternal',
+  'necrozma-ultra':            ['necrozma-dusk', 'necrozma-dawn'], // 황혼의 갈기·새벽의 날개에서만 진입
+  'zygarde-mega':              'zygarde-complete',                 // 퍼펙트폼에서만 진입
+  'urshifu-single-strike-gmax':'urshifu-single-strike',           // 일격의 모습에서만 진입
+  'urshifu-rapid-strike-gmax': 'urshifu-rapid-strike',            // 연격의 모습에서만 진입
 };
 
 // SPECIAL_FORM_PARENT 값을 배열로 정규화
@@ -153,11 +155,12 @@ const getNameFontSize = (name) => {
   return '1.875rem';
 };
 const getFormBadgeInfo = (formName) => {
-  const suffix = formName.split('-').slice(1).join('-');
-  if (suffix.startsWith('mega'))   return { type:'mega',   label:'MEGA',   color:'#8B5CF6', useSprite:true  };
-  if (suffix.startsWith('gmax'))   return { type:'gmax',   label:'G-MAX',  color:'#DC2626', useSprite:false };
-  if (suffix.startsWith('primal')) return { type:'primal', label:'PRIMAL', color:'#D97706', useSprite:false };
-  if (suffix.startsWith('ultra'))  return { type:'ultra',  label:'ULTRA',  color:'#0EA5E9', useSprite:false };
+  const parts  = formName.split('-');
+  const suffix = parts.slice(1).join('-');
+  if (suffix.startsWith('mega'))    return { type:'mega',   label:'MEGA',   color:'#8B5CF6', useSprite:true  };
+  if (parts.includes('gmax'))       return { type:'gmax',   label:'G-MAX',  color:'#DC2626', useSprite:false };
+  if (suffix.startsWith('primal'))  return { type:'primal', label:'PRIMAL', color:'#D97706', useSprite:false };
+  if (suffix.startsWith('ultra'))   return { type:'ultra',  label:'ULTRA',  color:'#0EA5E9', useSprite:false };
   // eternamax는 일반 폼 탭으로 표시
   return null;
 };
