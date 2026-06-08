@@ -4,7 +4,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getChoseong } from 'es-hangul';
 import { getKoreanName } from '../utils/pokemonUtils';
-import { getChampionsSpriteUrl } from '../utils/championsSprite';
 
 /* ─────────────────────────────────────────────
    상수
@@ -52,8 +51,7 @@ const PokemonCard = React.memo(({ pokemon, currentPage }) => {
   const mainColor  = TYPE_COLORS[mainType] || '#A8A77A';
   const subColor   = subType ? (TYPE_COLORS[subType] || '#aaa') : null;
   const koreanName  = getKoreanName(pokemon.name);
-  const champUrl    = getChampionsSpriteUrl(pokemon.name);
-  const fallbackSrc =
+  const artworkSrc  =
     pokemon.sprites?.other?.['official-artwork']?.front_default
     || pokemon.sprites?.front_default
     || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
@@ -69,11 +67,10 @@ const PokemonCard = React.memo(({ pokemon, currentPage }) => {
         style={getBgStyle(mainColor, subColor)}
       >
         <img
-          src={champUrl ?? fallbackSrc}
+          src={artworkSrc}
           alt={koreanName || pokemon.name}
           className="h-20 w-20 object-contain drop-shadow-md group-hover:scale-110 transition-transform"
           loading="lazy"
-          onError={e => { e.target.onerror = null; e.target.src = fallbackSrc; }}
         />
       </div>
 
