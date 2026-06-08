@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react';
 import abilityKo from '@/data/abilityKoreanNames.json';
 import abilityKoDescs from '@/data/abilityKoreanDescs.json';
 import abilityKoDetailDescs from '@/data/abilityKoreanDetailDescs.json';
+import abilityVersionOverrides from '@/data/abilityVersionOverrides.json';
 import { getKoreanName } from '../utils/pokemonUtils';
 import { getChampionsSpriteUrl } from '../utils/championsSprite';
 
@@ -229,7 +230,7 @@ const AbilityDetailPage = () => {
           <h1 className="text-2xl font-black text-gray-900">{koName}</h1>
           <p className="text-sm text-gray-400 mt-0.5">{name}</p>
           {(() => {
-            const label = getFirstVersionLabel(data.flavor_text_entries);
+            const label = abilityVersionOverrides[name] ?? getFirstVersionLabel(data.flavor_text_entries);
             return label ? (
               <span className="absolute right-0 top-0 text-xs font-bold text-white bg-[#005596] rounded-xl px-3 py-1.5 flex flex-col items-center leading-tight">
                 <span>첫 등장</span>
