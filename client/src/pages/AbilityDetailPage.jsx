@@ -261,8 +261,8 @@ const AbilityDetailPage = () => {
               <div className="px-5 py-4 text-sm text-gray-700 leading-relaxed border-t border-gray-100 bg-gray-50 flex flex-col gap-3">
                 <span>{detailDescription}</span>
                 {abilityDetailExtras[name]?.map((extra, i) => (
-                  <div key={i} className="flex flex-col gap-1.5 pt-3 border-t border-gray-200">
-                    <span className="text-sm text-gray-700">{extra.title}</span>
+                  <div key={i} className="flex flex-col gap-1.5 pt-3 border-t border-gray-200 items-start">
+                    <span className="text-sm font-bold text-gray-700">{extra.title}</span>
                     <span className="text-sm text-gray-700">{extra.content}</span>
                   </div>
                 ))}
@@ -278,7 +278,7 @@ const AbilityDetailPage = () => {
               {abilityRelated[name].map(relName => (
                 <Link
                   key={relName}
-                  to={`/pokedex/abilities/${relName}`}
+                  to={`/pokedex/ability/${relName}`}
                   className="text-xs font-bold text-[#005596] bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1.5 transition-colors"
                 >
                   {abilityKo[relName] ?? relName}
