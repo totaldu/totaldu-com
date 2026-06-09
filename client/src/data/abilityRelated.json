@@ -10,5 +10,10 @@
   "piercing-drill": ["unseen-fist"],
   "unseen-fist": ["piercing-drill"],
   "steelworker": ["steely-spirit"],
-  "steely-spirit": ["steelworker"]
+  "steely-spirit": ["steelworker"],
+  "mycelium-might": ["mold-breaker"],
+  "mold-breaker": ["mycelium-might"],
+  "gulp-missile": ["disguise", "neutralizing-gas"],
+  "disguise": ["gulp-missile"],
+  "neutralizing-gas": ["gulp-missile"]
 }

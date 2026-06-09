@@ -284,7 +284,15 @@ const AbilityDetailPage = () => {
                 {abilityDetailExtras[name]?.map((extra, i) => (
                   <div key={i} className="flex flex-col gap-1.5 pt-3 border-t border-gray-200 items-start">
                     <span className="text-sm font-bold text-gray-700">{extra.title}</span>
-                    <span className="text-sm text-gray-700">{extra.content}</span>
+                    <ul className="flex flex-col gap-0.5 w-full">
+                      {extra.content.split('. ').map((sentence, j) => (
+                        sentence.trim() && (
+                          <li key={j} className="text-sm text-gray-700 pl-3">
+                            {sentence.endsWith('.') ? sentence : `${sentence}.`}
+                          </li>
+                        )
+                      ))}
+                    </ul>
                   </div>
                 ))}
               </div>
