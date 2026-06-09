@@ -8,5 +8,7 @@
   "arena-trap": ["shadow-tag"],
   "shadow-tag": ["arena-trap"],
   "piercing-drill": ["unseen-fist"],
-  "unseen-fist": ["piercing-drill"]
+  "unseen-fist": ["piercing-drill"],
+  "steelworker": ["steely-spirit"],
+  "steely-spirit": ["steelworker"]
 }

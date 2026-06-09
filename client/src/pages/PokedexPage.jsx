@@ -4,6 +4,10 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getChoseong } from 'es-hangul';
 import { getKoreanName } from '../utils/pokemonUtils';
+import championsKeys from '@/data/championsSprites.json';
+import championsLogo from '@/assets/champions-logo.png';
+
+const CHAMPIONS_BASE_IDS = new Set(championsKeys.filter(k => !k.includes('-')));
 
 /* ─────────────────────────────────────────────
    상수
@@ -55,6 +59,7 @@ const PokemonCard = React.memo(({ pokemon, currentPage }) => {
     pokemon.sprites?.other?.['official-artwork']?.front_default
     || pokemon.sprites?.front_default
     || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
+  const isChampions = CHAMPIONS_BASE_IDS.has(String(pokemon.id).padStart(4, '0'));
 
   return (
     <Link
@@ -63,9 +68,17 @@ const PokemonCard = React.memo(({ pokemon, currentPage }) => {
     >
       {/* ✅ 배경: 타입 2개면 두 색 절반씩, 1개면 단색 그라디언트 */}
       <div
-        className="w-full h-24 flex items-center justify-center transition-all"
+        className="w-full h-24 flex items-center justify-center transition-all relative"
         style={getBgStyle(mainColor, subColor)}
       >
+        {isChampions && (
+          <img
+            src={championsLogo}
+            alt="Pokémon Champions"
+            className="absolute top-1 left-1 z-10"
+            style={{ width: '28px', height: 'auto' }}
+          />
+        )}
         <img
           src={artworkSrc}
           alt={koreanName || pokemon.name}

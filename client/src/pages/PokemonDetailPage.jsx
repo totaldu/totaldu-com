@@ -11,6 +11,10 @@ import { STAT_CHANGES, FORM_STAT_CHANGES, GEN_LAST_VERSION, GEN_FIRST_VERSION, C
 import abilityKo from '@/data/abilityKoreanNames.json';
 import abilityKoDescs from '@/data/abilityKoreanDescs.json';
 import megaIcon from '@/assets/mega-icon.png';
+import championsKeys from '@/data/championsSprites.json';
+import championsLogo from '@/assets/champions-logo.png';
+
+const CHAMPIONS_BASE_IDS = new Set(championsKeys.filter(k => !k.includes('-')));
 
 /* ─────────────────────────────────────────────
    상수 / 유틸
@@ -772,6 +776,13 @@ const PokemonDetailPage = () => {
             className="md:w-80 flex flex-col items-center justify-center p-10 shrink-0"
             style={{ position: 'relative', background: computeBg(mainColor, subType) }}
           >
+            {CHAMPIONS_BASE_IDS.has(String(numericId).padStart(4, '0')) && (
+              <img
+                src={championsLogo}
+                alt="Pokémon Champions"
+                style={{ position: 'absolute', top: '12px', left: '12px', width: '44px', height: 'auto', zIndex: 2 }}
+              />
+            )}
             {bgOverlay && (
               <div
                 style={{

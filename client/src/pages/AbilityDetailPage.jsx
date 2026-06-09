@@ -10,6 +10,7 @@ import abilityRelated from '@/data/abilityRelated.json';
 import abilityDetailExtras from '@/data/abilityDetailExtras.json';
 import { getKoreanName } from '../utils/pokemonUtils';
 import { getChampionsSpriteUrl } from '../utils/championsSprite';
+import championsLogo from '@/assets/champions-logo.png';
 
 // 이름에 하이픈이 포함되어 있지만 기본 폼인 포켓몬 목록
 const HYPHENATED_BASE_NAMES = new Set([
@@ -104,9 +105,17 @@ const PokemonCard = ({ p }) => {
   return (
     <Link
       to={`/pokedex/${p.id}`}
-      className="flex flex-col items-center gap-1 p-2.5 bg-white rounded-2xl border border-gray-100
+      className="relative flex flex-col items-center gap-1 p-2.5 bg-white rounded-2xl border border-gray-100
                  hover:border-[#005596] hover:shadow-md transition-all"
     >
+      {champUrl !== null && (
+        <img
+          src={championsLogo}
+          alt="Pokémon Champions"
+          className="absolute top-1 left-1 z-10"
+          style={{ width: '26px', height: 'auto' }}
+        />
+      )}
       <img
         src={champUrl ?? fallbackUrl}
         alt={komonName}
