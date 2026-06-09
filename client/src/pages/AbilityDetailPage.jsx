@@ -6,6 +6,8 @@ import abilityKo from '@/data/abilityKoreanNames.json';
 import abilityKoDescs from '@/data/abilityKoreanDescs.json';
 import abilityKoDetailDescs from '@/data/abilityKoreanDetailDescs.json';
 import abilityVersionOverrides from '@/data/abilityVersionOverrides.json';
+import abilityRelated from '@/data/abilityRelated.json';
+import abilityDetailExtras from '@/data/abilityDetailExtras.json';
 import { getKoreanName } from '../utils/pokemonUtils';
 import { getChampionsSpriteUrl } from '../utils/championsSprite';
 
@@ -256,10 +258,33 @@ const AbilityDetailPage = () => {
               />
             </button>
             {showDetail && (
-              <div className="px-5 py-4 text-sm text-gray-700 leading-relaxed border-t border-gray-100 bg-gray-50">
-                {detailDescription}
+              <div className="px-5 py-4 text-sm text-gray-700 leading-relaxed border-t border-gray-100 bg-gray-50 flex flex-col gap-3">
+                <span>{detailDescription}</span>
+                {abilityDetailExtras[name]?.map((extra, i) => (
+                  <div key={i} className="flex flex-col gap-1.5 pt-3 border-t border-gray-200">
+                    <span className="text-sm text-gray-700">{extra.title}</span>
+                    <span className="text-sm text-gray-700">{extra.content}</span>
+                  </div>
+                ))}
               </div>
             )}
+          </div>
+        )}
+
+        {abilityRelated[name]?.length > 0 && (
+          <div>
+            <p className="text-xs font-bold text-gray-500 mb-2">관련 특성</p>
+            <div className="flex flex-wrap gap-2">
+              {abilityRelated[name].map(relName => (
+                <Link
+                  key={relName}
+                  to={`/pokedex/abilities/${relName}`}
+                  className="text-xs font-bold text-[#005596] bg-blue-50 hover:bg-blue-100 rounded-full px-3 py-1.5 transition-colors"
+                >
+                  {abilityKo[relName] ?? relName}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>

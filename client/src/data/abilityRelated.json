@@ -1,0 +1,4 @@
+{
+  "drought": ["protosynthesis"],
+  "protosynthesis": ["drought"]
+}
