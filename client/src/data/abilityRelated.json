@@ -1,4 +1,10 @@
 {
-  "drought": ["protosynthesis"],
-  "protosynthesis": ["drought"]
+  "drought": ["protosynthesis", "dry-skin"],
+  "protosynthesis": ["drought"],
+  "dry-skin": ["drought", "drizzle", "blaze", "torrent"],
+  "drizzle": ["dry-skin"],
+  "blaze": ["dry-skin"],
+  "torrent": ["dry-skin"],
+  "arena-trap": ["shadow-tag"],
+  "shadow-tag": ["arena-trap"]
 }
