@@ -275,7 +275,7 @@ const AbilityDetailPage = () => {
           <div>
             <p className="text-xs font-bold text-gray-500 mb-2">관련 특성</p>
             <div className="flex flex-wrap gap-2">
-              {abilityRelated[name].map(relName => (
+              {[...abilityRelated[name]].sort((a, b) => (abilityKo[a] ?? a).localeCompare(abilityKo[b] ?? b, 'ko')).map(relName => (
                 <Link
                   key={relName}
                   to={`/pokedex/ability/${relName}`}
