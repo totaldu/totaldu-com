@@ -238,7 +238,25 @@ const AbilityDetailPage = () => {
   // 챔피언스 전용 폼(PokeAPI 특성 데이터 부재) 수동 추가 — 중복 제외
   const extra = (EXTRA_ABILITY_POKEMON[name] ?? [])
     .filter(e => !allPokemon.some(p => p.name === e.name));
-  const pokemonList = buildPokemonList([...allPokemon, ...extra]).sort((a, b) => a.id - b.id);
+  // 폼의 그룹 키 — 하이픈 포함 기본폼은 전체 이름, 나머지는 첫 세그먼트
+  const getGroupKey = (pokemonName) =>
+    HYPHENATED_BASE_NAMES.has(pokemonName) ? pokemonName : pokemonName.split('-')[0];
+
+  const rawList = buildPokemonList([...allPokemon, ...extra]);
+
+  // 그룹별 최소 ID 계산 (기본 폼의 ID 기준으로 그룹 정렬)
+  const groupMinId = {};
+  rawList.forEach(p => {
+    const key = getGroupKey(p.name);
+    if (groupMinId[key] === undefined || p.id < groupMinId[key]) groupMinId[key] = p.id;
+  });
+
+  // 그룹 기준 ID → 그룹 내 ID 순으로 정렬
+  const pokemonList = rawList.sort((a, b) => {
+    const gA = groupMinId[getGroupKey(a.name)];
+    const gB = groupMinId[getGroupKey(b.name)];
+    return gA !== gB ? gA - gB : a.id - b.id;
+  });
 
   // normal / hidden 분리
   const regular = pokemonList.filter(p => !p.is_hidden);
