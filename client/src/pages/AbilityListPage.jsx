@@ -24,7 +24,11 @@ const AbilityListPage = () => {
 
   const sorted = useMemo(() => {
     const entries = Object.entries(abilityKo)
-      .sort((a, b) => a[1].localeCompare(b[1], 'ko'));
+      .sort((a, b) => {
+        if (a[0] === 'rks-system') return -1;
+        if (b[0] === 'rks-system') return 1;
+        return a[1].localeCompare(b[1], 'ko');
+      });
     if (!search.trim()) return entries;
 
     const q            = search.trim().toLowerCase();
