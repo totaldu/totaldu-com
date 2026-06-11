@@ -76,6 +76,57 @@ const fmtUpdated = (v) => {
   }) + ' KST';
 };
 
+// 확률 셀 — 값 + 막대 (소수 2자리 표기)
+const ProbCell = ({ value, color, strong }) => (
+  <td className="px-2 py-2">
+    <div className="flex items-center gap-2 justify-end">
+      <div className="hidden sm:block w-16 h-1.5 rounded-full bg-white/5 overflow-hidden shrink-0">
+        <div className="h-full rounded-full" style={{ width: `${Math.min(value, 100)}%`, backgroundColor: color }} />
+      </div>
+      <span className={`font-mono tabular-nums w-16 text-right ${strong ? 'font-black text-[#E8C77E]' : 'text-white/70'}`}>
+        {value.toFixed(2)}%
+      </span>
+    </div>
+  </td>
+);
+
+// 예측 확률 표 — 시뮬레이션 standings 기반 (필드 있는 컬럼만 노출)
+const ProbabilityTable = ({ standings, color }) => {
+  const hasPiPlus = standings.some((s) => s.piPlus != null);
+  const hasWorlds = standings.some((s) => s.worlds != null);
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm border-collapse">
+        <thead>
+          <tr className="text-white/40 text-xs border-b border-white/10">
+            <th className="text-left font-bold py-2 pr-2">팀</th>
+            {hasPiPlus && <th className="text-right font-bold py-2 px-2">PI+ 진출</th>}
+            <th className="text-right font-bold py-2 px-2">PO 진출</th>
+            {hasWorlds && <th className="text-right font-bold py-2 px-2">Worlds 진출</th>}
+            <th className="text-right font-bold py-2 px-2">우승</th>
+          </tr>
+        </thead>
+        <tbody>
+          {standings.map((row) => (
+            <tr key={row.team} className="border-b border-white/5 last:border-0">
+              <td className="py-2 pr-2">
+                <span className="flex items-center gap-2 font-bold text-white/90 truncate">
+                  <TeamLogo src={logoByShort[row.team]} size={18} />
+                  <span className="truncate">{nameByShort[row.team] || row.team}</span>
+                </span>
+              </td>
+              {hasPiPlus && <ProbCell value={row.piPlus} color="#9CA3AF" />}
+              <ProbCell value={row.advance} color={color} />
+              {hasWorlds && <ProbCell value={row.worlds} color="#60A5FA" />}
+              <ProbCell value={row.champ} color="#C8963E" strong />
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
 // 시뮬레이션 결과(예측) 렌더
 const SimulationView = ({ comp, sub }) => {
   // 현재 순위 — 해당 세부대회 공식 순위표가 있으면 우선, 없으면 GPR 전적으로 산출
@@ -134,6 +185,17 @@ const SimulationView = ({ comp, sub }) => {
               <StandingsTable rows={grp.rows} color={comp.color} hasDiff={hasDiff} />
             </div>
           ))}
+        </section>
+      )}
+
+      {/* 예측 확률 */}
+      {comp.standings?.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">예측 확률</h3>
+            <span className="text-xs text-white/40">몬테카를로 시뮬레이션 · 우승 확률 순</span>
+          </div>
+          <ProbabilityTable standings={comp.standings} color={comp.color} />
         </section>
       )}
 

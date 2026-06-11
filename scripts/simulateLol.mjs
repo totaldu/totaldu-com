@@ -13,7 +13,7 @@ const dataDir = path.join(__dirname, '..', 'client', 'src', 'data');
 const gpr = JSON.parse(fs.readFileSync(path.join(dataDir, 'gprTeams.json'), 'utf8'));
 const sim = JSON.parse(fs.readFileSync(path.join(dataDir, 'lolSim.json'), 'utf8'));
 
-const ITER = 20000;
+const ITER = 100000;
 const ELO_SCALE = 400;          // 점수차 400 = 약 10배 우세
 const PLAYOFF_TEAMS = 6;        // 단순화: 상위 6팀 플레이오프
 const GENERATED_AT = new Date().toISOString().slice(0, 10);
@@ -46,7 +46,7 @@ const seriesProb = (pa, need) => {
   return pa * pa * pa * (1 + 3 * q + 6 * q * q);
 };
 
-const pct = (x) => Math.round(x * 1000) / 10; // 소수1자리 %
+const pct = (x) => Math.round(x * 10000) / 100; // 소수2자리 %
 
 function simulateLeague(teams) {
   const n = teams.length;
@@ -130,7 +130,7 @@ function simulateLeague(teams) {
 function simulateLCK(teams) {
   const n = teams.length; // 10
   const ti = (obj) => teams.indexOf(obj);
-  const stat = teams.map(() => ({ sumRank: 0, rank1: 0, playoff: 0, champ: 0, finalApp: 0 }));
+  const stat = teams.map(() => ({ sumRank: 0, rank1: 0, piPlus: 0, playoff: 0, worlds: 0, champ: 0, finalApp: 0 }));
 
   // 그룹 내 더블 라운드로빈(쌍별 2시리즈) — 누적 wins에 가산
   const roundRobin = (groupIdx, wins) => {
@@ -163,8 +163,12 @@ function simulateLCK(teams) {
     legOrder.forEach((tIdx, k) => {
       stat[tIdx].sumRank += k + 1;
       if (k === 0) stat[tIdx].rank1++;
+      stat[tIdx].piPlus++; // 레전드 1~5위: 플옵 직행 또는 플레이인 → PI+
     });
-    riseOrder.forEach((tIdx, k) => { stat[tIdx].sumRank += 6 + k; });
+    riseOrder.forEach((tIdx, k) => {
+      stat[tIdx].sumRank += 6 + k;
+      if (k < 3) stat[tIdx].piPlus++; // 라이즈 1~3위: 플레이인 → PI+
+    });
 
     // 플레이인 (Bo5): L5 vs R1 → 승자 직행 / 패자 최종전, R2 vs R3 → 승자 최종전
     const L5 = teams[legOrder[4]], R1 = teams[riseOrder[0]], R2 = teams[riseOrder[1]], R3 = teams[riseOrder[2]];
@@ -203,6 +207,11 @@ function simulateLCK(teams) {
     stat[ti(ub3W)].finalApp++;
     stat[ti(lowerFinalsW)].finalApp++;
     stat[ti(champ)].champ++;
+
+    // Worlds 진출 = 최종 3위 이내 (우승 / 그랜드파이널 패자 / 로어파이널 패자)
+    const gfLoser = ub3W === champ ? lowerFinalsW : ub3W;
+    const lfLoser = lowerFinalsW === ub3L ? lb3W : ub3L;
+    [champ, gfLoser, lfLoser].forEach((t) => { stat[ti(t)].worlds++; });
   }
 
   const standings = teams
@@ -212,7 +221,9 @@ function simulateLCK(teams) {
       rating: t.score,
       avgRank: stat[i].sumRank / ITER,
       champ: pct(stat[i].champ / ITER),
+      worlds: pct(stat[i].worlds / ITER),
       advance: pct(stat[i].playoff / ITER),
+      piPlus: pct(stat[i].piPlus / ITER),
       rank1: pct(stat[i].rank1 / ITER),
     }))
     .sort((a, b) => b.champ - a.champ || a.avgRank - b.avgRank);
