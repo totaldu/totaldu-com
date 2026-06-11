@@ -12,7 +12,8 @@
       "l": 7,
       "fst": 1,
       "gw": 73,
-      "gl": 28
+      "gl": 28,
+      "logo": "https://static.lolesports.com/teams/1682322954525_Bilibili_Gaming_logo_20211.png"
     },
     {
       "name": "Gen.G Esports",
@@ -23,7 +24,8 @@
       "l": 5,
       "fst": 3,
       "gw": 56,
-      "gl": 16
+      "gl": 16,
+      "logo": "https://static.lolesports.com/teams/1773829250929_GENGLOGO_GOLD.png"
     },
     {
       "name": "T1",
@@ -33,7 +35,8 @@
       "w": 19,
       "l": 6,
       "gw": 44,
-      "gl": 19
+      "gl": 19,
+      "logo": "https://static.lolesports.com/teams/1726801573959_539px-T1_2019_full_allmode.png"
     },
     {
       "name": "G2 Esports",
@@ -44,7 +47,8 @@
       "l": 10,
       "fst": 2,
       "gw": 50,
-      "gl": 24
+      "gl": 24,
+      "logo": "https://static.lolesports.com/teams/G2-FullonDark.png"
     },
     {
       "name": "Hanwha Life Esports",
@@ -54,7 +58,8 @@
       "w": 17,
       "l": 6,
       "gw": 37,
-      "gl": 20
+      "gl": 20,
+      "logo": "https://static.lolesports.com/teams/1631819564399_hle-2021-worlds.png"
     },
     {
       "name": "Top Esports",
@@ -64,7 +69,8 @@
       "w": 17,
       "l": 14,
       "gw": 48,
-      "gl": 35
+      "gl": 35,
+      "logo": "https://static.lolesports.com/teams/1592592064571_TopEsportsTES-01-FullonDark.png"
     },
     {
       "name": "kt Rolster",
@@ -74,7 +80,8 @@
       "w": 16,
       "l": 9,
       "gw": 35,
-      "gl": 28
+      "gl": 28,
+      "logo": "https://static.lolesports.com/teams/kt_darkbackground.png"
     },
     {
       "name": "Beijing JDG Esports",
@@ -85,7 +92,8 @@
       "l": 16,
       "fst": 4,
       "gw": 56,
-      "gl": 52
+      "gl": 52,
+      "logo": "https://static.lolesports.com/teams/1627457924722_29.png"
     },
     {
       "name": "Anyone's Legend",
@@ -95,7 +103,8 @@
       "w": 20,
       "l": 12,
       "gw": 50,
-      "gl": 36
+      "gl": 36,
+      "logo": "https://static.lolesports.com/teams/1641199582689_.png"
     },
     {
       "name": "Karmine Corp",
@@ -105,7 +114,8 @@
       "w": 22,
       "l": 9,
       "gw": 47,
-      "gl": 26
+      "gl": 26,
+      "logo": "https://static.lolesports.com/teams/1704714951336_KC.png"
     },
     {
       "name": "Weibo Gaming",
@@ -115,7 +125,8 @@
       "w": 14,
       "l": 16,
       "gw": 40,
-      "gl": 44
+      "gl": 44,
+      "logo": "https://static.lolesports.com/teams/1641202879910_3.png"
     },
     {
       "name": "Dplus KIA",
@@ -125,7 +136,8 @@
       "w": 19,
       "l": 12,
       "gw": 47,
-      "gl": 38
+      "gl": 38,
+      "logo": "https://static.lolesports.com/teams/1673260049703_DPlusKIALOGO11.png"
     },
     {
       "name": "CTBC Flying Oyster",
@@ -135,7 +147,8 @@
       "w": 5,
       "l": 11,
       "gw": 18,
-      "gl": 26
+      "gl": 26,
+      "logo": "https://static.lolesports.com/teams/1656307849320_CFO_Logo.png"
     },
     {
       "name": "FlyQuest",
@@ -145,7 +158,8 @@
       "w": 7,
       "l": 8,
       "gw": 22,
-      "gl": 23
+      "gl": 23,
+      "logo": "https://static.lolesports.com/teams/flyquest-new-on-dark.png"
     },
     {
       "name": "Movistar KOI",
@@ -155,7 +169,8 @@
       "w": 15,
       "l": 12,
       "gw": 32,
-      "gl": 25
+      "gl": 25,
+      "logo": "https://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png"
     },
     {
       "name": "Team Secret Whales",
@@ -166,7 +181,8 @@
       "l": 3,
       "fst": 7,
       "gw": 45,
-      "gl": 18
+      "gl": 18,
+      "logo": "https://static.lolesports.com/teams/1774598000328_White_EyeText_600p.png"
     },
     {
       "name": "Ninjas in Pyjamas",
@@ -176,7 +192,8 @@
       "w": 13,
       "l": 12,
       "gw": 34,
-      "gl": 33
+      "gl": 33,
+      "logo": "https://static.lolesports.com/teams/1673425724696_NIP-Symbol-RGB-NeonYellow1.png"
     },
     {
       "name": "Invictus Gaming",
@@ -186,7 +203,8 @@
       "w": 9,
       "l": 21,
       "gw": 30,
-      "gl": 51
+      "gl": 51,
+      "logo": "https://static.lolesports.com/teams/1634762917340_300px-Invictus_Gaming_logo.png"
     },
     {
       "name": "Cloud9 Kia",
@@ -196,7 +214,8 @@
       "w": 13,
       "l": 2,
       "gw": 30,
-      "gl": 13
+      "gl": 13,
+      "logo": "https://static.lolesports.com/teams/1736924120254_C9Kia_IconBlue_Transparent_2000x2000.png"
     },
     {
       "name": "Relove Deep Cross Gaming",
@@ -206,7 +225,8 @@
       "w": 14,
       "l": 9,
       "gw": 41,
-      "gl": 34
+      "gl": 34,
+      "logo": "https://static.lolesports.com/teams/1773832146741_LCP_DCG_Full_W.png"
     },
     {
       "name": "GAM Esports",
@@ -216,7 +236,8 @@
       "w": 11,
       "l": 7,
       "gw": 28,
-      "gl": 22
+      "gl": 22,
+      "logo": "https://static.lolesports.com/teams/1643263093448_GAMyellow.png"
     },
     {
       "name": "Xi'an Team WE",
@@ -226,7 +247,8 @@
       "w": 9,
       "l": 20,
       "gw": 29,
-      "gl": 50
+      "gl": 50,
+      "logo": "https://static.lolesports.com/teams/1634763008788_220px-Team_WE_logo.png"
     },
     {
       "name": "BNK FEARX",
@@ -237,7 +259,8 @@
       "l": 18,
       "fst": 5,
       "gw": 37,
-      "gl": 46
+      "gl": 46,
+      "logo": "https://static.lolesports.com/teams/1734691810721_BFXfullcolorfordarkbg.png"
     },
     {
       "name": "Team Liquid Alienware",
@@ -247,7 +270,8 @@
       "w": 10,
       "l": 6,
       "gw": 27,
-      "gl": 18
+      "gl": 18,
+      "logo": "https://static.lolesports.com/teams/1769357207762_TLAlienware_Minimal_Bug-White.png"
     },
     {
       "name": "Suzhou LNG Esports",
@@ -257,7 +281,8 @@
       "w": 11,
       "l": 3,
       "gw": 27,
-      "gl": 12
+      "gl": 12,
+      "logo": "https://static.lolesports.com/teams/1717487697003_LNGlogo.png"
     },
     {
       "name": "LYON",
@@ -268,7 +293,8 @@
       "l": 6,
       "fst": 6,
       "gw": 37,
-      "gl": 23
+      "gl": 23,
+      "logo": "https://static.lolesports.com/teams/1743717443673_isotypelyon-03.png"
     },
     {
       "name": "MVK Esports",
@@ -278,7 +304,8 @@
       "w": 8,
       "l": 9,
       "gw": 22,
-      "gl": 25
+      "gl": 25,
+      "logo": "https://static.lolesports.com/teams/1767089709161_White_Logo.png"
     },
     {
       "name": "Team Vitality",
@@ -288,7 +315,8 @@
       "w": 16,
       "l": 9,
       "gw": 27,
-      "gl": 21
+      "gl": 21,
+      "logo": "https://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png"
     },
     {
       "name": "Fnatic",
@@ -298,7 +326,8 @@
       "w": 8,
       "l": 14,
       "gw": 15,
-      "gl": 23
+      "gl": 23,
+      "logo": "https://static.lolesports.com/teams/1631819669150_fnc-2021-worlds.png"
     },
     {
       "name": "KIWOOM DRX",
@@ -308,7 +337,8 @@
       "w": 9,
       "l": 19,
       "gw": 31,
-      "gl": 46
+      "gl": 46,
+      "logo": "https://static.lolesports.com/teams/1774247803537_horizontal_EN_Wh.png"
     },
     {
       "name": "GIANTX",
@@ -318,7 +348,8 @@
       "w": 14,
       "l": 12,
       "gw": 24,
-      "gl": 26
+      "gl": 26,
+      "logo": "https://static.lolesports.com/teams/1765897105091_GIANTX-logotype-white.png"
     },
     {
       "name": "FURIA",
@@ -328,7 +359,8 @@
       "w": 16,
       "l": 6,
       "gw": 34,
-      "gl": 16
+      "gl": 16,
+      "logo": "https://static.lolesports.com/teams/FURIA---black.png"
     },
     {
       "name": "Hanjin BRION",
@@ -338,7 +370,8 @@
       "w": 6,
       "l": 19,
       "gw": 22,
-      "gl": 40
+      "gl": 40,
+      "logo": "https://static.lolesports.com/teams/1716454325887_Nowyprojekt.png"
     },
     {
       "name": "Nongshim RedForce",
@@ -348,7 +381,8 @@
       "w": 7,
       "l": 18,
       "gw": 21,
-      "gl": 41
+      "gl": 41,
+      "logo": "https://static.lolesports.com/teams/NSFullonDark.png"
     },
     {
       "name": "Edward Gaming",
@@ -358,7 +392,8 @@
       "w": 8,
       "l": 7,
       "gw": 20,
-      "gl": 24
+      "gl": 24,
+      "logo": "https://static.lolesports.com/teams/1631819297476_edg-2021-worlds.png"
     },
     {
       "name": "Fukuoka SoftBank HAWKS",
@@ -368,7 +403,8 @@
       "w": 9,
       "l": 10,
       "gw": 25,
-      "gl": 27
+      "gl": 27,
+      "logo": "https://static.lolesports.com/teams/1725885083108_SHG_White_Main.png"
     },
     {
       "name": "LGD Gaming",
@@ -378,7 +414,8 @@
       "w": 7,
       "l": 8,
       "gw": 20,
-      "gl": 25
+      "gl": 25,
+      "logo": "https://static.lolesports.com/teams/LGD-FullonDark-1.png"
     },
     {
       "name": "ThunderTalk Gaming",
@@ -388,7 +425,8 @@
       "w": 4,
       "l": 11,
       "gw": 15,
-      "gl": 27
+      "gl": 27,
+      "logo": "https://static.lolesports.com/teams/TT-FullonDark.png"
     },
     {
       "name": "RED Canids Kalunga",
@@ -398,7 +436,8 @@
       "w": 14,
       "l": 7,
       "gw": 27,
-      "gl": 19
+      "gl": 19,
+      "logo": "https://static.lolesports.com/teams/1631820575924_red-2021-worlds.png"
     },
     {
       "name": "Natus Vincere",
@@ -408,7 +447,8 @@
       "w": 14,
       "l": 10,
       "gw": 23,
-      "gl": 22
+      "gl": 22,
+      "logo": "https://static.lolesports.com/teams/1752746833620_NAVI_FullColor.png"
     },
     {
       "name": "Sentinels",
@@ -418,7 +458,8 @@
       "w": 6,
       "l": 8,
       "gw": 18,
-      "gl": 23
+      "gl": 23,
+      "logo": "https://static.lolesports.com/teams/1767769784669_Sentinels_2020_Icon.png"
     },
     {
       "name": "Shifters",
@@ -428,7 +469,8 @@
       "w": 6,
       "l": 14,
       "gw": 11,
-      "gl": 22
+      "gl": 22,
+      "logo": "https://static.lolesports.com/teams/1765897071435_600px-Shifters_allmode.png"
     },
     {
       "name": "Vivo Keyd Stars",
@@ -438,7 +480,8 @@
       "w": 8,
       "l": 11,
       "gw": 16,
-      "gl": 23
+      "gl": 23,
+      "logo": "https://static.lolesports.com/teams/1670542079678_vks.png"
     },
     {
       "name": "LOUD",
@@ -449,7 +492,8 @@
       "l": 12,
       "fst": 8,
       "gw": 29,
-      "gl": 27
+      "gl": 27,
+      "logo": "https://static.lolesports.com/teams/Logo-LOUD-Esports_Original.png"
     },
     {
       "name": "Shopify Rebellion",
@@ -459,7 +503,8 @@
       "w": 2,
       "l": 9,
       "gw": 5,
-      "gl": 19
+      "gl": 19,
+      "logo": "https://static.lolesports.com/teams/1701424227458_Teams204_Shopify_1632869404072.png"
     },
     {
       "name": "Oh My God",
@@ -469,7 +514,8 @@
       "w": 4,
       "l": 9,
       "gw": 12,
-      "gl": 22
+      "gl": 22,
+      "logo": "https://static.lolesports.com/teams/1686821355861_OMG_2023_logo-01.png"
     },
     {
       "name": "Disguised",
@@ -479,7 +525,8 @@
       "w": 4,
       "l": 8,
       "gw": 11,
-      "gl": 21
+      "gl": 21,
+      "logo": "https://static.lolesports.com/teams/1731496922454_Disguised-Wordmark-Yellow-Main.png"
     },
     {
       "name": "LOS",
@@ -489,7 +536,8 @@
       "w": 14,
       "l": 8,
       "gw": 32,
-      "gl": 25
+      "gl": 25,
+      "logo": "https://static.lolesports.com/teams/1686087430642_logo_los_white_newest.png"
     },
     {
       "name": "Ground Zero Gaming",
@@ -499,7 +547,8 @@
       "w": 6,
       "l": 11,
       "gw": 19,
-      "gl": 29
+      "gl": 29,
+      "logo": "https://static.lolesports.com/teams/1766395585595_LCP_TEAMLogo_GZ_Full_B.png"
     },
     {
       "name": "paiN Gaming",
@@ -509,7 +558,8 @@
       "w": 3,
       "l": 13,
       "gw": 8,
-      "gl": 22
+      "gl": 22,
+      "logo": "https://static.lolesports.com/teams/1674657011011_pain_logo_white.png"
     },
     {
       "name": "Ultra Prime",
@@ -519,7 +569,8 @@
       "w": 3,
       "l": 8,
       "gw": 9,
-      "gl": 16
+      "gl": 16,
+      "logo": "https://static.lolesports.com/teams/ultraprime.png"
     },
     {
       "name": "SK Gaming",
@@ -529,7 +580,8 @@
       "w": 5,
       "l": 15,
       "gw": 10,
-      "gl": 22
+      "gl": 22,
+      "logo": "https://static.lolesports.com/teams/1643979272144_SK_Monochrome.png"
     },
     {
       "name": "Team Heretics",
@@ -539,7 +591,8 @@
       "w": 7,
       "l": 15,
       "gw": 10,
-      "gl": 26
+      "gl": 26,
+      "logo": "https://static.lolesports.com/teams/1672933861879_Heretics-Full-Color.png"
     },
     {
       "name": "DetonatioN FocusMe",
@@ -549,7 +602,8 @@
       "w": 0,
       "l": 14,
       "gw": 5,
-      "gl": 28
+      "gl": 28,
+      "logo": "https://static.lolesports.com/teams/1673415140442_dfm.png"
     },
     {
       "name": "Dignitas",
@@ -559,7 +613,8 @@
       "w": 1,
       "l": 10,
       "gw": 5,
-      "gl": 19
+      "gl": 19,
+      "logo": "https://static.lolesports.com/teams/DIG-FullonDark.png"
     },
     {
       "name": "DN SOOPers",
@@ -569,7 +624,8 @@
       "w": 5,
       "l": 23,
       "gw": 18,
-      "gl": 52
+      "gl": 52,
+      "logo": "https://static.lolesports.com/teams/1767340467921_DN_SOOPerslogo_profile.webp"
     },
     {
       "name": "Fluxo",
@@ -579,7 +635,8 @@
       "w": 7,
       "l": 11,
       "gw": 17,
-      "gl": 22
+      "gl": 22,
+      "logo": "https://static.lolesports.com/teams/1766161431111_LogoColorida.png"
     },
     {
       "name": "Leviatán",
@@ -589,7 +646,8 @@
       "w": 6,
       "l": 13,
       "gw": 12,
-      "gl": 25
+      "gl": 25,
+      "logo": "https://static.lolesports.com/teams/1643795049372_LEV-CLAROWhite.png"
     }
   ]
 }

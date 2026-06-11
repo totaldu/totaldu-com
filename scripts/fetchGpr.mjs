@@ -32,6 +32,7 @@ for (const raw of chunks.slice(1)) {
   const score = ch.match(/"currentTeamGPR":\{[^}]*?"gprScore":(\d+)/);
   const wl = ch.match(/"teamMatchRecord":\{"__typename":"WinLoss","(?:wins":(\d+),"losses":(\d+)|losses":(\d+),"wins":(\d+))\}/);
   const gwl = ch.match(/"teamGameRecord":\{"__typename":"WinLoss","(?:wins":(\d+),"losses":(\d+)|losses":(\d+),"wins":(\d+))\}/);
+  const logo = ch.match(/"image":"(https?:\/\/[^"]*\/teams\/[^"]+)"/i); // 팀 로고(리그 로고 제외)
   if (!code || !score) continue;
   const key = ALIAS[code[1]] || code[1];
   if (gpr[key]) continue; // 첫 등장(현재 시즌)만
@@ -41,6 +42,7 @@ for (const raw of chunks.slice(1)) {
     l: wl ? Number(wl[2] ?? wl[3]) : null,
     gw: gwl ? Number(gwl[1] ?? gwl[4]) : null, // 세트(게임) 승
     gl: gwl ? Number(gwl[2] ?? gwl[3]) : null, // 세트(게임) 패
+    logo: logo ? logo[1].replace(/^http:/, 'https:') : null,
   };
 }
 
@@ -54,12 +56,13 @@ const missing = [];
 for (const t of data.teams) {
   const g = gpr[t.short];
   if (!g) { missing.push(t.short); continue; }
-  if (t.score !== g.score || t.w !== g.w || t.l !== g.l || t.gw !== g.gw || t.gl !== g.gl) updated++;
+  if (t.score !== g.score || t.w !== g.w || t.l !== g.l || t.gw !== g.gw || t.gl !== g.gl || t.logo !== g.logo) updated++;
   t.score = g.score;
   if (g.w != null) t.w = g.w;
   if (g.l != null) t.l = g.l;
   if (g.gw != null) t.gw = g.gw;
   if (g.gl != null) t.gl = g.gl;
+  if (g.logo) t.logo = g.logo;
 }
 if (missing.length) console.warn(`주의: GPR에서 못 찾은 팀 → ${missing.join(', ')}`);
 

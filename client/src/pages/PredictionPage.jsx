@@ -5,7 +5,7 @@ import sim from '../data/lolSim.json';
 import gpr from '../data/lolGpr.json';
 import gprTeams from '../data/gprTeams.json';
 import officialStandings from '../data/lolStandings.json';
-import GprTable from '../components/GprTable';
+import GprTable, { TeamLogo } from '../components/GprTable';
 import { textOn, lighten } from '../utils/colorContrast';
 
 const statusMeta = {
@@ -19,6 +19,48 @@ const ScopeIcon = ({ scope, ...rest }) => (scope === 'intl' ? <Globe {...rest} /
 // 팀 short → 실제 전적(GPR 기준). gw/gl = 세트(게임) 승-패
 const recordByShort = Object.fromEntries(
   gprTeams.teams.map((t) => [t.short, { w: t.w ?? 0, l: t.l ?? 0, gw: t.gw, gl: t.gl }])
+);
+// 팀 short → 로고
+const logoByShort = Object.fromEntries(gprTeams.teams.map((t) => [t.short, t.logo]));
+
+// 현재 순위 표 (그룹 단위로 재사용)
+const StandingsTable = ({ rows, color, hasDiff }) => (
+  <div className="overflow-x-auto">
+    <table className="w-full text-sm border-collapse">
+      <thead>
+        <tr className="text-white/40 text-xs border-b border-white/10">
+          <th className="text-center font-bold py-2 px-2 w-10">#</th>
+          <th className="text-left font-bold py-2 pr-2">팀</th>
+          <th className="text-center font-bold py-2 px-2">승-패</th>
+          {hasDiff && <th className="text-center font-bold py-2 px-2">득실차</th>}
+          <th className="text-center font-bold py-2 px-2">승률</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((t) => (
+          <tr key={t.short} className="border-b border-white/5">
+            <td className="py-2 px-2 text-center text-white/40 font-mono">{t.rank}</td>
+            <td className="py-2 pr-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <TeamLogo src={logoByShort[t.short]} />
+                <span className="font-bold text-white/90 truncate">{t.short}</span>
+              </div>
+            </td>
+            <td className="py-2 px-2 text-center text-white/70 font-mono">{t.games ? `${t.w}-${t.l}` : '-'}</td>
+            {hasDiff && (
+              <td className="py-2 px-2 text-center font-mono"
+                style={{ color: t.gd > 0 ? '#34D399' : t.gd < 0 ? '#F87171' : '#9CA3AF' }}>
+                {t.gd != null ? `${t.gd > 0 ? '+' : ''}${t.gd}` : '-'}
+              </td>
+            )}
+            <td className="py-2 px-2 text-center font-black font-mono" style={{ color: lighten(color) }}>
+              {t.games ? `${(t.winRate * 100).toFixed(1)}%` : '-'}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 );
 
 // 갱신 시각을 KST(시:분까지)로 표시. 날짜만 들어와도 그대로 출력
@@ -49,8 +91,17 @@ const SimulationView = ({ comp }) => {
           return { ...t, w, l, games: g, winRate: g ? w / g : 0, gd: setDiff(gw, gl) };
         })
         .sort((a, b) => b.winRate - a.winRate || b.w - a.w || (b.gd ?? -99) - (a.gd ?? -99) || b.rating - a.rating);
-  const hasGroup = current.some((t) => t.group);
   const hasDiff = current.some((t) => t.gd != null);
+  // 그룹이 있으면 레전드/라이즈로 분리하고 각 그룹 내 1위부터 재번호
+  const grouped = !!official && current.some((t) => t.group);
+  const groups = grouped
+    ? [
+        { name: '레전드 그룹', badge: { color: '#E8C77E', bg: 'rgba(200,150,62,0.2)' },
+          rows: current.filter((t) => t.group === 'Legend').map((t, i) => ({ ...t, rank: i + 1 })) },
+        { name: '라이즈 그룹', badge: { color: '#9CA3AF', bg: 'rgba(156,163,175,0.15)' },
+          rows: current.filter((t) => t.group === 'Rise').map((t, i) => ({ ...t, rank: i + 1 })) },
+      ]
+    : [{ name: null, rows: current.map((t, i) => ({ ...t, rank: t.rank ?? i + 1 })) }];
 
   return (
     <div className="flex flex-col gap-8">
@@ -64,57 +115,22 @@ const SimulationView = ({ comp }) => {
 
       {/* 현재 순위 */}
       {current.length > 0 && (
-        <section>
-          <div className="flex items-baseline gap-2 mb-4">
+        <section className="flex flex-col gap-5">
+          <div className="flex items-baseline gap-2">
             <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">현재 순위</h3>
             {official?.stage && <span className="text-xs text-white/40">{official.stage}</span>}
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="text-white/40 text-xs border-b border-white/10">
-                  <th className="text-left font-bold py-2 pr-2">#</th>
-                  <th className="text-left font-bold py-2 pr-2">팀</th>
-                  {hasGroup && <th className="text-left font-bold py-2 px-2">그룹</th>}
-                  <th className="text-right font-bold py-2 px-2">승-패</th>
-                  {hasDiff && <th className="text-right font-bold py-2 px-2">득실차</th>}
-                  <th className="text-right font-bold py-2 pl-2">승률</th>
-                </tr>
-              </thead>
-              <tbody>
-                {current.map((t, i) => (
-                  <tr key={t.short} className="border-b border-white/5">
-                    <td className="py-2 pr-2 text-white/40 font-mono">{t.rank ?? i + 1}</td>
-                    <td className="py-2 pr-2 font-bold text-white/90">{t.short}</td>
-                    {hasGroup && (
-                      <td className="py-2 px-2">
-                        {t.group && (
-                          <span
-                            className="text-[11px] font-black px-2 py-0.5 rounded"
-                            style={t.group === 'Legend'
-                              ? { color: '#E8C77E', backgroundColor: 'rgba(200,150,62,0.2)' }
-                              : { color: '#9CA3AF', backgroundColor: 'rgba(156,163,175,0.15)' }}
-                          >
-                            {t.group}
-                          </span>
-                        )}
-                      </td>
-                    )}
-                    <td className="py-2 px-2 text-right text-white/70 font-mono">{t.games ? `${t.w}-${t.l}` : '-'}</td>
-                    {hasDiff && (
-                      <td className="py-2 px-2 text-right font-mono"
-                        style={{ color: t.gd > 0 ? '#34D399' : t.gd < 0 ? '#F87171' : '#9CA3AF' }}>
-                        {t.gd != null ? `${t.gd > 0 ? '+' : ''}${t.gd}` : '-'}
-                      </td>
-                    )}
-                    <td className="py-2 pl-2 text-right font-black font-mono" style={{ color: lighten(comp.color) }}>
-                      {t.games ? `${(t.winRate * 100).toFixed(1)}%` : '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {groups.map((grp) => (
+            <div key={grp.name || 'all'}>
+              {grp.name && (
+                <span className="inline-block text-xs font-black px-2 py-0.5 rounded mb-2"
+                  style={{ color: grp.badge.color, backgroundColor: grp.badge.bg }}>
+                  {grp.name}
+                </span>
+              )}
+              <StandingsTable rows={grp.rows} color={comp.color} hasDiff={hasDiff} />
+            </div>
+          ))}
         </section>
       )}
 
