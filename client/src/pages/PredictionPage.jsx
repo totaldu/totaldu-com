@@ -4,6 +4,7 @@ import { Target, Trophy, ExternalLink, Globe, Flag, Crown, Hourglass, BarChart3 
 import sim from '../data/lolSim.json';
 import gpr from '../data/lolGpr.json';
 import gprTeams from '../data/gprTeams.json';
+import officialStandings from '../data/lolStandings.json';
 import GprTable from '../components/GprTable';
 import { textOn, lighten } from '../utils/colorContrast';
 
@@ -31,14 +32,21 @@ const fmtUpdated = (v) => {
 
 // 시뮬레이션 결과(예측) 렌더
 const SimulationView = ({ comp }) => {
-  // 현재 순위 — 실제 전적(승률) 기준
-  const current = (comp.teams || [])
-    .map((t) => {
-      const { w, l } = recordByShort[t.short] || { w: 0, l: 0 };
-      const g = w + l;
-      return { ...t, w, l, games: g, winRate: g ? w / g : 0 };
-    })
-    .sort((a, b) => b.winRate - a.winRate || b.w - a.w || b.rating - a.rating);
+  // 현재 순위 — 공식 순위표가 있으면 우선, 없으면 GPR 전적으로 산출
+  const official = officialStandings.standings[comp.key];
+  const current = official
+    ? official.rows.map((r) => {
+        const g = r.w + r.l;
+        return { short: r.team, w: r.w, l: r.l, group: r.group, games: g, winRate: g ? r.w / g : 0 };
+      })
+    : (comp.teams || [])
+        .map((t) => {
+          const { w, l } = recordByShort[t.short] || { w: 0, l: 0 };
+          const g = w + l;
+          return { ...t, w, l, games: g, winRate: g ? w / g : 0 };
+        })
+        .sort((a, b) => b.winRate - a.winRate || b.w - a.w || b.rating - a.rating);
+  const hasGroup = current.some((t) => t.group);
 
   return (
     <div className="flex flex-col gap-8">
@@ -50,16 +58,20 @@ const SimulationView = ({ comp }) => {
         {comp.generatedAt && <span className="text-white/50">생성: <strong className="text-white/80">{comp.generatedAt}</strong></span>}
       </div>
 
-      {/* 현재 순위 (전적 기준) */}
+      {/* 현재 순위 */}
       {current.length > 0 && (
         <section>
-          <h3 className="text-sm font-black text-[#E8C77E] mb-4 uppercase tracking-wider">현재 순위</h3>
+          <div className="flex items-baseline gap-2 mb-4">
+            <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">현재 순위</h3>
+            {official?.stage && <span className="text-xs text-white/40">{official.stage}</span>}
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="text-white/40 text-xs border-b border-white/10">
                   <th className="text-left font-bold py-2 pr-2">#</th>
                   <th className="text-left font-bold py-2 pr-2">팀</th>
+                  {hasGroup && <th className="text-left font-bold py-2 px-2">그룹</th>}
                   <th className="text-right font-bold py-2 px-2">승-패</th>
                   <th className="text-right font-bold py-2 pl-2">승률</th>
                 </tr>
@@ -67,8 +79,22 @@ const SimulationView = ({ comp }) => {
               <tbody>
                 {current.map((t, i) => (
                   <tr key={t.short} className="border-b border-white/5">
-                    <td className="py-2 pr-2 text-white/40 font-mono">{i + 1}</td>
+                    <td className="py-2 pr-2 text-white/40 font-mono">{t.rank ?? i + 1}</td>
                     <td className="py-2 pr-2 font-bold text-white/90">{t.short}</td>
+                    {hasGroup && (
+                      <td className="py-2 px-2">
+                        {t.group && (
+                          <span
+                            className="text-[11px] font-black px-2 py-0.5 rounded"
+                            style={t.group === 'Legend'
+                              ? { color: '#E8C77E', backgroundColor: 'rgba(200,150,62,0.2)' }
+                              : { color: '#9CA3AF', backgroundColor: 'rgba(156,163,175,0.15)' }}
+                          >
+                            {t.group}
+                          </span>
+                        )}
+                      </td>
+                    )}
                     <td className="py-2 px-2 text-right text-white/70 font-mono">{t.games ? `${t.w}-${t.l}` : '-'}</td>
                     <td className="py-2 pl-2 text-right font-black font-mono" style={{ color: lighten(comp.color) }}>
                       {t.games ? `${(t.winRate * 100).toFixed(1)}%` : '-'}
