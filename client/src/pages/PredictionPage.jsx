@@ -13,6 +13,16 @@ const statusMeta = {
 
 const ScopeIcon = ({ scope, ...rest }) => (scope === 'intl' ? <Globe {...rest} /> : <Flag {...rest} />);
 
+const _rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+const _lum = (hex) => { const [r, g, b] = _rgb(hex); return 0.299 * r + 0.587 * g + 0.114 * b; };
+// 칩(배경 색) 위 글자: 밝은 칩일 때만 어두운 글자, 그 외엔 흰색
+const textOn = (hex) => (_lum(hex) > 150 ? '#1e2328' : '#ffffff');
+// 어두운 배경 위 글자색: 원색을 흰색 쪽으로 밝혀 묻히지 않게
+const lighten = (hex, amt = 0.45) => {
+  const [r, g, b] = _rgb(hex).map((c) => Math.round(c + (255 - c) * amt));
+  return `rgb(${r}, ${g}, ${b})`;
+};
+
 // 막대형 확률 행
 const ProbRow = ({ label, value, color, sub }) => (
   <div className="flex items-center gap-3">
@@ -73,7 +83,7 @@ const SimulationView = ({ comp }) => (
                   <td className="py-2 pr-2 text-white/40 font-mono">{i + 1}</td>
                   <td className="py-2 pr-2 font-bold text-white/90">{t.team}</td>
                   <td className="py-2 px-2 text-right text-white/60 font-mono">{t.avgRank?.toFixed(1)}</td>
-                  <td className="py-2 px-2 text-right font-black" style={{ color: comp.color }}>{t.champ ?? '-'}{t.champ != null && '%'}</td>
+                  <td className="py-2 px-2 text-right font-black" style={{ color: lighten(comp.color) }}>{t.champ ?? '-'}{t.champ != null && '%'}</td>
                   <td className="py-2 pl-2 text-right text-white/70 font-mono">{t.advance ?? '-'}{t.advance != null && '%'}</td>
                 </tr>
               ))}
@@ -193,9 +203,9 @@ const PredictionPage = () => {
                 key={c.key}
                 onClick={() => setActiveKey(c.key)}
                 className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-black border transition-all ${
-                  active ? 'text-[#1e2328]' : 'text-white/60 border-white/15 hover:border-white/40 bg-transparent'
+                  active ? '' : 'text-white/60 border-white/15 hover:border-white/40 bg-transparent'
                 }`}
-                style={active ? { backgroundColor: c.color, borderColor: c.color } : {}}
+                style={active ? { backgroundColor: c.color, borderColor: c.color, color: textOn(c.color) } : {}}
               >
                 <ScopeIcon scope={c.scope} size={14} />
                 {c.name.replace('2026 ', '')}
@@ -209,7 +219,7 @@ const PredictionPage = () => {
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: comp.color }}>
-                <ScopeIcon scope={comp.scope} size={18} color="white" />
+                <ScopeIcon scope={comp.scope} size={18} color={textOn(comp.color)} />
               </div>
               <div>
                 <h2 className="text-xl font-black">{comp.name}</h2>
@@ -238,7 +248,7 @@ const PredictionPage = () => {
               const max = Math.max(...gpr.regions.map((x) => x.score));
               return (
                 <div key={r.key} className="flex items-center gap-3">
-                  <span className="w-14 text-sm font-black shrink-0" style={{ color: r.color }}>{r.name}</span>
+                  <span className="w-14 text-sm font-black shrink-0" style={{ color: lighten(r.color) }}>{r.name}</span>
                   <div className="flex-1 h-4 bg-white/5 rounded-full overflow-hidden">
                     <div className="h-full rounded-full flex items-center justify-end pr-2 text-[10px] font-black text-white/90"
                       style={{ width: `${(r.score / max) * 100}%`, backgroundColor: r.color }}>
