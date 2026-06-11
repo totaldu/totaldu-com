@@ -121,16 +121,139 @@ function simulateLeague(teams) {
   return { standings, situations, matches, seeds };
 }
 
+// ---- 2026 LCK 전용 시뮬레이션 ----
+// 정규시즌 4라운드(Bo3): 1~2R 10팀 더블 라운드로빈 → 상위5 레전드/하위5 라이즈 분할,
+//   3~4R 그룹 내 더블 라운드로빈(승수 연계). 최종 순위는 레전드 1~5위, 라이즈 6~10위.
+// 플레이인(Bo5, 4팀: 레전드5·라이즈1~3): 1경기 승자 직행, 최종전 승자 직행 → 2팀.
+// 플레이오프(Bo5, 6팀 더블 엘리미네이션): 시드 1~4 직행 + 플레이인 2팀(5·6시드).
+//   '지목=더 낮은 시드 선택' 가정 → 표준 시드 대진(3v6, 4v5, 1·2시드 UB R2 부전승).
+function simulateLCK(teams) {
+  const n = teams.length; // 10
+  const ti = (obj) => teams.indexOf(obj);
+  const stat = teams.map(() => ({ sumRank: 0, rank1: 0, playoff: 0, champ: 0, finalApp: 0 }));
+
+  // 그룹 내 더블 라운드로빈(쌍별 2시리즈) — 누적 wins에 가산
+  const roundRobin = (groupIdx, wins) => {
+    for (let a = 0; a < groupIdx.length; a++)
+      for (let b = a + 1; b < groupIdx.length; b++)
+        for (let g = 0; g < 2; g++) {
+          const i = groupIdx[a], j = groupIdx[b];
+          if (simSeries(teams[i], teams[j], 2) === teams[i]) wins[i]++; else wins[j]++;
+        }
+  };
+
+  for (let it = 0; it < ITER; it++) {
+    const wins = new Array(n).fill(0);
+    const idx = teams.map((_, i) => i);
+
+    // 1~2R: 10팀 더블 라운드로빈
+    roundRobin(idx, wins);
+    // 1~2R 성적으로 그룹 분할 (상위5 레전드 / 하위5 라이즈), 동률 무작위
+    const order12 = idx.slice().sort((a, b) => (wins[b] - wins[a]) || (rng() - 0.5));
+    const legend = order12.slice(0, 5);
+    const rise = order12.slice(5);
+
+    // 3~4R: 그룹 내 더블 라운드로빈 (1~2R 승수 연계)
+    roundRobin(legend, wins);
+    roundRobin(rise, wins);
+
+    // 최종 순위 — 그룹 내 누적 승수 기준 (레전드 1~5위, 라이즈 6~10위)
+    const legOrder = legend.slice().sort((a, b) => (wins[b] - wins[a]) || (rng() - 0.5));
+    const riseOrder = rise.slice().sort((a, b) => (wins[b] - wins[a]) || (rng() - 0.5));
+    legOrder.forEach((tIdx, k) => {
+      stat[tIdx].sumRank += k + 1;
+      if (k === 0) stat[tIdx].rank1++;
+    });
+    riseOrder.forEach((tIdx, k) => { stat[tIdx].sumRank += 6 + k; });
+
+    // 플레이인 (Bo5): L5 vs R1 → 승자 직행 / 패자 최종전, R2 vs R3 → 승자 최종전
+    const L5 = teams[legOrder[4]], R1 = teams[riseOrder[0]], R2 = teams[riseOrder[1]], R3 = teams[riseOrder[2]];
+    const pin1W = simSeries(L5, R1, 3);
+    const pin1L = pin1W === L5 ? R1 : L5;
+    const pin2W = simSeries(R2, R3, 3);
+    const finalW = simSeries(pin1L, pin2W, 3); // 최종전 승자 → 직행
+
+    // 6팀 시드: 1~4 레전드 직행, 5 = 플레이인 1경기 승자, 6 = 최종전 승자
+    const s1 = teams[legOrder[0]], s2 = teams[legOrder[1]], s3 = teams[legOrder[2]], s4 = teams[legOrder[3]];
+    const s5 = pin1W, s6 = finalW;
+    [s1, s2, s3, s4, s5, s6].forEach((t) => { stat[ti(t)].playoff++; });
+    const seedNum = new Map([[s1, 1], [s2, 2], [s3, 3], [s4, 4], [s5, 5], [s6, 6]]);
+    const seedOf = (t) => seedNum.get(t);
+
+    // 플레이오프 — 6팀 더블 엘리미네이션 (Bo5)
+    // 승자조 R1: 3v6, 4v5
+    const ub1m1W = simSeries(s3, s6, 3), ub1m1L = ub1m1W === s3 ? s6 : s3;
+    const ub1m2W = simSeries(s4, s5, 3), ub1m2L = ub1m2W === s4 ? s5 : s4;
+    // 1위가 더 낮은 시드를 지목 → 승자조 R2 대진
+    const lowW = seedOf(ub1m1W) > seedOf(ub1m2W) ? ub1m1W : ub1m2W;
+    const highW = seedOf(ub1m1W) > seedOf(ub1m2W) ? ub1m2W : ub1m1W;
+    const ub2m1W = simSeries(s1, lowW, 3), ub2m1L = ub2m1W === s1 ? lowW : s1;
+    const ub2m2W = simSeries(s2, highW, 3), ub2m2L = ub2m2W === s2 ? highW : s2;
+    // 승자조 R3 → 승자 그랜드파이널 직행, 패자 로어파이널
+    const ub3W = simSeries(ub2m1W, ub2m2W, 3), ub3L = ub3W === ub2m1W ? ub2m2W : ub2m1W;
+    // 패자조: UB R2 패자 중 시드 높은 팀 → LB R3, 낮은 팀 → LB R2
+    const ub2lHigh = seedOf(ub2m1L) < seedOf(ub2m2L) ? ub2m1L : ub2m2L;
+    const ub2lLow = seedOf(ub2m1L) < seedOf(ub2m2L) ? ub2m2L : ub2m1L;
+    const lb1W = simSeries(ub1m1L, ub1m2L, 3);
+    const lb2W = simSeries(ub2lLow, lb1W, 3);
+    const lb3W = simSeries(ub2lHigh, lb2W, 3);
+    const lowerFinalsW = simSeries(ub3L, lb3W, 3);
+    // 그랜드파이널
+    const champ = simSeries(ub3W, lowerFinalsW, 3);
+    stat[ti(ub3W)].finalApp++;
+    stat[ti(lowerFinalsW)].finalApp++;
+    stat[ti(champ)].champ++;
+  }
+
+  const standings = teams
+    .map((t, i) => ({
+      team: t.short,
+      name: t.name,
+      rating: t.score,
+      avgRank: stat[i].sumRank / ITER,
+      champ: pct(stat[i].champ / ITER),
+      advance: pct(stat[i].playoff / ITER),
+      rank1: pct(stat[i].rank1 / ITER),
+    }))
+    .sort((a, b) => b.champ - a.champ || a.avgRank - b.avgRank);
+
+  // 상황별 확률
+  const byChamp = [...standings];
+  const top = byChamp[0], second = byChamp[1];
+  const worstAdvance = [...standings].filter((s) => s.advance > 0).sort((a, b) => a.advance - b.advance)[0];
+  const situations = [
+    { label: `${top.team} 정규시즌 1위`, prob: top.rank1 },
+    { label: `${top.team} 우승`, prob: top.champ },
+    { label: `${second.team} 우승`, prob: second.champ },
+    { label: `${worstAdvance.team} 플레이오프 진출`, prob: worstAdvance.advance },
+  ];
+
+  // 대진별 예측 — GPR 레이팅 시드 기준 플레이오프 대진(3v6 / 4v5 / 1v2 예상)
+  const seeds = [...teams].sort((a, b) => b.score - a.score);
+  const mk = (a, b) => {
+    const pa = seriesProb(gameProb(a.score, b.score), 3);
+    return { a: a.short, b: b.short, pA: Math.round(pa * 100), winner: pa >= 0.5 ? a.short : b.short };
+  };
+  const matches = [mk(seeds[2], seeds[5]), mk(seeds[3], seeds[4]), mk(seeds[0], seeds[1])];
+
+  return { standings, situations, matches };
+}
+
 // ---- 6개 리그 시뮬레이션 ----
 const leagues = ['LCK', 'LPL', 'LEC', 'LCP', 'LCS', 'CBLOL'];
 for (const lg of leagues) {
   const teams = gpr.teams.filter((t) => t.league === lg);
-  const { standings, situations, matches } = simulateLeague(teams);
+  const isLck = lg === 'LCK';
+  const { standings, situations, matches } = isLck ? simulateLCK(teams) : simulateLeague(teams);
   const comp = sim.competitions.find((c) => c.key === lg.toLowerCase());
   comp.ready = true;
   comp.status = 'ongoing';
-  comp.stage = '정규시즌 + 플레이오프 (시즌 전체)';
-  comp.format = '싱글 라운드로빈 Bo3 → 상위 6팀 Bo5 플레이오프';
+  comp.stage = isLck
+    ? '정규시즌 → 플레이인 → 플레이오프 (시즌 전체)'
+    : '정규시즌 + 플레이오프 (시즌 전체)';
+  comp.format = isLck
+    ? '정규 4R Bo3(2R 후 레전드/라이즈 분할) → 플레이인·플레이오프 6팀 더블 엘리미네이션 Bo5'
+    : '싱글 라운드로빈 Bo3 → 상위 6팀 Bo5 플레이오프';
   comp.iterations = ITER;
   comp.generatedAt = GENERATED_AT;
   comp.teams = teams.map((t) => ({ name: t.name, short: t.short, rating: t.score }));

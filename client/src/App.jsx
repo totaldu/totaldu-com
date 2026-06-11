@@ -527,6 +527,7 @@ const App = () => {
 
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/lol/prediction" element={<PredictionPage />} />
+          <Route path="/lol/prediction/:tab" element={<PredictionPage />} />
         </Routes>
 
         <footer className="mt-auto py-12 bg-white text-center border-t border-gray-100">

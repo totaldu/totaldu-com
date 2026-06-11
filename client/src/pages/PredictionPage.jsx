@@ -1,5 +1,6 @@
 // client/src/pages/PredictionPage.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Target, Trophy, ExternalLink, Globe, Flag, Crown, Hourglass, BarChart3 } from 'lucide-react';
 import sim from '../data/lolSim.json';
 import gpr from '../data/lolGpr.json';
@@ -228,13 +229,30 @@ const SUBTAB_DEFAULT = { lck: 'LCK', lpl: 'Split 2', lec: 'Summer', lcp: 'Split 
 const PredictionPage = () => {
   const comps = sim.competitions;
   const tabs = [GPR_TAB, ...comps];
-  const [activeKey, setActiveKey] = useState('gpr');
-  const [subByLeague, setSubByLeague] = useState({});
+  const validKeys = useMemo(() => [GPR_TAB.key, ...comps.map((c) => c.key)], [comps]);
+
+  // 탭 = URL 경로(/lol/prediction/:tab), 세부 대회 = 쿼리(?sub=) → 새로고침해도 유지
+  const { tab } = useParams();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const activeKey = tab && validKeys.includes(tab) ? tab : 'gpr';
+  // 알 수 없는 탭 경로는 기본 탭으로 정리
+  useEffect(() => {
+    if (tab && !validKeys.includes(tab)) navigate('/lol/prediction/gpr', { replace: true });
+  }, [tab, validKeys, navigate]);
+
+  const setActiveKey = (key) => navigate(`/lol/prediction/${key}`);
+
   const isGpr = activeKey === 'gpr';
   const comp = useMemo(() => comps.find((c) => c.key === activeKey), [comps, activeKey]);
   const st = comp ? (statusMeta[comp.status] || statusMeta.upcoming) : null;
   const subTabs = comp ? SUBTABS[comp.key] : null;
-  const activeSub = subTabs ? (subByLeague[comp.key] || SUBTAB_DEFAULT[comp.key] || subTabs[0]) : null;
+  const subParam = searchParams.get('sub');
+  const activeSub = subTabs
+    ? (subParam && subTabs.includes(subParam) ? subParam : (SUBTAB_DEFAULT[comp.key] || subTabs[0]))
+    : null;
+  const setActiveSub = (s) => setSearchParams({ sub: s }, { replace: true });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a1428] via-[#1e2328] to-[#0a1428] p-6 md:p-12 text-white">
@@ -306,7 +324,7 @@ const PredictionPage = () => {
                     return (
                       <button
                         key={s}
-                        onClick={() => setSubByLeague((p) => ({ ...p, [comp.key]: s }))}
+                        onClick={() => setActiveSub(s)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                           on ? 'bg-white/15 text-white border-white/30' : 'text-white/45 border-white/10 hover:border-white/30 hover:text-white/70'
                         }`}
