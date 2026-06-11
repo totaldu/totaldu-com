@@ -1,6 +1,6 @@
 // client/src/App.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Search, Menu, User, LogIn, ChevronRight, ChevronDown, Info, BookOpen, Globe, FileText, Sparkles, Zap, Timer, Gamepad2, Swords, Check, Target } from 'lucide-react';
 import TypeChartPage from './pages/TypeChartPage';
 import BattleLayout from './pages/BattleLayout';
@@ -402,9 +402,13 @@ const SPORTS = [
   { key: 'lol', label: 'LoL Esports', icon: Gamepad2, color: '#C8963E' },
 ];
 
+// 종목 전환 시 이동할 기본 페이지
+const SPORT_HOME = { pokemon: '/', lol: '/lol/prediction' };
+
 const SportSwitcher = ({ sport, setSport }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  const navigate = useNavigate();
   const current = SPORTS.find(s => s.key === sport) || SPORTS[0];
   const Icon = current.icon;
 
@@ -435,7 +439,7 @@ const SportSwitcher = ({ sport, setSport }) => {
             return (
               <button
                 key={s.key}
-                onClick={() => { setSport(s.key); setOpen(false); }}
+                onClick={() => { setSport(s.key); setOpen(false); navigate(SPORT_HOME[s.key] || '/'); }}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold transition-colors ${active ? 'bg-gray-50' : 'hover:bg-gray-50'}`}
                 style={{ color: s.color }}
               >
