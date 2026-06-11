@@ -1,7 +1,7 @@
 // client/src/App.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { Search, Menu, User, LogIn, ChevronRight, Info, BookOpen, Globe, FileText, Sparkles, Zap, Timer } from 'lucide-react';
+import { Search, Menu, User, LogIn, ChevronRight, ChevronDown, Info, BookOpen, Globe, FileText, Sparkles, Zap, Timer, Gamepad2, Swords, Check } from 'lucide-react';
 import TypeChartPage from './pages/TypeChartPage';
 import BattleLayout from './pages/BattleLayout';
 import PokedexLayout from './pages/PokedexLayout';
@@ -397,9 +397,85 @@ const MainHome = ({ articles, searchQuery, setSearchQuery }) => (
   </>
 );
 
+const SPORTS = [
+  { key: 'pokemon', label: '포켓몬', icon: Swords, color: '#005596' },
+  { key: 'lol', label: 'LoL Esports', icon: Gamepad2, color: '#C8963E' },
+];
+
+const SportSwitcher = ({ sport, setSport }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const current = SPORTS.find(s => s.key === sport) || SPORTS[0];
+  const Icon = current.icon;
+
+  useEffect(() => {
+    const onClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-all text-sm font-bold text-gray-700"
+        style={{ color: current.color }}
+      >
+        <Icon size={16} />
+        <span>{current.label}</span>
+        <ChevronDown size={15} className={`text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute left-0 mt-2 w-48 bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden z-50 py-1.5">
+          {SPORTS.map(s => {
+            const SIcon = s.icon;
+            const active = s.key === sport;
+            return (
+              <button
+                key={s.key}
+                onClick={() => { setSport(s.key); setOpen(false); }}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold transition-colors ${active ? 'bg-gray-50' : 'hover:bg-gray-50'}`}
+                style={{ color: s.color }}
+              >
+                <SIcon size={17} />
+                <span className="flex-1 text-left">{s.label}</span>
+                {active && <Check size={16} className="text-gray-400" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const LolHome = () => (
+  <section className="relative w-full bg-gradient-to-br from-[#1e2328] via-[#3c2a14] to-[#0a1428] min-h-[calc(100vh-80px)] px-4 overflow-hidden flex items-center">
+    <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#C8963E] rounded-full blur-3xl"></div>
+      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#0AC8B9] rounded-full blur-3xl"></div>
+    </div>
+    <div className="relative max-w-3xl mx-auto text-center w-full">
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 rounded-full bg-[#C8963E]/20 border border-[#C8963E]/40 text-[#E8C77E] text-sm font-bold">
+        <Gamepad2 size={16} /> LoL Esports
+      </div>
+      <h2 className="text-4xl md:text-5xl font-black text-white mb-4 drop-shadow-md">League of Legends 통계</h2>
+      <p className="text-white/60 text-lg font-medium">리그·팀·선수 데이터를 준비 중입니다.</p>
+      <p className="text-white/40 text-sm mt-2 font-medium">상단에서 다시 포켓몬으로 전환할 수 있습니다.</p>
+    </div>
+  </section>
+);
+
 const App = () => {
   const [articles, setArticles] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sport, setSport] = useState(() => localStorage.getItem('sport') || 'pokemon');
+
+  useEffect(() => {
+    localStorage.setItem('sport', sport);
+  }, [sport]);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/articles`)
@@ -413,16 +489,25 @@ const App = () => {
       <div className="min-h-screen bg-[#F9FAFB] flex flex-col font-sans">
         <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 h-20 flex items-center sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 w-full flex justify-between items-center">
-            <Link to="/" className="text-2xl font-black text-[#005596] flex items-center gap-2">
-              <span className="bg-[#005596] text-white px-3 py-1 rounded-xl text-sm tracking-widest uppercase">Total</span>
-              <span>DU</span>
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link to="/" className="text-2xl font-black text-[#005596] flex items-center gap-2">
+                <span className="bg-[#005596] text-white px-3 py-1 rounded-xl text-sm tracking-widest uppercase">Total</span>
+                <span>DU</span>
+              </Link>
+              <SportSwitcher sport={sport} setSport={setSport} />
+            </div>
             <nav className="hidden lg:flex items-center space-x-10 font-bold text-gray-600">
-              <Link to="/pokedex" className="hover:text-[#005596] transition-colors">포켓몬 도감</Link>
-              <Link to="/party" className="hover:text-[#005596] transition-colors">추천 파티</Link>
-              <Link to="/battle" className="hover:text-[#005596] transition-colors">배틀 정보</Link>
-              <Link to="/community" className="hover:text-[#005596] transition-colors">커뮤니티</Link>
-              <Link to="/stats" className="hover:text-[#005596] transition-colors">통계</Link>
+              {sport === 'pokemon' ? (
+                <>
+                  <Link to="/pokedex" className="hover:text-[#005596] transition-colors">포켓몬 도감</Link>
+                  <Link to="/party" className="hover:text-[#005596] transition-colors">추천 파티</Link>
+                  <Link to="/battle" className="hover:text-[#005596] transition-colors">배틀 정보</Link>
+                  <Link to="/community" className="hover:text-[#005596] transition-colors">커뮤니티</Link>
+                  <Link to="/stats" className="hover:text-[#005596] transition-colors">통계</Link>
+                </>
+              ) : (
+                <span className="text-sm font-bold text-[#C8963E] bg-[#C8963E]/10 px-4 py-1.5 rounded-full border border-[#C8963E]/30">준비 중</span>
+              )}
             </nav>
             <div className="flex items-center gap-3">
               <button className="hidden sm:flex items-center gap-2 text-sm font-bold text-gray-700 bg-gray-50 px-5 py-2.5 rounded-full border border-gray-200 hover:bg-gray-100 transition-all">
@@ -434,7 +519,9 @@ const App = () => {
         </header>
 
         <Routes>
-          <Route path="/" element={<MainHome articles={articles} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />} />
+          <Route path="/" element={sport === 'pokemon'
+            ? <MainHome articles={articles} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            : <LolHome />} />
 
           {/* ✅ PokedexLayout 중첩 라우트 */}
           <Route path="/pokedex" element={<PokedexLayout />}>
