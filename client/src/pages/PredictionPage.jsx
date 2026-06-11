@@ -1,6 +1,5 @@
 // client/src/pages/PredictionPage.jsx
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { Target, Trophy, ExternalLink, Globe, Flag, Crown, Hourglass, BarChart3 } from 'lucide-react';
 import sim from '../data/lolSim.json';
 import gpr from '../data/lolGpr.json';
@@ -180,10 +179,6 @@ const PredictionPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a1428] via-[#1e2328] to-[#0a1428] p-6 md:p-12 text-white">
       <div className="max-w-5xl mx-auto">
-        <Link to="/" className="text-[#E8C77E] font-bold mb-4 inline-block hover:underline">
-          ← 메인으로 돌아가기
-        </Link>
-
         <div className="flex items-center gap-3 mb-8">
           <div className="w-11 h-11 bg-[#C8963E] rounded-xl flex items-center justify-center shrink-0">
             <Target color="white" size={22} />
