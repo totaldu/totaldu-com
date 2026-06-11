@@ -158,5 +158,6 @@ fst.finalResult = {
 };
 console.log(`FST: 우승 ${fstTeams[0].name}`);
 
+sim.updatedAt = new Date().toISOString(); // 시간까지 포함(페이지에서 KST로 표시)
 fs.writeFileSync(path.join(dataDir, 'lolSim.json'), JSON.stringify(sim, null, 2) + '\n');
 console.log('lolSim.json 갱신 완료');

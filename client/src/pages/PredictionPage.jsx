@@ -16,6 +16,17 @@ const statusMeta = {
 
 const ScopeIcon = ({ scope, ...rest }) => (scope === 'intl' ? <Globe {...rest} /> : <Flag {...rest} />);
 
+// 갱신 시각을 KST(시:분까지)로 표시. 날짜만 들어와도 그대로 출력
+const fmtUpdated = (v) => {
+  const d = new Date(v);
+  if (isNaN(d.getTime())) return v;
+  return d.toLocaleString('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  }) + ' KST';
+};
+
 // 막대형 확률 행
 const ProbRow = ({ label, value, color, sub }) => (
   <div className="flex items-center gap-3">
@@ -173,23 +184,12 @@ const PredictionPage = () => {
           ← 메인으로 돌아가기
         </Link>
 
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-3 mb-8">
           <div className="w-11 h-11 bg-[#C8963E] rounded-xl flex items-center justify-center shrink-0">
             <Target color="white" size={22} />
           </div>
           <h1 className="text-3xl md:text-4xl font-black text-white">LoL 승부예측</h1>
         </div>
-        <p className="text-white/50 text-sm font-medium mb-1">
-          9개 대회의 몬테카를로 시뮬레이션 예측과 종료 대회의 실제 결과를 한곳에서.
-        </p>
-        <a
-          href={sim.source}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-white/40 text-xs hover:text-[#E8C77E] inline-flex items-center gap-1 mb-8"
-        >
-          레이팅 출처: lolesports.com Global Power Rankings <ExternalLink size={11} /> · 갱신 {sim.updatedAt}
-        </a>
 
         {/* 탭 선택 (GPR 순위 + 9개 대회) */}
         <div className="flex flex-wrap gap-2 mb-8">
@@ -274,6 +274,21 @@ const PredictionPage = () => {
             })}
           </div>
         </section>
+
+        {/* 안내 · 레이팅 출처 (하단) */}
+        <div className="mt-10 pt-6 border-t border-white/10">
+          <p className="text-white/50 text-sm font-medium mb-1">
+            9개 대회의 몬테카를로 시뮬레이션 예측과 종료 대회의 실제 결과를 한곳에서.
+          </p>
+          <a
+            href={sim.source}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white/40 text-xs hover:text-[#E8C77E] inline-flex items-center gap-1"
+          >
+            레이팅 출처: lolesports.com Global Power Rankings <ExternalLink size={11} /> · 갱신 {fmtUpdated(sim.updatedAt)}
+          </a>
+        </div>
       </div>
     </div>
   );
