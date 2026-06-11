@@ -25,45 +25,61 @@ const recordByShort = Object.fromEntries(
 const logoByShort = Object.fromEntries(gprTeams.teams.map((t) => [t.short, t.logo]));
 const nameByShort = Object.fromEntries(gprTeams.teams.map((t) => [t.short, t.name]));
 
-// 현재 순위 표 (그룹 단위로 재사용)
-const StandingsTable = ({ rows, color, hasDiff }) => (
-  <div className="overflow-x-auto">
-    <table className="w-full text-sm border-collapse">
-      <thead>
-        <tr className="text-white/40 text-xs border-b border-white/10">
-          <th className="text-center font-bold py-2 px-2 w-10">#</th>
-          <th className="text-left font-bold py-2 pr-2">팀</th>
-          <th className="text-center font-bold py-2 px-2">승-패</th>
-          {hasDiff && <th className="text-center font-bold py-2 px-2">득실차</th>}
-          <th className="text-center font-bold py-2 px-2">승률</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((t) => (
-          <tr key={t.short} className="border-b border-white/5">
-            <td className="py-2 px-2 text-center text-white/40 font-mono">{t.rank}</td>
-            <td className="py-2 pr-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <TeamLogo src={logoByShort[t.short]} />
-                <span className="font-bold text-white/90 truncate">{nameByShort[t.short] || t.short}</span>
-              </div>
-            </td>
-            <td className="py-2 px-2 text-center text-white/70 font-mono">{t.games ? `${t.w}-${t.l}` : '-'}</td>
-            {hasDiff && (
-              <td className="py-2 px-2 text-center font-mono"
-                style={{ color: t.gd > 0 ? '#34D399' : t.gd < 0 ? '#F87171' : '#9CA3AF' }}>
-                {t.gd != null ? `${t.gd > 0 ? '+' : ''}${t.gd}` : '-'}
-              </td>
-            )}
-            <td className="py-2 px-2 text-center font-black font-mono" style={{ color: lighten(color) }}>
-              {t.games ? `${(t.winRate * 100).toFixed(1)}%` : '-'}
-            </td>
+// 현재 순위 표 (그룹 단위로 재사용) — 승률 대신 예측 확률(PI+/PO/Worlds/우승)을 표기
+const StandingsTable = ({ rows, color, hasDiff }) => {
+  const hasProb = rows.some((r) => r.prob);
+  const hasPiPlus = rows.some((r) => r.prob?.piPlus != null);
+  const hasWorlds = rows.some((r) => r.prob?.worlds != null);
+  // 확률 셀 (소수 2자리)
+  const prob = (v, c, strong) => (
+    <td className="py-2 px-2 text-right font-mono tabular-nums whitespace-nowrap"
+      style={{ color: v != null ? c : '#6B7280', fontWeight: strong ? 800 : 500 }}>
+      {v != null ? `${v.toFixed(2)}%` : '-'}
+    </td>
+  );
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm border-collapse">
+        <thead>
+          <tr className="text-white/40 text-xs border-b border-white/10">
+            <th className="text-center font-bold py-2 px-2 w-10">#</th>
+            <th className="text-left font-bold py-2 pr-2">팀</th>
+            <th className="text-center font-bold py-2 px-2">승-패</th>
+            {hasDiff && <th className="text-center font-bold py-2 px-2">득실차</th>}
+            {hasPiPlus && <th className="text-right font-bold py-2 px-2">PI+ 진출</th>}
+            {hasProb && <th className="text-right font-bold py-2 px-2">PO 진출</th>}
+            {hasWorlds && <th className="text-right font-bold py-2 px-2">Worlds 진출</th>}
+            {hasProb && <th className="text-right font-bold py-2 px-2">우승</th>}
           </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
+        </thead>
+        <tbody>
+          {rows.map((t) => (
+            <tr key={t.short} className="border-b border-white/5">
+              <td className="py-2 px-2 text-center text-white/40 font-mono">{t.rank}</td>
+              <td className="py-2 pr-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <TeamLogo src={logoByShort[t.short]} />
+                  <span className="font-bold text-white/90 truncate">{nameByShort[t.short] || t.short}</span>
+                </div>
+              </td>
+              <td className="py-2 px-2 text-center text-white/70 font-mono">{t.games ? `${t.w}-${t.l}` : '-'}</td>
+              {hasDiff && (
+                <td className="py-2 px-2 text-center font-mono"
+                  style={{ color: t.gd > 0 ? '#34D399' : t.gd < 0 ? '#F87171' : '#9CA3AF' }}>
+                  {t.gd != null ? `${t.gd > 0 ? '+' : ''}${t.gd}` : '-'}
+                </td>
+              )}
+              {hasPiPlus && prob(t.prob?.piPlus, '#9CA3AF')}
+              {hasProb && prob(t.prob?.advance, lighten(color))}
+              {hasWorlds && prob(t.prob?.worlds, '#60A5FA')}
+              {hasProb && prob(t.prob?.champ, '#E8C77E', true)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
 // 갱신 시각을 KST(시:분까지)로 표시. 날짜만 들어와도 그대로 출력
 const fmtUpdated = (v) => {
@@ -74,57 +90,6 @@ const fmtUpdated = (v) => {
     year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit',
   }) + ' KST';
-};
-
-// 확률 셀 — 값 + 막대 (소수 2자리 표기)
-const ProbCell = ({ value, color, strong }) => (
-  <td className="px-2 py-2">
-    <div className="flex items-center gap-2 justify-end">
-      <div className="hidden sm:block w-16 h-1.5 rounded-full bg-white/5 overflow-hidden shrink-0">
-        <div className="h-full rounded-full" style={{ width: `${Math.min(value, 100)}%`, backgroundColor: color }} />
-      </div>
-      <span className={`font-mono tabular-nums w-16 text-right ${strong ? 'font-black text-[#E8C77E]' : 'text-white/70'}`}>
-        {value.toFixed(2)}%
-      </span>
-    </div>
-  </td>
-);
-
-// 예측 확률 표 — 시뮬레이션 standings 기반 (필드 있는 컬럼만 노출)
-const ProbabilityTable = ({ standings, color }) => {
-  const hasPiPlus = standings.some((s) => s.piPlus != null);
-  const hasWorlds = standings.some((s) => s.worlds != null);
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="text-white/40 text-xs border-b border-white/10">
-            <th className="text-left font-bold py-2 pr-2">팀</th>
-            {hasPiPlus && <th className="text-right font-bold py-2 px-2">PI+ 진출</th>}
-            <th className="text-right font-bold py-2 px-2">PO 진출</th>
-            {hasWorlds && <th className="text-right font-bold py-2 px-2">Worlds 진출</th>}
-            <th className="text-right font-bold py-2 px-2">우승</th>
-          </tr>
-        </thead>
-        <tbody>
-          {standings.map((row) => (
-            <tr key={row.team} className="border-b border-white/5 last:border-0">
-              <td className="py-2 pr-2">
-                <span className="flex items-center gap-2 font-bold text-white/90 truncate">
-                  <TeamLogo src={logoByShort[row.team]} size={18} />
-                  <span className="truncate">{nameByShort[row.team] || row.team}</span>
-                </span>
-              </td>
-              {hasPiPlus && <ProbCell value={row.piPlus} color="#9CA3AF" />}
-              <ProbCell value={row.advance} color={color} />
-              {hasWorlds && <ProbCell value={row.worlds} color="#60A5FA" />}
-              <ProbCell value={row.champ} color="#C8963E" strong />
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
 };
 
 // 시뮬레이션 결과(예측) 렌더
@@ -146,16 +111,19 @@ const SimulationView = ({ comp, sub }) => {
         })
         .sort((a, b) => b.winRate - a.winRate || b.w - a.w || (b.gd ?? -99) - (a.gd ?? -99) || b.rating - a.rating);
   const hasDiff = current.some((t) => t.gd != null);
+  // 팀 약칭 → 시뮬 예측 확률 (현재 순위표에 합쳐 표기)
+  const probByShort = Object.fromEntries((comp.standings || []).map((s) => [s.team, s]));
   // 그룹이 있으면 레전드/라이즈로 분리하고 각 그룹 내 1위부터 재번호
   const grouped = !!official && current.some((t) => t.group);
+  const withProb = (t, rank) => ({ ...t, rank, prob: probByShort[t.short] });
   const groups = grouped
     ? [
         { name: '레전드 그룹', badge: { color: '#E8C77E', bg: 'rgba(200,150,62,0.2)' },
-          rows: current.filter((t) => t.group === 'Legend').map((t, i) => ({ ...t, rank: i + 1 })) },
+          rows: current.filter((t) => t.group === 'Legend').map((t, i) => withProb(t, i + 1)) },
         { name: '라이즈 그룹', badge: { color: '#9CA3AF', bg: 'rgba(156,163,175,0.15)' },
-          rows: current.filter((t) => t.group === 'Rise').map((t, i) => ({ ...t, rank: i + 1 })) },
+          rows: current.filter((t) => t.group === 'Rise').map((t, i) => withProb(t, i + 1)) },
       ]
-    : [{ name: null, rows: current.map((t, i) => ({ ...t, rank: t.rank ?? i + 1 })) }];
+    : [{ name: null, rows: current.map((t, i) => withProb(t, t.rank ?? i + 1)) }];
 
   return (
     <div className="flex flex-col gap-8">
@@ -185,17 +153,6 @@ const SimulationView = ({ comp, sub }) => {
               <StandingsTable rows={grp.rows} color={comp.color} hasDiff={hasDiff} />
             </div>
           ))}
-        </section>
-      )}
-
-      {/* 예측 확률 */}
-      {comp.standings?.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">예측 확률</h3>
-            <span className="text-xs text-white/40">몬테카를로 시뮬레이션 · 우승 확률 순</span>
-          </div>
-          <ProbabilityTable standings={comp.standings} color={comp.color} />
         </section>
       )}
 
