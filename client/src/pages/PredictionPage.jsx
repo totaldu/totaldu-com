@@ -15,6 +15,9 @@ const statusMeta = {
 
 const ScopeIcon = ({ scope, ...rest }) => (scope === 'intl' ? <Globe {...rest} /> : <Flag {...rest} />);
 
+// 팀 short → 실제 전적(GPR 기준)
+const recordByShort = Object.fromEntries(gprTeams.teams.map((t) => [t.short, { w: t.w ?? 0, l: t.l ?? 0 }]));
+
 // 갱신 시각을 KST(시:분까지)로 표시. 날짜만 들어와도 그대로 출력
 const fmtUpdated = (v) => {
   const d = new Date(v);
@@ -27,48 +30,58 @@ const fmtUpdated = (v) => {
 };
 
 // 시뮬레이션 결과(예측) 렌더
-const SimulationView = ({ comp }) => (
-  <div className="flex flex-col gap-8">
-    {/* 메타 */}
-    <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
-      {comp.stage && <span className="text-white/50">단계: <strong className="text-white/80">{comp.stage}</strong></span>}
-      {comp.format && <span className="text-white/50">형식: <strong className="text-white/80">{comp.format}</strong></span>}
-      {comp.iterations > 0 && <span className="text-white/50">반복: <strong className="text-white/80">{comp.iterations.toLocaleString()}회</strong></span>}
-      {comp.generatedAt && <span className="text-white/50">생성: <strong className="text-white/80">{comp.generatedAt}</strong></span>}
-    </div>
+const SimulationView = ({ comp }) => {
+  // 현재 순위 — 실제 전적(승률) 기준
+  const current = (comp.teams || [])
+    .map((t) => {
+      const { w, l } = recordByShort[t.short] || { w: 0, l: 0 };
+      const g = w + l;
+      return { ...t, w, l, games: g, winRate: g ? w / g : 0 };
+    })
+    .sort((a, b) => b.winRate - a.winRate || b.w - a.w || b.rating - a.rating);
 
-    {/* 예상 순위 / 우승·진출 확률 */}
-    {comp.standings?.length > 0 && (
-      <section>
-        <h3 className="text-sm font-black text-[#E8C77E] mb-4 uppercase tracking-wider">예상 순위 & 우승 확률</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="text-white/40 text-xs border-b border-white/10">
-                <th className="text-left font-bold py-2 pr-2">#</th>
-                <th className="text-left font-bold py-2 pr-2">팀</th>
-                <th className="text-right font-bold py-2 px-2">평균순위</th>
-                <th className="text-right font-bold py-2 px-2">우승%</th>
-                <th className="text-right font-bold py-2 pl-2">진출%</th>
-              </tr>
-            </thead>
-            <tbody>
-              {comp.standings.map((t, i) => (
-                <tr key={t.team} className="border-b border-white/5">
-                  <td className="py-2 pr-2 text-white/40 font-mono">{i + 1}</td>
-                  <td className="py-2 pr-2 font-bold text-white/90">{t.team}</td>
-                  <td className="py-2 px-2 text-right text-white/60 font-mono">{t.avgRank?.toFixed(1)}</td>
-                  <td className="py-2 px-2 text-right font-black" style={{ color: lighten(comp.color) }}>{t.champ ?? '-'}{t.champ != null && '%'}</td>
-                  <td className="py-2 pl-2 text-right text-white/70 font-mono">{t.advance ?? '-'}{t.advance != null && '%'}</td>
+  return (
+    <div className="flex flex-col gap-8">
+      {/* 메타 */}
+      <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+        {comp.stage && <span className="text-white/50">단계: <strong className="text-white/80">{comp.stage}</strong></span>}
+        {comp.format && <span className="text-white/50">형식: <strong className="text-white/80">{comp.format}</strong></span>}
+        {comp.iterations > 0 && <span className="text-white/50">반복: <strong className="text-white/80">{comp.iterations.toLocaleString()}회</strong></span>}
+        {comp.generatedAt && <span className="text-white/50">생성: <strong className="text-white/80">{comp.generatedAt}</strong></span>}
+      </div>
+
+      {/* 현재 순위 (전적 기준) */}
+      {current.length > 0 && (
+        <section>
+          <h3 className="text-sm font-black text-[#E8C77E] mb-4 uppercase tracking-wider">현재 순위</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="text-white/40 text-xs border-b border-white/10">
+                  <th className="text-left font-bold py-2 pr-2">#</th>
+                  <th className="text-left font-bold py-2 pr-2">팀</th>
+                  <th className="text-right font-bold py-2 px-2">승-패</th>
+                  <th className="text-right font-bold py-2 pl-2">승률</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    )}
+              </thead>
+              <tbody>
+                {current.map((t, i) => (
+                  <tr key={t.short} className="border-b border-white/5">
+                    <td className="py-2 pr-2 text-white/40 font-mono">{i + 1}</td>
+                    <td className="py-2 pr-2 font-bold text-white/90">{t.short}</td>
+                    <td className="py-2 px-2 text-right text-white/70 font-mono">{t.games ? `${t.w}-${t.l}` : '-'}</td>
+                    <td className="py-2 pl-2 text-right font-black font-mono" style={{ color: lighten(comp.color) }}>
+                      {t.games ? `${(t.winRate * 100).toFixed(1)}%` : '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
-    {/* 대진별 예측 */}
+      {/* 대진별 예측 */}
     {comp.matches?.length > 0 && (
       <section>
         <h3 className="text-sm font-black text-[#E8C77E] mb-4 uppercase tracking-wider">대진별 예측</h3>
@@ -86,9 +99,10 @@ const SimulationView = ({ comp }) => (
           ))}
         </div>
       </section>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
+};
 
 // 종료된 대회의 실제 결과 렌더
 const ResultView = ({ comp }) => {
