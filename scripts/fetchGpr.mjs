@@ -11,8 +11,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const file = path.join(__dirname, '..', 'client', 'src', 'data', 'gprTeams.json');
 const URL = 'https://lolesports.com/ko-KR/gpr/2026/current';
 
-// GPR 사이트 코드 → gprTeams.json 의 short (불일치하는 것만)
-const ALIAS = { DNS: 'SOOP', FX: 'FLX', KRX: 'DRX', SHFT: 'SHF', SHG: 'FSH', TLAW: 'TL' };
+// gprTeams.json 의 short 는 GPR 사이트 코드를 그대로 사용 → 별칭 불필요
+const ALIAS = {};
 
 const res = await fetch(URL, {
   headers: {

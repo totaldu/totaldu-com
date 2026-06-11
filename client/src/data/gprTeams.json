@@ -195,7 +195,7 @@
     },
     {
       "name": "Team Liquid Alienware",
-      "short": "TL",
+      "short": "TLAW",
       "league": "LCS",
       "score": 1275,
       "w": 10,
@@ -244,7 +244,7 @@
     },
     {
       "name": "KIWOOM DRX",
-      "short": "DRX",
+      "short": "KRX",
       "league": "LCK",
       "score": 1219,
       "w": 9,
@@ -292,7 +292,7 @@
     },
     {
       "name": "Fukuoka SoftBank HAWKS",
-      "short": "FSH",
+      "short": "SHG",
       "league": "LCP",
       "score": 1191,
       "w": 9,
@@ -340,7 +340,7 @@
     },
     {
       "name": "Shifters",
-      "short": "SHF",
+      "short": "SHFT",
       "league": "LEC",
       "score": 1171,
       "w": 6,
@@ -453,7 +453,7 @@
     },
     {
       "name": "DN SOOPers",
-      "short": "SOOP",
+      "short": "DNS",
       "league": "LCK",
       "score": 1096,
       "w": 5,
@@ -461,7 +461,7 @@
     },
     {
       "name": "Fluxo",
-      "short": "FLX",
+      "short": "FX",
       "league": "CBLOL",
       "score": 1082,
       "w": 7,

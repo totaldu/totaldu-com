@@ -47,7 +47,7 @@
         },
         {
           "name": "KIWOOM DRX",
-          "short": "DRX",
+          "short": "KRX",
           "rating": 1219
         },
         {
@@ -62,7 +62,7 @@
         },
         {
           "name": "DN SOOPers",
-          "short": "SOOP",
+          "short": "DNS",
           "rating": 1096
         }
       ],
@@ -142,7 +142,7 @@
           "rank1": 0.2
         },
         {
-          "team": "DRX",
+          "team": "KRX",
           "name": "KIWOOM DRX",
           "rating": 1219,
           "avgRank": 7.50045,
@@ -169,7 +169,7 @@
           "rank1": 0
         },
         {
-          "team": "SOOP",
+          "team": "DNS",
           "name": "DN SOOPers",
           "rating": 1096,
           "avgRank": 9.3052,
@@ -192,7 +192,7 @@
           "prob": 29.2
         },
         {
-          "label": "SOOP 플레이오프 진출",
+          "label": "DNS 플레이오프 진출",
           "prob": 2.3
         }
       ],
@@ -498,7 +498,7 @@
         },
         {
           "name": "Shifters",
-          "short": "SHF",
+          "short": "SHFT",
           "rating": 1171
         },
         {
@@ -597,7 +597,7 @@
           "rank1": 0.2
         },
         {
-          "team": "SHF",
+          "team": "SHFT",
           "name": "Shifters",
           "rating": 1171,
           "avgRank": 7.14475,
@@ -683,7 +683,7 @@
         },
         {
           "name": "Fukuoka SoftBank HAWKS",
-          "short": "FSH",
+          "short": "SHG",
           "rating": 1191
         },
         {
@@ -700,7 +700,7 @@
       "matches": [
         {
           "a": "DCG",
-          "b": "FSH",
+          "b": "SHG",
           "pA": 73,
           "winner": "DCG"
         },
@@ -764,7 +764,7 @@
           "rank1": 7.6
         },
         {
-          "team": "FSH",
+          "team": "SHG",
           "name": "Fukuoka SoftBank HAWKS",
           "rating": 1191,
           "avgRank": 5.5166,
@@ -835,7 +835,7 @@
         },
         {
           "name": "Team Liquid Alienware",
-          "short": "TL",
+          "short": "TLAW",
           "rating": 1275
         },
         {
@@ -866,10 +866,10 @@
       ],
       "matches": [
         {
-          "a": "TL",
+          "a": "TLAW",
           "b": "SR",
           "pA": 80,
-          "winner": "TL"
+          "winner": "TLAW"
         },
         {
           "a": "LYON",
@@ -904,7 +904,7 @@
           "rank1": 23.7
         },
         {
-          "team": "TL",
+          "team": "TLAW",
           "name": "Team Liquid Alienware",
           "rating": 1275,
           "avgRank": 3.26925,
@@ -1022,7 +1022,7 @@
         },
         {
           "name": "Fluxo",
-          "short": "FLX",
+          "short": "FX",
           "rating": 1082
         },
         {
@@ -1107,7 +1107,7 @@
           "rank1": 7.4
         },
         {
-          "team": "FLX",
+          "team": "FX",
           "name": "Fluxo",
           "rating": 1082,
           "avgRank": 6.02155,
