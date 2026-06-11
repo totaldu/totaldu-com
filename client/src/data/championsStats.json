@@ -154,7 +154,8 @@
       "jp": "フラエッテ:永遠",
       "ko": "플라엣테",
       "id": 670,
-      "en": "floette"
+      "en": "floette",
+      "formName": "floette-eternal"
     },
     {
       "rank": 18,
@@ -190,7 +191,8 @@
       "jp": "ウォッシュロトム",
       "ko": "로토무",
       "id": 479,
-      "en": "rotom"
+      "en": "rotom",
+      "formName": "rotom-wash"
     },
     {
       "rank": 22,
@@ -208,7 +210,8 @@
       "jp": "ダイケンキ (ヒスイ)",
       "ko": "대검귀",
       "id": 503,
-      "en": "samurott"
+      "en": "samurott",
+      "formName": "samurott-hisui"
     },
     {
       "rank": 24,
@@ -379,7 +382,8 @@
       "jp": "ゾロアーク (ヒスイ)",
       "ko": "조로아크",
       "id": 571,
-      "en": "zoroark"
+      "en": "zoroark",
+      "formName": "zoroark-hisui"
     },
     {
       "rank": 43,
@@ -442,7 +446,8 @@
       "jp": "ヒートロトム",
       "ko": "로토무",
       "id": 479,
-      "en": "rotom"
+      "en": "rotom",
+      "formName": "rotom-heat"
     },
     {
       "rank": 50,
@@ -469,7 +474,8 @@
       "jp": "キュウコン (アローラ)",
       "ko": "나인테일",
       "id": 38,
-      "en": "ninetales"
+      "en": "ninetales",
+      "formName": "ninetales-alola"
     },
     {
       "rank": 53,
@@ -514,7 +520,8 @@
       "jp": "ヤドキング (ガラル)",
       "ko": "야도킹",
       "id": 199,
-      "en": "slowking"
+      "en": "slowking",
+      "formName": "slowking-galar"
     },
     {
       "rank": 58,
@@ -595,7 +602,8 @@
       "jp": "ヌメルゴン (ヒスイ)",
       "ko": "미끄래곤",
       "id": 706,
-      "en": "goodra"
+      "en": "goodra",
+      "formName": "goodra-hisui"
     },
     {
       "rank": 67,
@@ -694,7 +702,8 @@
       "jp": "ウインディ (ヒスイ)",
       "ko": "윈디",
       "id": 59,
-      "en": "arcanine"
+      "en": "arcanine",
+      "formName": "arcanine-hisui"
     },
     {
       "rank": 78,
@@ -793,7 +802,8 @@
       "jp": "ジュナイパー (ヒスイ)",
       "ko": "모크나이퍼",
       "id": 724,
-      "en": "decidueye"
+      "en": "decidueye",
+      "formName": "decidueye-hisui"
     },
     {
       "rank": 89,
@@ -865,7 +875,8 @@
       "jp": "ヤドラン (ガラル)",
       "ko": "야도란",
       "id": 80,
-      "en": "slowbro"
+      "en": "slowbro",
+      "formName": "slowbro-galar"
     },
     {
       "rank": 97,
@@ -919,7 +930,8 @@
       "jp": "イダイトウ (メス)",
       "ko": "대쓰여너",
       "id": 902,
-      "en": "basculegion"
+      "en": "basculegion",
+      "formName": "basculegion-female"
     },
     {
       "rank": 103,
@@ -928,7 +940,8 @@
       "jp": "バクフーン (ヒスイ)",
       "ko": "블레이범",
       "id": 157,
-      "en": "typhlosion"
+      "en": "typhlosion",
+      "formName": "typhlosion-hisui"
     },
     {
       "rank": 104,
@@ -1018,7 +1031,8 @@
       "jp": "ケンタロス:炎",
       "ko": "켄타로스",
       "id": 128,
-      "en": "tauros"
+      "en": "tauros",
+      "formName": "tauros-paldea-blaze-breed"
     },
     {
       "rank": 114,
@@ -1036,7 +1050,8 @@
       "jp": "ルガルガン (たそがれ)",
       "ko": "루가루암",
       "id": 745,
-      "en": "lycanroc"
+      "en": "lycanroc",
+      "formName": "lycanroc-dusk"
     },
     {
       "rank": 116,
@@ -1243,7 +1258,8 @@
       "jp": "カットロトム",
       "ko": "로토무",
       "id": 479,
-      "en": "rotom"
+      "en": "rotom",
+      "formName": "rotom-mow"
     },
     {
       "rank": 139,
@@ -1441,7 +1457,8 @@
       "jp": "ケンタロス:水",
       "ko": "켄타로스",
       "id": 128,
-      "en": "tauros"
+      "en": "tauros",
+      "formName": "tauros-paldea-aqua-breed"
     },
     {
       "rank": 161,
@@ -1585,7 +1602,8 @@
       "jp": "クレベース (ヒスイ)",
       "ko": "크레베이스",
       "id": 713,
-      "en": "avalugg"
+      "en": "avalugg",
+      "formName": "avalugg-hisui"
     },
     {
       "rank": 177,
@@ -1612,7 +1630,8 @@
       "jp": "ライチュウ (アローラ)",
       "ko": "라이츄",
       "id": 26,
-      "en": "raichu"
+      "en": "raichu",
+      "formName": "raichu-alola"
     },
     {
       "rank": 180,
@@ -1621,7 +1640,8 @@
       "jp": "フロストロトム",
       "ko": "로토무",
       "id": 479,
-      "en": "rotom"
+      "en": "rotom",
+      "formName": "rotom-frost"
     },
     {
       "rank": 181,
@@ -1657,7 +1677,8 @@
       "jp": "パンプジン (ギガだま)",
       "ko": "펌킨인",
       "id": 711,
-      "en": "gourgeist"
+      "en": "gourgeist",
+      "formName": "gourgeist-super"
     },
     {
       "rank": 185,
@@ -1684,7 +1705,8 @@
       "jp": "スピンロトム",
       "ko": "로토무",
       "id": 479,
-      "en": "rotom"
+      "en": "rotom",
+      "formName": "rotom-fan"
     },
     {
       "rank": 188,
@@ -1702,7 +1724,8 @@
       "jp": "マッギョ (ガラル)",
       "ko": "메더",
       "id": 618,
-      "en": "stunfisk"
+      "en": "stunfisk",
+      "formName": "stunfisk-galar"
     },
     {
       "rank": 190,
@@ -1720,7 +1743,8 @@
       "jp": "ニャオニクス (メス)",
       "ko": "냐오닉스",
       "id": 678,
-      "en": "meowstic"
+      "en": "meowstic",
+      "formName": "meowstic-female"
     },
     {
       "rank": 192,
@@ -1774,7 +1798,8 @@
       "jp": "ルガルガン (まよなか)",
       "ko": "루가루암",
       "id": 745,
-      "en": "lycanroc"
+      "en": "lycanroc",
+      "formName": "lycanroc-midnight"
     },
     {
       "rank": 198,
@@ -1900,7 +1925,8 @@
       "jp": "パンプジン (こだま)",
       "ko": "펌킨인",
       "id": 711,
-      "en": "gourgeist"
+      "en": "gourgeist",
+      "formName": "gourgeist-small"
     },
     {
       "rank": 212,
@@ -1909,7 +1935,8 @@
       "jp": "パンプジン (おおだま)",
       "ko": "펌킨인",
       "id": 711,
-      "en": "gourgeist"
+      "en": "gourgeist",
+      "formName": "gourgeist-large"
     },
     {
       "rank": 213,
@@ -1918,7 +1945,8 @@
       "jp": "ケンタロス:格",
       "ko": "켄타로스",
       "id": 128,
-      "en": "tauros"
+      "en": "tauros",
+      "formName": "tauros-paldea-combat-breed"
     }
   ],
   "double": [
@@ -2055,7 +2083,8 @@
       "jp": "フラエッテ:永遠",
       "ko": "플라엣테",
       "id": 670,
-      "en": "floette"
+      "en": "floette",
+      "formName": "floette-eternal"
     },
     {
       "rank": 16,
@@ -2100,7 +2129,8 @@
       "jp": "ウォッシュロトム",
       "ko": "로토무",
       "id": 479,
-      "en": "rotom"
+      "en": "rotom",
+      "formName": "rotom-wash"
     },
     {
       "rank": 21,
@@ -2244,7 +2274,8 @@
       "jp": "キュウコン (アローラ)",
       "ko": "나인테일",
       "id": 38,
-      "en": "ninetales"
+      "en": "ninetales",
+      "formName": "ninetales-alola"
     },
     {
       "rank": 37,
@@ -2352,7 +2383,8 @@
       "jp": "ゾロアーク (ヒスイ)",
       "ko": "조로아크",
       "id": 571,
-      "en": "zoroark"
+      "en": "zoroark",
+      "formName": "zoroark-hisui"
     },
     {
       "rank": 49,
@@ -2361,7 +2393,8 @@
       "jp": "バクフーン (ヒスイ)",
       "ko": "블레이범",
       "id": 157,
-      "en": "typhlosion"
+      "en": "typhlosion",
+      "formName": "typhlosion-hisui"
     },
     {
       "rank": 50,
@@ -2442,7 +2475,8 @@
       "jp": "ウインディ (ヒスイ)",
       "ko": "윈디",
       "id": 59,
-      "en": "arcanine"
+      "en": "arcanine",
+      "formName": "arcanine-hisui"
     },
     {
       "rank": 59,
@@ -2514,7 +2548,8 @@
       "jp": "ダイケンキ (ヒスイ)",
       "ko": "대검귀",
       "id": 503,
-      "en": "samurott"
+      "en": "samurott",
+      "formName": "samurott-hisui"
     },
     {
       "rank": 67,
@@ -2559,7 +2594,8 @@
       "jp": "ヒートロトム",
       "ko": "로토무",
       "id": 479,
-      "en": "rotom"
+      "en": "rotom",
+      "formName": "rotom-heat"
     },
     {
       "rank": 72,
@@ -2604,7 +2640,8 @@
       "jp": "イダイトウ (メス)",
       "ko": "대쓰여너",
       "id": 902,
-      "en": "basculegion"
+      "en": "basculegion",
+      "formName": "basculegion-female"
     },
     {
       "rank": 77,
@@ -2622,7 +2659,8 @@
       "jp": "ヤドキング (ガラル)",
       "ko": "야도킹",
       "id": 199,
-      "en": "slowking"
+      "en": "slowking",
+      "formName": "slowking-galar"
     },
     {
       "rank": 79,
@@ -2685,7 +2723,8 @@
       "jp": "ヌメルゴン (ヒスイ)",
       "ko": "미끄래곤",
       "id": 706,
-      "en": "goodra"
+      "en": "goodra",
+      "formName": "goodra-hisui"
     },
     {
       "rank": 86,
@@ -2739,7 +2778,8 @@
       "jp": "ケンタロス:水",
       "ko": "켄타로스",
       "id": 128,
-      "en": "tauros"
+      "en": "tauros",
+      "formName": "tauros-paldea-aqua-breed"
     },
     {
       "rank": 92,
@@ -2811,7 +2851,8 @@
       "jp": "ジュナイパー (ヒスイ)",
       "ko": "모크나이퍼",
       "id": 724,
-      "en": "decidueye"
+      "en": "decidueye",
+      "formName": "decidueye-hisui"
     },
     {
       "rank": 100,
@@ -2847,7 +2888,8 @@
       "jp": "ヤドラン (ガラル)",
       "ko": "야도란",
       "id": 80,
-      "en": "slowbro"
+      "en": "slowbro",
+      "formName": "slowbro-galar"
     },
     {
       "rank": 104,
@@ -2946,7 +2988,8 @@
       "jp": "ルガルガン (たそがれ)",
       "ko": "루가루암",
       "id": 745,
-      "en": "lycanroc"
+      "en": "lycanroc",
+      "formName": "lycanroc-dusk"
     },
     {
       "rank": 115,
@@ -3189,7 +3232,8 @@
       "jp": "フロストロトム",
       "ko": "로토무",
       "id": 479,
-      "en": "rotom"
+      "en": "rotom",
+      "formName": "rotom-frost"
     },
     {
       "rank": 142,
@@ -3225,7 +3269,8 @@
       "jp": "ケンタロス:炎",
       "ko": "켄타로스",
       "id": 128,
-      "en": "tauros"
+      "en": "tauros",
+      "formName": "tauros-paldea-blaze-breed"
     },
     {
       "rank": 146,
@@ -3387,7 +3432,8 @@
       "jp": "カットロトム",
       "ko": "로토무",
       "id": 479,
-      "en": "rotom"
+      "en": "rotom",
+      "formName": "rotom-mow"
     },
     {
       "rank": 164,
@@ -3405,7 +3451,8 @@
       "jp": "ライチュウ (アローラ)",
       "ko": "라이츄",
       "id": 26,
-      "en": "raichu"
+      "en": "raichu",
+      "formName": "raichu-alola"
     },
     {
       "rank": 166,
@@ -3450,7 +3497,8 @@
       "jp": "クレベース (ヒスイ)",
       "ko": "크레베이스",
       "id": 713,
-      "en": "avalugg"
+      "en": "avalugg",
+      "formName": "avalugg-hisui"
     },
     {
       "rank": 171,
@@ -3522,7 +3570,8 @@
       "jp": "ニャオニクス (メス)",
       "ko": "냐오닉스",
       "id": 678,
-      "en": "meowstic"
+      "en": "meowstic",
+      "formName": "meowstic-female"
     },
     {
       "rank": 179,
@@ -3594,7 +3643,8 @@
       "jp": "パンプジン (ギガだま)",
       "ko": "펌킨인",
       "id": 711,
-      "en": "gourgeist"
+      "en": "gourgeist",
+      "formName": "gourgeist-super"
     },
     {
       "rank": 187,
@@ -3621,7 +3671,8 @@
       "jp": "ルガルガン (まよなか)",
       "ko": "루가루암",
       "id": 745,
-      "en": "lycanroc"
+      "en": "lycanroc",
+      "formName": "lycanroc-midnight"
     },
     {
       "rank": 190,
@@ -3720,7 +3771,8 @@
       "jp": "スピンロトム",
       "ko": "로토무",
       "id": 479,
-      "en": "rotom"
+      "en": "rotom",
+      "formName": "rotom-fan"
     },
     {
       "rank": 201,
@@ -3774,7 +3826,8 @@
       "jp": "ケンタロス:格",
       "ko": "켄타로스",
       "id": 128,
-      "en": "tauros"
+      "en": "tauros",
+      "formName": "tauros-paldea-combat-breed"
     },
     {
       "rank": 207,
@@ -3810,7 +3863,8 @@
       "jp": "パンプジン (こだま)",
       "ko": "펌킨인",
       "id": 711,
-      "en": "gourgeist"
+      "en": "gourgeist",
+      "formName": "gourgeist-small"
     },
     {
       "rank": 211,
@@ -3819,7 +3873,8 @@
       "jp": "マッギョ (ガラル)",
       "ko": "메더",
       "id": 618,
-      "en": "stunfisk"
+      "en": "stunfisk",
+      "formName": "stunfisk-galar"
     },
     {
       "rank": 212,
@@ -3837,7 +3892,8 @@
       "jp": "パンプジン (おおだま)",
       "ko": "펌킨인",
       "id": 711,
-      "en": "gourgeist"
+      "en": "gourgeist",
+      "formName": "gourgeist-large"
     }
   ]
 }

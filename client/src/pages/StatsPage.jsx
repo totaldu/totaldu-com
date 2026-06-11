@@ -15,7 +15,8 @@ const pokeApiUrl = (id) =>
 
 // Champions sprite 우선, 실패 시 PokeAPI 스프라이트로 폴백
 const PokemonSprite = ({ p }) => {
-  const champUrl = getChampionsSpriteUrl(p.en);
+  // 폼이 있으면 해당 폼 스프라이트, 없으면 기본 폼
+  const champUrl = getChampionsSpriteUrl(p.formName || p.en);
   const [src, setSrc] = useState(champUrl || pokeApiUrl(p.id));
   return (
     <img
@@ -96,9 +97,10 @@ const StatsPage = () => {
           {list.map((p) => {
             const badge = rankBadge(p.rank);
             return (
-              <div
+              <Link
                 key={`${p.rank}-${p.dex}-${p.form}`}
-                className="flex items-center gap-3 p-3 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all"
+                to={p.formName ? `/pokedex/${p.id}?form=${p.formName}` : `/pokedex/${p.id}`}
+                className="flex items-center gap-3 p-3 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#005596]/30 hover:-translate-y-0.5 transition-all"
               >
                 <span
                   className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-black shrink-0 font-mono border"
@@ -116,7 +118,7 @@ const StatsPage = () => {
                 {p.rank <= 3 && (
                   <Trophy size={16} className="ml-auto shrink-0" style={{ color: badge.ring }} />
                 )}
-              </div>
+              </Link>
             );
           })}
         </div>

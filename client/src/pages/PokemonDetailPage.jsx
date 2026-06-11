@@ -565,8 +565,12 @@ const PokemonDetailPage = () => {
           ? [...base].sort((a, b) => getSizeIdx(a.name) - getSizeIdx(b.name))
           : base;
         setForms(finalForms);
+        // ?form= 쿼리로 특정 폼 지정 시 우선 선택 (통계 탭 등에서 진입)
+        const requestedForm = searchParams.get('form');
+        const matchedForm = requestedForm && finalForms.find(f => f.name === requestedForm);
+        if (matchedForm) setActiveForm(matchedForm);
         // 크기 폼이 있으면 소과종(index 0)을 기본으로 표시
-        if (hasSizeForm) setActiveForm(finalForms[0]);
+        else if (hasSizeForm) setActiveForm(finalForms[0]);
         setEvolutionChain(chainData.chain);
         setLoading(false);
       })
@@ -579,6 +583,14 @@ const PokemonDetailPage = () => {
 
     return () => { cancelled = true; };   // ✅ 클린업: 이전 fetch 무시
   }, [id]);                               // ✅ id 변경 시마다 재실행
+
+  /* ?form= 쿼리 변경 시 폼 재선택 (같은 종 내 다른 폼 이동 대응) */
+  useEffect(() => {
+    const requestedForm = searchParams.get('form');
+    if (!requestedForm || forms.length === 0) return;
+    const matched = forms.find(f => f.name === requestedForm);
+    if (matched && matched.name !== activeForm?.name) setActiveForm(matched);
+  }, [searchParams, forms]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* 포켓몬 변경 시 상태 초기화 */
   useEffect(() => {
