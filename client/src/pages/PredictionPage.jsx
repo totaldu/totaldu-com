@@ -26,10 +26,13 @@ const logoByShort = Object.fromEntries(gprTeams.teams.map((t) => [t.short, t.log
 const nameByShort = Object.fromEntries(gprTeams.teams.map((t) => [t.short, t.name]));
 
 // 현재 순위 표 (그룹 단위로 재사용) — 승률 대신 예측 확률(PI+/PO/Worlds/우승)을 표기
-const StandingsTable = ({ rows, color, hasDiff }) => {
-  const hasProb = rows.some((r) => r.prob);
-  const hasPiPlus = rows.some((r) => r.prob?.piPlus != null);
-  const hasWorlds = rows.some((r) => r.prob?.worlds != null);
+// cols 가 주어지면 그 컬럼만 표시(단계별 뷰), 없으면 데이터 유무로 자동 판단
+const StandingsTable = ({ rows, color, hasDiff, cols }) => {
+  const showDiff = cols ? !!cols.diff : hasDiff;
+  const hasPiPlus = cols ? !!cols.piPlus : rows.some((r) => r.prob?.piPlus != null);
+  const hasAdvance = cols ? !!cols.advance : rows.some((r) => r.prob);
+  const hasChamp = cols ? !!cols.champ : rows.some((r) => r.prob);
+  const hasWorlds = cols ? !!cols.worlds : rows.some((r) => r.prob?.worlds != null);
   // 확률 셀 (소수 2자리) — 값 + 막대 바
   const prob = (v, c, strong) => (
     <td className="py-2 px-2">
@@ -54,11 +57,11 @@ const StandingsTable = ({ rows, color, hasDiff }) => {
             <th className="text-center font-bold py-2 px-2 w-10">#</th>
             <th className="text-left font-bold py-2 pr-2">팀</th>
             <th className="text-center font-bold py-2 px-2">승-패</th>
-            {hasDiff && <th className="text-center font-bold py-2 px-2">득실차</th>}
+            {showDiff && <th className="text-center font-bold py-2 px-2">득실차</th>}
             {hasPiPlus && <th className="text-right font-bold py-2 px-2">PI+ 진출</th>}
-            {hasProb && <th className="text-right font-bold py-2 px-2">PO 진출</th>}
+            {hasAdvance && <th className="text-right font-bold py-2 px-2">PO 진출</th>}
             {hasWorlds && <th className="text-right font-bold py-2 px-2">Worlds 진출</th>}
-            {hasProb && <th className="text-right font-bold py-2 px-2">우승</th>}
+            {hasChamp && <th className="text-right font-bold py-2 px-2">우승</th>}
           </tr>
         </thead>
         <tbody>
@@ -72,16 +75,16 @@ const StandingsTable = ({ rows, color, hasDiff }) => {
                 </div>
               </td>
               <td className="py-2 px-2 text-center text-white/70 font-mono">{t.games ? `${t.w}-${t.l}` : '-'}</td>
-              {hasDiff && (
+              {showDiff && (
                 <td className="py-2 px-2 text-center font-mono"
                   style={{ color: t.gd > 0 ? '#34D399' : t.gd < 0 ? '#F87171' : '#9CA3AF' }}>
                   {t.gd != null ? `${t.gd > 0 ? '+' : ''}${t.gd}` : '-'}
                 </td>
               )}
               {hasPiPlus && prob(t.prob?.piPlus, '#9CA3AF')}
-              {hasProb && prob(t.prob?.advance, lighten(color))}
+              {hasAdvance && prob(t.prob?.advance, lighten(color))}
               {hasWorlds && prob(t.prob?.worlds, '#60A5FA')}
-              {hasProb && prob(t.prob?.champ, '#E8C77E', true)}
+              {hasChamp && prob(t.prob?.champ, '#E8C77E', true)}
             </tr>
           ))}
         </tbody>
@@ -101,8 +104,16 @@ const fmtUpdated = (v) => {
   }) + ' KST';
 };
 
+// 단계별 뷰 설정 (LCK→LCK 에서 정규시즌/플레이-인/플레이오프 선택 시)
+const STAGE_CFG = {
+  '정규시즌': { cols: { diff: true }, matches: false, heading: '정규시즌 순위', desc: '현재까지 확정된 정규시즌 순위입니다.' },
+  '플레이-인': { cols: { piPlus: true, advance: true }, matches: false, heading: '플레이-인 예측', desc: '레전드 5위 + 라이즈 1~3위가 겨루는 플레이-인 단계. PI+/플레이오프 진출 확률.' },
+  '플레이오프': { cols: { advance: true, worlds: true, champ: true }, matches: true, heading: '플레이오프 예측', desc: '플레이오프 진출·우승·Worlds 진출 확률과 예상 대진.' },
+};
+
 // 시뮬레이션 결과(예측) 렌더
-const SimulationView = ({ comp, sub }) => {
+const SimulationView = ({ comp, sub, stage }) => {
+  const cfg = stage ? STAGE_CFG[stage] : null;
   // 현재 순위 — 해당 세부대회 공식 순위표가 있으면 우선, 없으면 GPR 전적으로 산출
   const leagueStd = officialStandings.standings[comp.key];
   const official = leagueStd ? leagueStd[sub] : null;
@@ -153,12 +164,12 @@ const SimulationView = ({ comp, sub }) => {
         {comp.generatedAt && <span className="text-white/50">생성: <strong className="text-white/80">{fmtUpdated(comp.generatedAt)}</strong></span>}
       </div>
 
-      {/* 현재 순위 */}
+      {/* 현재 순위 / 단계별 예측 */}
       {current.length > 0 && (
         <section className="flex flex-col gap-5">
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">현재 순위</h3>
-            {official?.stage && <span className="text-xs text-white/40">{official.stage}</span>}
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">{cfg?.heading || '현재 순위'}</h3>
+            {(cfg?.desc || official?.stage) && <span className="text-xs text-white/40">{cfg?.desc || official?.stage}</span>}
           </div>
           {groups.map((grp) => (
             <div key={grp.name || 'all'}>
@@ -168,14 +179,14 @@ const SimulationView = ({ comp, sub }) => {
                   {grp.name}
                 </span>
               )}
-              <StandingsTable rows={grp.rows} color={comp.color} hasDiff={hasDiff} />
+              <StandingsTable rows={grp.rows} color={comp.color} hasDiff={hasDiff} cols={cfg?.cols} />
             </div>
           ))}
         </section>
       )}
 
-      {/* 대진별 예측 */}
-    {comp.matches?.length > 0 && (
+      {/* 대진별 예측 (단계 미선택 또는 플레이오프 단계에서만) */}
+    {(!cfg || cfg.matches) && comp.matches?.length > 0 && (
       <section>
         <h3 className="text-sm font-black text-[#E8C77E] mb-4 uppercase tracking-wider">대진별 예측</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
@@ -314,6 +325,14 @@ const PredictionPage = () => {
     const t = activeSub.startsWith(lg + ' ') ? activeSub.slice(lg.length + 1) : activeSub;
     return ` ${t}`;
   })();
+  // LCK→LCK 일 때만 단계(정규시즌/플레이-인/플레이오프) 선택
+  const LCK_STAGES = ['정규시즌', '플레이-인', '플레이오프'];
+  const showStages = comp?.key === 'lck' && activeSub === 'LCK';
+  const activeStage = showStages
+    ? (LCK_STAGES.includes(searchParams.get('stage')) ? searchParams.get('stage') : '정규시즌')
+    : null;
+  const setActiveStage = (s) =>
+    setSearchParams((p) => { const n = new URLSearchParams(p); n.set('stage', s); return n; }, { replace: true });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a1428] via-[#1e2328] to-[#0a1428] p-6 md:p-12 text-white">
@@ -397,12 +416,32 @@ const PredictionPage = () => {
                 </div>
               )}
 
+              {/* 단계 선택 (LCK→LCK 전용) */}
+              {showStages && (
+                <div className="inline-flex bg-white/5 rounded-xl p-1 mb-6 border border-white/10">
+                  {LCK_STAGES.map((s) => {
+                    const on = s === activeStage;
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => setActiveStage(s)}
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-all ${
+                          on ? 'bg-[#C8963E] text-[#1e2328]' : 'text-white/50 hover:text-white/80'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               {!comp.ready ? (
                 <NotReady comp={comp} />
               ) : comp.status === 'finished' ? (
                 <ResultView comp={comp} />
               ) : (
-                <SimulationView comp={comp} sub={activeSub} />
+                <SimulationView comp={comp} sub={activeSub} stage={activeStage} />
               )}
             </>
           )}
