@@ -6,6 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { execFileSync } from 'child_process';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const file = path.join(__dirname, '..', 'client', 'src', 'data', 'gprTeams.json');
@@ -69,3 +70,7 @@ if (missing.length) console.warn(`주의: GPR에서 못 찾은 팀 → ${missing
 data.updatedAt = new Date().toISOString().slice(0, 10);
 fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
 console.log(`gprTeams.json 갱신: ${updated}팀 변경, updatedAt=${data.updatedAt}`);
+
+// GPR이 갱신될 때마다 시뮬레이션도 항상 재실행해 lolSim.json을 최신 점수로 다시 계산
+console.log('— 시뮬레이션 재실행 —');
+execFileSync('node', [path.join(__dirname, 'simulateLol.mjs')], { stdio: 'inherit' });

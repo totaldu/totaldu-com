@@ -22,19 +22,19 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Fetch GPR scores
-        run: node scripts/fetchGpr.mjs
+      - name: Fetch league standings (regular season only)
+        run: node scripts/fetchStandings.mjs # lolStandings.json 갱신 (시뮬이 LCK 고정값으로 사용)
 
-      - name: Run Monte Carlo simulation
-        run: node scripts/simulateLol.mjs
+      - name: Fetch GPR scores & re-simulate
+        run: node scripts/fetchGpr.mjs # 끝에서 simulateLol.mjs 자동 실행
 
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain client/src/data)" ]; then
-            git add client/src/data/gprTeams.json client/src/data/lolSim.json
-            git commit -m "chore: GPR 자동 갱신 및 시뮬레이션 재계산"
+            git add client/src/data/gprTeams.json client/src/data/lolSim.json client/src/data/lolStandings.json
+            git commit -m "chore: 순위표·GPR 자동 갱신 및 시뮬레이션 재계산"
             git push
             echo "변경 사항 커밋·푸시 완료"
           else

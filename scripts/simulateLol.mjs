@@ -12,11 +12,12 @@ const dataDir = path.join(__dirname, '..', 'client', 'src', 'data');
 
 const gpr = JSON.parse(fs.readFileSync(path.join(dataDir, 'gprTeams.json'), 'utf8'));
 const sim = JSON.parse(fs.readFileSync(path.join(dataDir, 'lolSim.json'), 'utf8'));
+const standingsData = JSON.parse(fs.readFileSync(path.join(dataDir, 'lolStandings.json'), 'utf8'));
 
 const ITER = 100000;
 const ELO_SCALE = 400;          // 점수차 400 = 약 10배 우세
 const PLAYOFF_TEAMS = 6;        // 단순화: 상위 6팀 플레이오프
-const GENERATED_AT = new Date().toISOString().slice(0, 10);
+const GENERATED_AT = new Date().toISOString(); // 시:분까지 — 페이지에서 KST로 표시
 
 // 시드 고정 PRNG (mulberry32) — 같은 입력이면 같은 결과 → 불필요한 커밋 방지
 let _seed = 0x9e3779b9;
@@ -127,7 +128,9 @@ function simulateLeague(teams) {
 // 플레이인(Bo5, 4팀: 레전드5·라이즈1~3): 1경기 승자 직행, 최종전 승자 직행 → 2팀.
 // 플레이오프(Bo5, 6팀 더블 엘리미네이션): 시드 1~4 직행 + 플레이인 2팀(5·6시드).
 //   '지목=더 낮은 시드 선택' 가정 → 표준 시드 대진(3v6, 4v5, 1·2시드 UB R2 부전승).
-function simulateLCK(teams) {
+// fixed: { [short]: { w, group } } — 현재까지(정규 1·2R) 결과를 고정하고 잔여 경기만 시뮬.
+//   주어지면 그룹 배정과 누적 승수를 실제 순위표로 고정하고 3·4R부터 시뮬레이션한다.
+function simulateLCK(teams, fixed) {
   const n = teams.length; // 10
   const ti = (obj) => teams.indexOf(obj);
   const stat = teams.map(() => ({ sumRank: 0, rank1: 0, piPlus: 0, playoff: 0, worlds: 0, champ: 0, finalApp: 0 }));
@@ -142,20 +145,35 @@ function simulateLCK(teams) {
         }
   };
 
+  // 고정 모드 사전 계산: 그룹 멤버 인덱스 + 1·2R 누적 승수(시작값)
+  const idxAll = teams.map((_, i) => i);
+  const fixedLegend = fixed && idxAll.filter((i) => fixed[teams[i].short]?.group === 'Legend');
+  const fixedRise = fixed && idxAll.filter((i) => fixed[teams[i].short]?.group === 'Rise');
+  const startWins = fixed && teams.map((t) => fixed[t.short]?.w ?? 0);
+
   for (let it = 0; it < ITER; it++) {
-    const wins = new Array(n).fill(0);
-    const idx = teams.map((_, i) => i);
+    let wins, legend, rise;
 
-    // 1~2R: 10팀 더블 라운드로빈
-    roundRobin(idx, wins);
-    // 1~2R 성적으로 그룹 분할 (상위5 레전드 / 하위5 라이즈), 동률 무작위
-    const order12 = idx.slice().sort((a, b) => (wins[b] - wins[a]) || (rng() - 0.5));
-    const legend = order12.slice(0, 5);
-    const rise = order12.slice(5);
-
-    // 3~4R: 그룹 내 더블 라운드로빈 (1~2R 승수 연계)
-    roundRobin(legend, wins);
-    roundRobin(rise, wins);
+    if (fixed) {
+      // 정규 1·2R 결과 고정: 그룹·누적 승수를 실제 순위표에서 가져오고 3·4R만 시뮬
+      wins = startWins.slice();
+      legend = fixedLegend;
+      rise = fixedRise;
+      roundRobin(legend, wins);
+      roundRobin(rise, wins);
+    } else {
+      wins = new Array(n).fill(0);
+      const idx = idxAll.slice();
+      // 1~2R: 10팀 더블 라운드로빈
+      roundRobin(idx, wins);
+      // 1~2R 성적으로 그룹 분할 (상위5 레전드 / 하위5 라이즈), 동률 무작위
+      const order12 = idx.slice().sort((a, b) => (wins[b] - wins[a]) || (rng() - 0.5));
+      legend = order12.slice(0, 5);
+      rise = order12.slice(5);
+      // 3~4R: 그룹 내 더블 라운드로빈 (1~2R 승수 연계)
+      roundRobin(legend, wins);
+      roundRobin(rise, wins);
+    }
 
     // 최종 순위 — 그룹 내 누적 승수 기준 (레전드 1~5위, 라이즈 6~10위)
     const legOrder = legend.slice().sort((a, b) => (wins[b] - wins[a]) || (rng() - 0.5));
@@ -252,15 +270,23 @@ function simulateLCK(teams) {
 
 // ---- 6개 리그 시뮬레이션 ----
 const leagues = ['LCK', 'LPL', 'LEC', 'LCP', 'LCS', 'CBLOL'];
+// LCK 현재 순위표(정규 1·2R 완료)를 고정 입력으로 사용 → 잔여 경기만 시뮬
+const lckRows = standingsData.standings?.lck?.LCK?.rows;
+const lckFixed = lckRows && Object.fromEntries(
+  lckRows.map((r) => [r.team, { w: r.w, group: r.group }])
+);
+
 for (const lg of leagues) {
   const teams = gpr.teams.filter((t) => t.league === lg);
   const isLck = lg === 'LCK';
-  const { standings, situations, matches } = isLck ? simulateLCK(teams) : simulateLeague(teams);
+  const { standings, situations, matches } = isLck ? simulateLCK(teams, lckFixed) : simulateLeague(teams);
   const comp = sim.competitions.find((c) => c.key === lg.toLowerCase());
   comp.ready = true;
   comp.status = 'ongoing';
   comp.stage = isLck
-    ? '정규시즌 → 플레이인 → 플레이오프 (시즌 전체)'
+    ? (lckFixed
+        ? '정규 3·4라운드 → 플레이인 → 플레이오프 (1·2R 결과 고정)'
+        : '정규시즌 → 플레이인 → 플레이오프 (시즌 전체)')
     : '정규시즌 + 플레이오프 (시즌 전체)';
   comp.format = isLck
     ? '정규 4R Bo3(2R 후 레전드/라이즈 분할) → 플레이인·플레이오프 6팀 더블 엘리미네이션 Bo5'

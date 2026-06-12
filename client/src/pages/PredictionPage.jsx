@@ -122,16 +122,25 @@ const SimulationView = ({ comp, sub }) => {
   const hasDiff = current.some((t) => t.gd != null);
   // 팀 약칭 → 시뮬 예측 확률 (현재 순위표에 합쳐 표기)
   const probByShort = Object.fromEntries((comp.standings || []).map((s) => [s.team, s]));
-  // 그룹이 있으면 레전드/라이즈로 분리하고 각 그룹 내 1위부터 재번호
+  // 그룹이 있으면 그룹별로 분리하고 각 그룹 내 1위부터 재번호
   const grouped = !!official && current.some((t) => t.group);
   const withProb = (t, rank) => ({ ...t, rank, prob: probByShort[t.short] });
+  // 그룹명 → 표시 라벨·배지. 알려진 LCK 그룹은 고정색, 그 외(LPL 그룹 스테이지 등)는 기본 팔레트 순환.
+  const GROUP_META = {
+    Legend: { label: '레전드 그룹', badge: { color: '#E8C77E', bg: 'rgba(200,150,62,0.2)' } },
+    Rise: { label: '라이즈 그룹', badge: { color: '#9CA3AF', bg: 'rgba(156,163,175,0.15)' } },
+  };
+  const FALLBACK_BADGES = [
+    { color: '#E8C77E', bg: 'rgba(200,150,62,0.2)' },
+    { color: '#9CA3AF', bg: 'rgba(156,163,175,0.15)' },
+    { color: '#7EC8E8', bg: 'rgba(62,150,200,0.2)' },
+  ];
   const groups = grouped
-    ? [
-        { name: '레전드 그룹', badge: { color: '#E8C77E', bg: 'rgba(200,150,62,0.2)' },
-          rows: current.filter((t) => t.group === 'Legend').map((t, i) => withProb(t, i + 1)) },
-        { name: '라이즈 그룹', badge: { color: '#9CA3AF', bg: 'rgba(156,163,175,0.15)' },
-          rows: current.filter((t) => t.group === 'Rise').map((t, i) => withProb(t, i + 1)) },
-      ]
+    ? [...new Set(current.map((t) => t.group))].map((name, gi) => ({
+        name: GROUP_META[name]?.label ?? name,
+        badge: GROUP_META[name]?.badge ?? FALLBACK_BADGES[gi % FALLBACK_BADGES.length],
+        rows: current.filter((t) => t.group === name).map((t, i) => withProb(t, i + 1)),
+      }))
     : [{ name: null, rows: current.map((t, i) => withProb(t, t.rank ?? i + 1)) }];
 
   return (
@@ -141,7 +150,7 @@ const SimulationView = ({ comp, sub }) => {
         {comp.stage && <span className="text-white/50">단계: <strong className="text-white/80">{comp.stage}</strong></span>}
         {comp.format && <span className="text-white/50">형식: <strong className="text-white/80">{comp.format}</strong></span>}
         {comp.iterations > 0 && <span className="text-white/50">반복: <strong className="text-white/80">{comp.iterations.toLocaleString()}회</strong></span>}
-        {comp.generatedAt && <span className="text-white/50">생성: <strong className="text-white/80">{comp.generatedAt}</strong></span>}
+        {comp.generatedAt && <span className="text-white/50">생성: <strong className="text-white/80">{fmtUpdated(comp.generatedAt)}</strong></span>}
       </div>
 
       {/* 현재 순위 */}
