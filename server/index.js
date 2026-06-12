@@ -8,7 +8,8 @@ const app = express();
 // CORS 설정 (GitHub Pages + 로컬 개발 모두 허용)
 app.use(cors({
   origin: [
-    'https://downup17.github.io',  // 배포된 프론트엔드
+    'https://totaldu.github.io',   // 배포된 프론트엔드 (신규)
+    'https://downup17.github.io',  // 구 주소 (계정명 변경 전 호환)
     'http://localhost:5173'         // 로컬 개발용
   ],
   allowedHeaders: ['Content-Type', 'Authorization'],
