@@ -13,6 +13,7 @@
     "lck": {
       "LCK": {
         "stage": "2026 스플릿 2 · 정규 1·2R (MSI 선발전 후 3·4R 진행)",
+        "seedsLocked": false,
         "rows": [
           {
             "rank": 1,

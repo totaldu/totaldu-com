@@ -21,24 +21,21 @@ const ScopeIcon = ({ scope, ...rest }) => (scope === 'intl' ? <Globe {...rest} /
 const recordByShort = Object.fromEntries(
   gprTeams.teams.map((t) => [t.short, { w: t.w ?? 0, l: t.l ?? 0, gw: t.gw, gl: t.gl }])
 );
-// 팀 short → 로고 / 풀네임 / 레이팅
+// 팀 short → 로고 / 풀네임
 const logoByShort = Object.fromEntries(gprTeams.teams.map((t) => [t.short, t.logo]));
 const nameByShort = Object.fromEntries(gprTeams.teams.map((t) => [t.short, t.name]));
-const ratingByShort = Object.fromEntries(gprTeams.teams.map((t) => [t.short, t.score]));
 
-// Bo5 시리즈 승률(A 기준) — GPR Elo, 그리고 더 유리한 팀
-const bo5Prob = (aS, bS) => {
-  const ra = ratingByShort[aS] ?? 1000, rb = ratingByShort[bS] ?? 1000;
-  const p = 1 / (1 + Math.pow(10, (rb - ra) / 400));
-  return p ** 3 * (1 + 3 * (1 - p) + 6 * (1 - p) ** 2);
-};
-const favOf = (a, b) => (bo5Prob(a, b) >= 0.5 ? a : b);
-
-// 예상 대진표 (라운드 = 열, 매치 = 박스). 유리한 팀은 금색 강조
-const BracketSlot = ({ short, fav }) => (
-  <div className={`flex items-center gap-1.5 px-2 py-1.5 ${fav === short ? 'text-[#E8C77E] font-black' : 'text-white/55'}`}>
-    <TeamLogo src={logoByShort[short]} size={16} />
-    <span className="truncate text-xs">{nameByShort[short] || short}</span>
+// 대진표 슬롯 — 시드가 확정된 팀이면 로고+이름, 아니면 시드/출처 라벨(미정)
+const BracketSlot = ({ slot }) => (
+  <div className="flex items-center gap-1.5 px-2 py-1.5 min-h-[30px]">
+    {slot.short ? (
+      <>
+        <TeamLogo src={logoByShort[slot.short]} size={16} />
+        <span className="truncate text-xs font-bold text-white/90">{nameByShort[slot.short] || slot.short}</span>
+      </>
+    ) : (
+      <span className="truncate text-xs text-white/40">{slot.seed}</span>
+    )}
   </div>
 );
 const Bracket = ({ rounds }) => (
@@ -48,9 +45,9 @@ const Bracket = ({ rounds }) => (
         <p className="text-[11px] font-black text-white/40 uppercase tracking-wider">{r.title}</p>
         {r.matches.map((m, mi) => (
           <div key={mi} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
-            <BracketSlot short={m.a} fav={m.fav} />
+            <BracketSlot slot={m.a} />
             <div className="h-px bg-white/10" />
-            <BracketSlot short={m.b} fav={m.fav} />
+            <BracketSlot slot={m.b} />
           </div>
         ))}
       </div>
@@ -141,7 +138,7 @@ const fmtUpdated = (v) => {
 const STAGE_CFG = {
   '정규시즌': { cols: { diff: true, piPlus: true, advance: true, worlds: true, champ: true }, matches: false, heading: '정규시즌 순위', desc: '현재 순위 + 예상 진출·우승 확률.' },
   '플레이-인': { cols: { piPlus: true, advance: true }, matches: false, heading: '플레이-인 예측', desc: '레전드 5위 + 라이즈 1~3위가 겨루는 플레이-인 단계. PI+/플레이오프 진출 확률.' },
-  '플레이오프': { cols: { advance: true, worlds: true, champ: true }, matches: true, heading: '플레이오프 예측', desc: '플레이오프 진출·우승·Worlds 진출 확률과 예상 대진.' },
+  '플레이오프': { cols: { advance: true, worlds: true, champ: true }, matches: false, heading: '플레이오프 예측', desc: '플레이오프 진출·우승·Worlds 진출 확률. 확정 시드 기준 대진표.' },
 };
 
 // 시뮬레이션 결과(예측) 렌더
@@ -179,7 +176,7 @@ const SimulationView = ({ comp, sub, stage }) => {
     { color: '#9CA3AF', bg: 'rgba(156,163,175,0.15)' },
     { color: '#7EC8E8', bg: 'rgba(62,150,200,0.2)' },
   ];
-  // LCK 플레이-인/플레이오프: 진출팀만 시드와 함께 + 예상 대진표
+  // LCK 플레이-인/플레이오프: 확정 시드만 표기한 대진표 (정규시즌 종료 전이면 미정)
   let bracket = null;
   let groups;
   const lckBracketStage = comp.key === 'lck' && grouped && (stage === '플레이-인' || stage === '플레이오프');
@@ -188,30 +185,62 @@ const SimulationView = ({ comp, sub, stage }) => {
     const rise = current.filter((t) => t.group === 'Rise'); // R1~R5
     const playin = [legend[4], rise[0], rise[1], rise[2]].filter(Boolean); // L5, R1~R3
     const direct = legend.slice(0, 4); // L1~L4 플레이오프 직행
+    const locked = !!official?.seedsLocked; // 정규시즌 종료 → 시드 확정
+    // 시드 슬롯: 확정(locked)일 때만 팀 표기, 아니면 라벨만(미정)
+    const slot = (seed, team) => ({ seed, short: locked && team ? team.short : null });
     if (stage === '플레이-인') {
       groups = [{ name: null, rows: playin.map((t, i) => withProb(t, i + 1)) }];
-      const [a1, b1, a2, b2] = playin.map((t) => t.short);
-      const m1w = favOf(a1, b1), m1l = m1w === a1 ? b1 : a1, m2w = favOf(a2, b2);
       bracket = {
-        desc: '레전드 5위 + 라이즈 1~3위. 승자 2팀이 플레이오프 진출.',
-        rounds: [
-          { title: '플레이-인 1R', matches: [{ a: a1, b: b1, fav: m1w }, { a: a2, b: b2, fav: m2w }] },
-          { title: '최종전', matches: [{ a: m1l, b: m2w, fav: favOf(m1l, m2w) }] },
-        ],
+        desc: '레전드 5위 + 라이즈 1~3위 · 승자 2팀 플레이오프 진출 · 전 경기 Bo5',
+        sections: [{
+          name: null,
+          rounds: [
+            { title: '플레이-인 1R', matches: [
+              { a: slot('레전드 5위', legend[4]), b: slot('라이즈 1위', rise[0]) },
+              { a: slot('라이즈 2위', rise[1]), b: slot('라이즈 3위', rise[2]) },
+            ] },
+            { title: '최종전', matches: [
+              { a: slot('1경기 패자'), b: slot('2경기 승자') },
+            ] },
+          ],
+        }],
       };
     } else {
       groups = [{ name: null, rows: direct.map((t, i) => withProb(t, i + 1)) }];
-      const proj = [...playin].sort((a, b) => (ratingByShort[b.short] || 0) - (ratingByShort[a.short] || 0))
-        .slice(0, 2).map((t) => t.short); // 플레이-인 통과 예상 2팀 → 5·6시드
-      const s = [...direct.map((t) => t.short), ...proj];
-      const qf1 = favOf(s[2], s[5]), qf2 = favOf(s[3], s[4]);
-      const sf1 = favOf(s[0], qf2), sf2 = favOf(s[1], qf1), ch = favOf(sf1, sf2);
+      // 6팀 더블 엘리미네이션 — 1~4시드 레전드 직행, 5·6시드 플레이인 통과(미정)
       bracket = {
-        desc: '레전드 1~4위 직행 + 플레이-인 통과 2팀(예상). 6팀 더블 엘리미네이션.',
-        rounds: [
-          { title: '8강', matches: [{ a: s[2], b: s[5], fav: qf1 }, { a: s[3], b: s[4], fav: qf2 }] },
-          { title: '4강', matches: [{ a: s[0], b: qf2, fav: sf1 }, { a: s[1], b: qf1, fav: sf2 }] },
-          { title: '결승', matches: [{ a: sf1, b: sf2, fav: ch }] },
+        desc: '레전드 1~4위 직행 + 플레이-인 통과 2팀 · 6팀 더블 엘리미네이션 · 전 경기 Bo5',
+        sections: [
+          { name: '승자조 (Upper Bracket)', rounds: [
+            { title: 'UB R1', matches: [
+              { a: slot('레전드 3위', legend[2]), b: slot('플레이인 진출') },
+              { a: slot('레전드 4위', legend[3]), b: slot('플레이인 진출') },
+            ] },
+            { title: 'UB R2', matches: [
+              { a: slot('레전드 1위', legend[0]), b: slot('UB R1 승자') },
+              { a: slot('레전드 2위', legend[1]), b: slot('UB R1 승자') },
+            ] },
+            { title: 'UB R3', matches: [
+              { a: slot('UB R2 M1 승자'), b: slot('UB R2 M2 승자') },
+            ] },
+            { title: '그랜드 파이널', matches: [
+              { a: slot('승자조 우승'), b: slot('로어 파이널 승자') },
+            ] },
+          ] },
+          { name: '패자조 (Lower Bracket)', rounds: [
+            { title: 'LB R1', matches: [
+              { a: slot('UB R1 M1 패자'), b: slot('UB R1 M2 패자') },
+            ] },
+            { title: 'LB R2', matches: [
+              { a: slot('UB R2 패자 (낮은 시드)'), b: slot('LB R1 승자') },
+            ] },
+            { title: 'LB R3', matches: [
+              { a: slot('UB R2 패자 (높은 시드)'), b: slot('LB R2 승자') },
+            ] },
+            { title: '로어 파이널', matches: [
+              { a: slot('UB R3 패자'), b: slot('LB R3 승자') },
+            ] },
+          ] },
         ],
       };
     }
@@ -256,14 +285,23 @@ const SimulationView = ({ comp, sub, stage }) => {
         </section>
       )}
 
-      {/* 예상 대진표 (LCK 플레이-인/플레이오프) */}
+      {/* 대진표 (LCK 플레이-인/플레이오프) — 확정 시드만 표기 */}
       {bracket && (
         <section>
           <div className="flex items-baseline gap-2 flex-wrap mb-4">
-            <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">예상 대진표</h3>
+            <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">대진표</h3>
             <span className="text-xs text-white/40">{bracket.desc}</span>
           </div>
-          <Bracket rounds={bracket.rounds} />
+          <div className="flex flex-col gap-6">
+            {bracket.sections.map((sec, si) => (
+              <div key={si}>
+                {sec.name && (
+                  <p className="text-xs font-black text-white/55 mb-3">{sec.name}</p>
+                )}
+                <Bracket rounds={sec.rounds} />
+              </div>
+            ))}
+          </div>
         </section>
       )}
 
