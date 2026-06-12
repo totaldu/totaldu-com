@@ -30,11 +30,20 @@ const StandingsTable = ({ rows, color, hasDiff }) => {
   const hasProb = rows.some((r) => r.prob);
   const hasPiPlus = rows.some((r) => r.prob?.piPlus != null);
   const hasWorlds = rows.some((r) => r.prob?.worlds != null);
-  // 확률 셀 (소수 2자리)
+  // 확률 셀 (소수 2자리) — 값 + 막대 바
   const prob = (v, c, strong) => (
-    <td className="py-2 px-2 text-right font-mono tabular-nums whitespace-nowrap"
-      style={{ color: v != null ? c : '#6B7280', fontWeight: strong ? 800 : 500 }}>
-      {v != null ? `${v.toFixed(2)}%` : '-'}
+    <td className="py-2 px-2">
+      <div className="flex items-center gap-2 justify-end">
+        <div className="hidden sm:block w-14 h-1.5 rounded-full bg-white/5 overflow-hidden shrink-0">
+          {v != null && (
+            <div className="h-full rounded-full" style={{ width: `${Math.min(v, 100)}%`, backgroundColor: c }} />
+          )}
+        </div>
+        <span className="font-mono tabular-nums w-16 text-right whitespace-nowrap"
+          style={{ color: v != null ? c : '#6B7280', fontWeight: strong ? 800 : 500 }}>
+          {v != null ? `${v.toFixed(2)}%` : '-'}
+        </span>
+      </div>
     </td>
   );
   return (
