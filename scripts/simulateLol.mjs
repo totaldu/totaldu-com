@@ -287,13 +287,9 @@ for (const lg of leagues) {
   const comp = sim.competitions.find((c) => c.key === lg.toLowerCase());
   comp.ready = true;
   comp.status = 'ongoing';
-  comp.stage = isLck
-    ? (lckFixed
-        ? '정규 3·4라운드 → 플레이인 → 플레이오프 (1·2R 결과 고정)'
-        : '정규시즌 → 플레이인 → 플레이오프 (시즌 전체)')
-    : '정규시즌 + 플레이오프 (시즌 전체)';
+  comp.stage = isLck ? '' : '정규시즌 + 플레이오프 (시즌 전체)';
   comp.format = isLck
-    ? '정규 4R Bo3(2R 후 레전드/라이즈 분할) → 플레이인·플레이오프 6팀 더블 엘리미네이션 Bo5'
+    ? '정규시즌 1-2R (Bo3) → 그룹분할 → 정규시즌 3-4R (Bo3) → 플레이인 (Bo5) → 플레이오프 (Bo5)'
     : '싱글 라운드로빈 Bo3 → 상위 6팀 Bo5 플레이오프';
   comp.iterations = ITER;
   comp.generatedAt = GENERATED_AT;
