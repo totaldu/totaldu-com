@@ -251,6 +251,21 @@ const NotReady = ({ comp }) => (
 
 const GPR_TAB = { key: 'gpr', name: 'GPR 순위', scope: 'data', color: '#E8C77E' };
 
+// 탭 로고 (LoL Esports / 각 대회). 출처: static.lolesports.com
+const LOLESPORTS_LOGO = 'https://static.lolesports.com/leagues/1693555886600_lolesports_icon_ice-01.png';
+const COMP_LOGO = {
+  lck: 'https://static.lolesports.com/leagues/lck-color-on-black.png',
+  lpl: 'https://static.lolesports.com/leagues/1592516115322_LPL-01-FullonDark.png',
+  lec: 'https://static.lolesports.com/leagues/1592516184297_LEC-01-FullonDark.png',
+  lcp: 'https://static.lolesports.com/leagues/1733468139601_lcp-color-golden.png',
+  lcs: 'https://static.lolesports.com/leagues/1706356907418_LCSNew-01-FullonDark.png',
+  cblol: 'https://static.lolesports.com/leagues/cblol-logo-symbol-offwhite.png',
+  fst: 'https://static.lolesports.com/leagues/1740042025201_RG_LOL_FIRST_STAND_LOGO_VOLT_ALPHA.png',
+  msi: 'https://static.lolesports.com/leagues/1592594634248_MSIDarkBG.png',
+  worlds: 'https://static.lolesports.com/leagues/1592594612171_WorldsDarkBG.png',
+};
+const tabLogo = (key) => (key === 'gpr' ? LOLESPORTS_LOGO : COMP_LOGO[key]);
+
 // 지역 리그별 세부 대회 (2026 기준)
 const SUBTABS = {
   lck: ['LCK CUP', 'LCK'],
@@ -314,7 +329,7 @@ const PredictionPage = () => {
                 }`}
                 style={active ? { backgroundColor: c.color, borderColor: c.color, color: textOn(c.color) } : {}}
               >
-                {c.scope === 'data' ? <BarChart3 size={14} /> : <ScopeIcon scope={c.scope} size={14} />}
+                <TeamLogo src={tabLogo(c.key)} size={18} />
                 {c.name.replace('2026 ', '')}
               </button>
             );
