@@ -55,6 +55,45 @@ const Bracket = ({ rounds }) => (
   </div>
 );
 
+// Road to MSI(선발전) 사다리식 대진표 — 실제 점수·진출/MSI 결과 표기
+const MsiSlot = ({ s }) => {
+  const accent = s?.msi ? '#60A5FA' : null;
+  const bg = s?.msi ? 'rgba(96,165,250,0.16)' : 'transparent';
+  return (
+    <div className="flex items-center gap-2 px-2.5 py-2 min-h-[36px]" style={{ backgroundColor: bg }}>
+      <span className="text-[10px] text-white/40 w-9 shrink-0 truncate">{s?.seed || s?.label || ''}</span>
+      {s?.short ? (
+        <>
+          <TeamLogo src={logoByShort[s.short]} size={16} />
+          <span className="text-xs font-bold truncate" style={{ color: accent || 'rgba(255,255,255,0.88)' }}>{s.short}</span>
+        </>
+      ) : (
+        <span className="text-xs text-white/30">미정</span>
+      )}
+      <span className="ml-auto text-sm font-black font-mono shrink-0" style={{ color: accent || 'rgba(255,255,255,0.45)' }}>
+        {s?.score != null ? s.score : ''}
+      </span>
+    </div>
+  );
+};
+const MsiBracket = ({ rounds }) => (
+  <div className="flex gap-4 overflow-x-auto pb-1">
+    {rounds.map((r, ri) => (
+      <div key={ri} className="flex flex-col justify-center gap-5 min-w-[200px]">
+        <p className="text-[11px] font-black text-white/40 uppercase tracking-wider">{r.title}</p>
+        {r.matches.map((m, mi) => (
+          <div key={mi} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
+            <div className="px-2.5 py-1.5 bg-white/10 text-[11px] font-black text-white/70">{m.title}</div>
+            <MsiSlot s={m.a} />
+            <div className="h-px bg-white/10" />
+            <MsiSlot s={m.b} />
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+);
+
 // 현재 순위 표 (그룹 단위로 재사용) — 승률 대신 예측 확률(PI+/PO/Worlds/우승)을 표기
 // cols 가 주어지면 그 컬럼만 표시(단계별 뷰), 없으면 데이터 유무로 자동 판단
 const StandingsTable = ({ rows, color, hasDiff, cols }) => {
@@ -310,6 +349,20 @@ const SimulationView = ({ comp, sub, stage }) => {
                 <Bracket rounds={sec.rounds} />
               </div>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* Road to MSI(선발전) 대진표 — 실제 결과 */}
+      {roadToMsi && official?.bracket && (
+        <section>
+          <div className="flex items-baseline gap-2 flex-wrap mb-4">
+            <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">대진표</h3>
+            {official.bracket.desc && <span className="text-xs text-white/40">{official.bracket.desc}</span>}
+          </div>
+          <MsiBracket rounds={official.bracket.rounds} />
+          <div className="flex flex-wrap gap-4 mt-4 text-[11px] text-white/50">
+            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded" style={{ backgroundColor: 'rgba(96,165,250,0.6)' }} /> 2026 MSI 진출</span>
           </div>
         </section>
       )}

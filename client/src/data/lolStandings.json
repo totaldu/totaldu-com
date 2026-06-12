@@ -20,7 +20,35 @@
           { "rank": 4, "team": "KT", "w": 13, "l": 5, "gw": 26, "gl": 15 },
           { "rank": 5, "team": "DK", "w": 11, "l": 7, "gw": 24, "gl": 18 },
           { "rank": 6, "team": "BRO", "w": 6, "l": 12, "gw": 16, "gl": 24 }
-        ]
+        ],
+        "bracket": {
+          "desc": "상위 6팀 사다리식 토너먼트 · 1·2위전(R3) 승자 MSI 직행, 패자는 최종전 · 최종전 승자도 MSI 진출 · 전 경기 Bo5",
+          "rounds": [
+            { "title": "1라운드", "matches": [
+              { "title": "Round 1 (6/6)",
+                "a": { "seed": "5위", "short": "DK", "score": 3, "win": true },
+                "b": { "seed": "6위", "short": "BRO", "score": 0 } }
+            ] },
+            { "title": "2라운드", "matches": [
+              { "title": "Round 2 (6/7)",
+                "a": { "seed": "4위", "short": "KT", "score": 3, "win": true },
+                "b": { "label": "R1 승자", "short": "DK", "score": 2 } }
+            ] },
+            { "title": "3-4라운드", "matches": [
+              { "title": "Round 3 (6/12)",
+                "a": { "seed": "1위", "short": "HLE", "score": 3, "msi": true },
+                "b": { "seed": "2위", "short": "T1", "score": 1 } },
+              { "title": "Round 4 (6/13)",
+                "a": { "seed": "3위", "short": "GEN" },
+                "b": { "label": "R2 승자", "short": "KT" } }
+            ] },
+            { "title": "최종전", "matches": [
+              { "title": "Final Round (6/14)",
+                "a": { "label": "R3 패자", "short": "T1" },
+                "b": { "label": "R4 승자" } }
+            ] }
+          ]
+        }
       },
       "LCK": {
         "stage": "2026 스플릿 2 · 정규 1·2R (MSI 선발전 후 3·4R 진행)",
