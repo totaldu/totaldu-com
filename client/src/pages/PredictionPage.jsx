@@ -51,65 +51,109 @@ const MsiSlot = ({ s }) => {
     </div>
   );
 };
-// SLOT_H: 실제 렌더 슬롯 높이(py-2 + 내용 = 44px, +2 여유). LABEL_H: 라운드 제목 높이. GAP_ROW: 이 행 이전에 LABEL_H 갭 추가.
 const SLOT_H = 46;
 const LABEL_H = 20;
 const GAP_ROW = 2;
+const COL_W = 200;
+const COL_GAP = 16;
+const ACTUAL_SLOT_H = 44;
 
-// row r의 절대 top 위치 (GAP_ROW 이후 라운드는 라벨 갭만큼 아래로 밀림)
 const gridSlotTop = (r) => LABEL_H + r * SLOT_H + (r >= GAP_ROW ? LABEL_H : 0);
 
-const MsiBracket = ({ rounds, totalRows }) => {
+// 특정 슬롯의 y 중심값: slot='a'|'b'|'mid'
+const connY = (rounds, col, match, slot) => {
+  const m = rounds[col]?.matches?.[match];
+  if (!m) return 0;
+  const base = gridSlotTop(m.startRow ?? 0);
+  const aC = base + 1 + ACTUAL_SLOT_H / 2;
+  const bC = base + 1 + ACTUAL_SLOT_H + 1 + ACTUAL_SLOT_H / 2;
+  return slot === 'a' ? aC : slot === 'b' ? bC : (aC + bC) / 2;
+};
+
+const MsiBracket = ({ rounds, totalRows, connectors: connData }) => {
   const useGrid = !!totalRows;
-  // 2×LABEL_H: 상단 라벨 공간 + GAP_ROW 앞 갭
   const colH = useGrid ? 2 * LABEL_H + totalRows * SLOT_H : undefined;
+  const totalW = rounds.length * COL_W + (rounds.length - 1) * COL_GAP;
+
   return (
-    <div className="flex gap-4 overflow-x-auto pb-1">
-      {rounds.map((r, ri) => (
-        <div key={ri}
-          className="min-w-[200px]"
-          style={useGrid
-            ? { position: 'relative', height: colH }
-            : { display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '20px' }}>
-          {!useGrid && r.title && (
-            <p className="text-[11px] font-black text-white/40 uppercase tracking-wider">{r.title}</p>
-          )}
-          {r.matches.map((m, mi) => {
-            if (!useGrid) {
+    <div className="overflow-x-auto pb-1">
+      <div style={{
+        position: 'relative',
+        display: 'flex',
+        gap: COL_GAP,
+        ...(useGrid ? { width: totalW, height: colH } : {}),
+      }}>
+        {/* 계단식 브래킷 연결선 */}
+        {useGrid && connData?.length > 0 && (
+          <svg style={{
+            position: 'absolute', top: 0, left: 0,
+            width: totalW, height: colH,
+            pointerEvents: 'none', overflow: 'visible',
+          }}>
+            {connData.map(([fC, fM, fS, tC, tM, tS], i) => {
+              const fx = fC * (COL_W + COL_GAP) + COL_W;
+              const tx = tC * (COL_W + COL_GAP);
+              const fy = connY(rounds, fC, fM, fS);
+              const ty = connY(rounds, tC, tM, tS);
+              const mx = (fx + tx) / 2;
+              const flat = Math.abs(fy - ty) <= 2;
+              const d = flat
+                ? `M ${fx} ${fy} L ${tx} ${ty}`
+                : `M ${fx} ${fy} L ${mx} ${fy} L ${mx} ${ty} L ${tx} ${ty}`;
               return (
-                <div key={mi} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
-                  {m.title && <div className="px-2.5 py-1.5 bg-white/10 text-[11px] font-black text-white/70">{m.title}</div>}
-                  <MsiSlot s={m.a} />
-                  <div className="h-px bg-white/10" />
-                  <MsiSlot s={m.b} />
-                </div>
+                <path key={i} d={d}
+                  stroke="rgba(255,255,255,0.2)" strokeWidth={1.5}
+                  fill="none" strokeLinecap="round" strokeLinejoin="round" />
               );
-            }
-            const sr = m.startRow ?? 0;
-            const cardTop = gridSlotTop(sr);
-            const labelTop = cardTop - LABEL_H;
-            return (
-              <React.Fragment key={mi}>
-                {m.title && (
-                  <span style={{
-                    position: 'absolute', top: labelTop, left: 0, height: LABEL_H,
-                    display: 'flex', alignItems: 'center',
-                    fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)',
-                    textTransform: 'uppercase', letterSpacing: '0.05em',
-                  }}>{m.title}</span>
-                )}
-                <div
-                  className="rounded-xl bg-white/5 border border-white/10 overflow-hidden"
-                  style={{ position: 'absolute', top: cardTop, left: 0, right: 0 }}>
-                  <MsiSlot s={m.a} />
-                  <div className="h-px bg-white/10" />
-                  <MsiSlot s={m.b} />
-                </div>
-              </React.Fragment>
-            );
-          })}
-        </div>
-      ))}
+            })}
+          </svg>
+        )}
+
+        {rounds.map((r, ri) => (
+          <div key={ri}
+            style={useGrid
+              ? { position: 'relative', width: COL_W, flexShrink: 0, height: colH }
+              : { display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 20, minWidth: COL_W }}>
+            {!useGrid && r.title && (
+              <p className="text-[11px] font-black text-white/40 uppercase tracking-wider">{r.title}</p>
+            )}
+            {r.matches.map((m, mi) => {
+              if (!useGrid) {
+                return (
+                  <div key={mi} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
+                    {m.title && <div className="px-2.5 py-1.5 bg-white/10 text-[11px] font-black text-white/70">{m.title}</div>}
+                    <MsiSlot s={m.a} />
+                    <div className="h-px bg-white/10" />
+                    <MsiSlot s={m.b} />
+                  </div>
+                );
+              }
+              const sr = m.startRow ?? 0;
+              const cardTop = gridSlotTop(sr);
+              const labelTop = cardTop - LABEL_H;
+              return (
+                <React.Fragment key={mi}>
+                  {m.title && (
+                    <span style={{
+                      position: 'absolute', top: labelTop, left: 0, height: LABEL_H,
+                      display: 'flex', alignItems: 'center',
+                      fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)',
+                      textTransform: 'uppercase', letterSpacing: '0.05em',
+                    }}>{m.title}</span>
+                  )}
+                  <div
+                    className="rounded-xl bg-white/5 border border-white/10 overflow-hidden"
+                    style={{ position: 'absolute', top: cardTop, left: 0, right: 0 }}>
+                    <MsiSlot s={m.a} />
+                    <div className="h-px bg-white/10" />
+                    <MsiSlot s={m.b} />
+                  </div>
+                </React.Fragment>
+              );
+            })}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -381,7 +425,7 @@ const SimulationView = ({ comp, sub, stage }) => {
             <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">대진표</h3>
             {official.bracket.desc && <span className="text-xs text-white/40">{official.bracket.desc}</span>}
           </div>
-          <MsiBracket rounds={official.bracket.rounds} totalRows={official.bracket.totalRows} />
+          <MsiBracket rounds={official.bracket.rounds} totalRows={official.bracket.totalRows} connectors={official.bracket.connectors} />
           <div className="flex flex-wrap gap-4 mt-4 text-[11px] text-white/50">
             <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded" style={{ backgroundColor: 'rgba(232,199,126,0.7)' }} /> MSI 진출</span>
             <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded" style={{ backgroundColor: 'rgba(96,165,250,0.6)' }} /> 라운드 승리</span>
