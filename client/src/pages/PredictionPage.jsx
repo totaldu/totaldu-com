@@ -636,7 +636,10 @@ const PredictionPage = () => {
                 }`}
                 style={active ? { backgroundColor: c.color, borderColor: c.color, color: textOn(c.color) } : {}}
               >
-                <TeamLogo src={tabLogo(c.key)} size={18} />
+                <img src={tabLogo(c.key)} alt="" width={18} height={18}
+                  className="object-contain shrink-0"
+                  style={{ width: 18, height: 18, filter: 'brightness(0) invert(1)', opacity: active ? 0.9 : 0.6 }}
+                  onError={e => { e.currentTarget.style.visibility = 'hidden'; }} />
                 {c.name.replace('2026 ', '')}
               </button>
             );
