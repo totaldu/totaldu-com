@@ -1170,62 +1170,16 @@
       "name": "2026 First Stand",
       "scope": "intl",
       "color": "#C8963E",
-      "status": "finished",
-      "ready": true,
-      "stage": "2026 First Stand (시즌 첫 국제전)",
-      "format": "8개 지역 대표 · 더블 엘리미네이션",
+      "status": "upcoming",
+      "ready": false,
+      "stage": "",
+      "format": "",
       "iterations": 0,
       "generatedAt": null,
       "teams": [],
       "matches": [],
       "standings": [],
-      "situations": [],
-      "finalResult": {
-        "champion": "Bilibili Gaming",
-        "runnerUp": "G2 Esports",
-        "standings": [
-          {
-            "rank": 1,
-            "team": "Bilibili Gaming",
-            "note": "LPL · 우승"
-          },
-          {
-            "rank": 2,
-            "team": "G2 Esports",
-            "note": "LEC · 준우승"
-          },
-          {
-            "rank": 3,
-            "team": "Gen.G Esports",
-            "note": "LCK"
-          },
-          {
-            "rank": 4,
-            "team": "Beijing JDG Esports",
-            "note": "LPL"
-          },
-          {
-            "rank": 5,
-            "team": "BNK FEARX",
-            "note": "LCK"
-          },
-          {
-            "rank": 6,
-            "team": "LYON",
-            "note": "LCS"
-          },
-          {
-            "rank": 7,
-            "team": "Team Secret Whales",
-            "note": "LCP"
-          },
-          {
-            "rank": 8,
-            "team": "LOUD",
-            "note": "CBLOL"
-          }
-        ]
-      }
+      "situations": []
     },
     {
       "key": "msi",
