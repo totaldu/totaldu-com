@@ -336,16 +336,16 @@ const LABEL_TO_LEAGUE = Object.fromEntries(
 );
 
 // label에서 "리그 · TEAM1 vs TEAM2 승자/패자" 파싱
-// 두 팀 모두 직접 지정된 경우 team1+team2 모두 반환
-// parenthetical(괄호) 포함된 경우 구체적인 vsTeam만 반환
+// 단순형: team1+team2 직접 반환
+// 괄호형 "(T1·T2 승자/패자) vs TEAM3": parenTeam1/2/Want + team2 반환
 function parseMsiLabel(label) {
-  // 단순 패턴: "LEAGUE · TEAM1 vs TEAM2 승자/패자" (양쪽 모두 직접 팀 코드)
+  // 단순 패턴: "LEAGUE · TEAM1 vs TEAM2 승자/패자"
   const simple = label.match(/^([A-Z]+)\s·\s+(\w+)\s+vs\s+(\w+)\s+(승자|패자)$/);
   if (simple) return { lgKey: simple[1], team1: simple[2], team2: simple[3], want: simple[4] };
 
-  // 복합 패턴: parenthetical 포함 → "vs TEAM" 부분만 추출
-  const complex = label.match(/^([A-Z]+)\s·\s.+\bvs\s+(\w+)\s+(승자|패자)$/);
-  if (complex) return { lgKey: complex[1], team2: complex[2], want: complex[3] };
+  // 괄호형 패턴: "LEAGUE · (TEAM1·TEAM2 승자/패자) vs TEAM3 승자/패자"
+  const paren = label.match(/^([A-Z]+)\s·\s+\((\w+)·(\w+)\s+(승자|패자)\)\s+vs\s+(\w+)\s+(승자|패자)$/);
+  if (paren) return { lgKey: paren[1], parenTeam1: paren[2], parenTeam2: paren[3], parenWant: paren[4], team2: paren[5], want: paren[6] };
 
   return null;
 }
@@ -397,8 +397,19 @@ try {
       const leagueId = LABEL_TO_LEAGUE[parsed.lgKey];
       if (!leagueId) continue;
 
-      // team1 없는 괄호형 label은 중간 경기가 미완료 → 건너뜀
-      if (!parsed.team1) continue;
+      if (!parsed.team1) {
+        // 괄호형: 선행 경기(parenTeam1 vs parenTeam2) 결과로 team1 확정 후 최종 경기 조회
+        if (!parsed.parenTeam1) continue;
+        const preResult = await findMatchResult(leagueId, parsed.parenTeam1, parsed.parenTeam2);
+        if (!preResult) continue; // 선행 경기 미완료
+        const resolvedTeam1 = parsed.parenWant === '승자' ? preResult.winner : preResult.loser;
+        if (!resolvedTeam1) continue;
+        const result = await findMatchResult(leagueId, resolvedTeam1, parsed.team2);
+        if (!result) continue;
+        const code = parsed.want === '승자' ? result.winner : result.loser;
+        if (code) { prevStage.qualifiers[i] = { short: code }; anyChanged = true; }
+        continue;
+      }
       const result = await findMatchResult(leagueId, parsed.team1, parsed.team2);
       if (!result) continue;
 
