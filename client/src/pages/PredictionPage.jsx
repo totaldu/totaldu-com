@@ -1,7 +1,7 @@
 // client/src/pages/PredictionPage.jsx
 import React, { useMemo, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Target, Trophy, ExternalLink, Globe, Flag, Crown, Hourglass, BarChart3 } from 'lucide-react';
+import { Target, Trophy, ExternalLink, Crown, Hourglass } from 'lucide-react';
 import sim from '../data/lolSim.json';
 import gpr from '../data/lolGpr.json';
 import gprTeams from '../data/gprTeams.json';
@@ -15,7 +15,21 @@ const statusMeta = {
   upcoming: { label: '예정', color: '#60A5FA', bg: 'rgba(96,165,250,0.15)' },
 };
 
-const ScopeIcon = ({ scope, ...rest }) => (scope === 'intl' ? <Globe {...rest} /> : <Flag {...rest} />);
+// 로고 미제공 대회 (추후 제공 예정)
+const LOGO_TBD = new Set([
+  'fst',
+  'lck|LCK CUP',
+  'lpl|Split 1', 'lpl|Split 2',
+  'lec|Versus', 'lec|Spring',
+  'lcp|Split 1', 'lcp|Split 2',
+  'lcs|Lock-In', 'lcs|Spring',
+  'cblol|Copa', 'cblol|Split 1',
+]);
+const getCompLogo = (key, sub) => {
+  if (LOGO_TBD.has(key)) return null;
+  if (sub && LOGO_TBD.has(`${key}|${sub}`)) return null;
+  return COMP_LOGO[key] ?? null;
+};
 
 // 팀 short → 실제 전적(GPR 기준). gw/gl = 세트(게임) 승-패
 const recordByShort = Object.fromEntries(
@@ -638,7 +652,7 @@ const PredictionPage = () => {
             <>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-[#C8963E]">
-                  <BarChart3 size={18} color="#1e2328" />
+                  <img src={LOLESPORTS_LOGO} alt="GPR" width={24} height={24} className="object-contain" />
                 </div>
                 <div>
                   <h2 className="text-xl font-black text-white">GPR 팀 랭킹</h2>
@@ -651,12 +665,24 @@ const PredictionPage = () => {
             <>
               <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: comp.color }}>
-                    <ScopeIcon scope={comp.scope} size={18} color={textOn(comp.color)} />
-                  </div>
+                  {(() => {
+                    const logo = getCompLogo(comp.key, activeSub);
+                    return (
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: comp.color }}>
+                        {logo
+                          ? <img src={logo} alt={comp.name} width={24} height={24} className="object-contain" onError={e => { e.currentTarget.style.visibility='hidden'; }} />
+                          : <Hourglass size={16} color={textOn(comp.color)} />
+                        }
+                      </div>
+                    );
+                  })()}
                   <div>
                     <h2 className="text-xl font-black text-white">{title}</h2>
-                    <p className="text-xs text-white/40">{comp.scope === 'intl' ? '국제 대회' : '지역 리그'}</p>
+                    <p className="text-xs text-white/40">
+                      {getCompLogo(comp.key, activeSub) === null
+                        ? '로고 추후 제공 예정'
+                        : (comp.scope === 'intl' ? '국제 대회' : '지역 리그')}
+                    </p>
                   </div>
                 </div>
                 <span className="px-3 py-1 rounded-lg text-xs font-black" style={{ color: st.color, backgroundColor: st.bg }}>
