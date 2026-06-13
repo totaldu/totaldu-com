@@ -10,6 +10,78 @@
     "cblol": "https://lolesports.com/ko-KR/leagues/cblol-brazil"
   },
   "standings": {
+    "msi": {
+      "플레이-인 스테이지": {
+        "stage": "MSI 플레이-인 스테이지 · 4팀",
+        "rows": [],
+        "bracket": {
+          "desc": "4팀 더블 엘리미네이션 · 1팀만 브래킷 스테이지 진출 · 전 경기 Bo5",
+          "legend": [{ "color": "rgba(232,199,126,0.7)", "label": "브래킷 스테이지 진출" }],
+          "sections": [
+            { "name": null, "rounds": [
+              { "title": "1라운드", "matches": [
+                { "title": "Match 1 (6/28)", "a": { "seed": "??? #2" }, "b": { "seed": "??? #2" } },
+                { "title": "Match 2 (6/28)", "a": { "seed": "??? #2" }, "b": { "seed": "??? #2" } }
+              ] },
+              { "title": "2라운드", "matches": [
+                { "title": "Match 3 (6/29)", "a": { "label": "M1 승자" }, "b": { "label": "M2 승자" } },
+                { "title": "Match 4 (6/29)", "a": { "label": "M1 패자" }, "b": { "label": "M2 패자" } }
+              ] },
+              { "title": "3라운드", "matches": [
+                { "title": "Match 5 (6/30)", "a": { "label": "M3 패자" }, "b": { "label": "M4 승자" } }
+              ] },
+              { "title": "최종 진출전", "matches": [
+                { "title": "최종 진출전 (7/1)", "a": { "label": "M3 승자" }, "b": { "label": "M5 승자" } }
+              ] }
+            ] }
+          ]
+        }
+      },
+      "브래킷 스테이지": {
+        "stage": "MSI 브래킷 스테이지 · 8팀",
+        "rows": [],
+        "bracket": {
+          "desc": "8팀(브래킷 직행 7 + 플레이-인 통과 1) 더블 엘리미네이션 · 전 경기 Bo5",
+          "legend": [{ "color": "rgba(232,199,126,0.7)", "label": "MSI 우승" }],
+          "sections": [
+            { "name": "상위권 대진표", "rounds": [
+              { "title": "1라운드", "matches": [
+                { "title": "Match 1 (7/3)", "a": { "seed": "??? #1" }, "b": { "seed": "??? #1" } },
+                { "title": "Match 2 (7/3)", "a": { "seed": "??? #1" }, "b": { "seed": "??? #1" } },
+                { "title": "Match 3 (7/4)", "a": { "seed": "??? #1" }, "b": { "seed": "??? #1" } },
+                { "title": "Match 4 (7/4)", "a": { "seed": "??? #1" }, "b": { "seed": "??? #1" } }
+              ] },
+              { "title": "2라운드", "matches": [
+                { "title": "Match 5 (7/5)", "a": { "label": "M1 승자" }, "b": { "label": "M2 승자" } },
+                { "title": "Match 6 (7/6)", "a": { "label": "M3 승자" }, "b": { "label": "M4 승자" } }
+              ] },
+              { "title": "3라운드", "matches": [
+                { "title": "Match 11 (7/9)", "a": { "label": "M5 승자" }, "b": { "label": "M6 승자" } }
+              ] },
+              { "title": "결승", "matches": [
+                { "title": "Grand Finals (7/12)", "a": { "label": "M11 승자" }, "b": { "label": "M13 승자" } }
+              ] }
+            ] },
+            { "name": "하위권 대진표", "rounds": [
+              { "title": "1라운드", "matches": [
+                { "title": "Match 7 (7/5)", "a": { "label": "M1 패자" }, "b": { "label": "M2 패자" } },
+                { "title": "Match 8 (7/6)", "a": { "label": "M3 패자" }, "b": { "label": "M4 패자" } }
+              ] },
+              { "title": "2라운드", "matches": [
+                { "title": "Match 9 (7/8)", "a": { "label": "M5 패자" }, "b": { "label": "M8 승자" } },
+                { "title": "Match 10 (7/8)", "a": { "label": "M6 패자" }, "b": { "label": "M7 승자" } }
+              ] },
+              { "title": "3라운드", "matches": [
+                { "title": "Match 12 (7/10)", "a": { "label": "M9 승자" }, "b": { "label": "M10 승자" } }
+              ] },
+              { "title": "4라운드", "matches": [
+                { "title": "Match 13 (7/11)", "a": { "label": "M11 패자" }, "b": { "label": "M12 승자" } }
+              ] }
+            ] }
+          ]
+        }
+      }
+    },
     "lck": {
       "Road to MSI": {
         "stage": "2026 스플릿 2 · MSI 선발전 (상위 6팀)",
