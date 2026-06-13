@@ -65,94 +65,51 @@
         ],
         "bracket": {
           "desc": "상위 6팀 사다리식 · 전 경기 Bo5 · 금색=MSI 진출, 파랑=라운드 승리, 빨강=탈락",
+          "totalRows": 6,
           "rounds": [
             {
-              "title": "",
               "matches": [
                 {
                   "title": "1라운드",
-                  "a": {
-                    "seed": "5위",
-                    "short": "DK",
-                    "score": 3,
-                    "win": true
-                  },
-                  "b": {
-                    "seed": "6위",
-                    "short": "BRO",
-                    "score": 0,
-                    "elim": true
-                  }
+                  "startRow": 4,
+                  "a": { "seed": "5위", "short": "DK", "score": 3, "win": true },
+                  "b": { "seed": "6위", "short": "BRO", "score": 0, "elim": true }
                 }
               ]
             },
             {
-              "title": "",
               "matches": [
                 {
                   "title": "2라운드",
-                  "a": {
-                    "seed": "4위",
-                    "short": "KT",
-                    "score": 3,
-                    "win": true
-                  },
-                  "b": {
-                    "seed": "1라운드 승자",
-                    "short": "DK",
-                    "score": 2,
-                    "elim": true
-                  }
+                  "startRow": 3,
+                  "a": { "seed": "4위", "short": "KT", "score": 3, "win": true },
+                  "b": { "seed": "1라운드 승자", "short": "DK", "score": 2, "elim": true }
                 }
               ]
             },
             {
-              "title": "",
               "matches": [
                 {
                   "title": "3라운드",
-                  "a": {
-                    "seed": "1위",
-                    "short": "HLE",
-                    "score": 3,
-                    "msi": true
-                  },
-                  "b": {
-                    "seed": "2위",
-                    "short": "T1",
-                    "score": 1
-                  }
-                }
-              ]
-            },
-            {
-              "title": "",
-              "matches": [
+                  "startRow": 0,
+                  "a": { "seed": "1위", "short": "HLE", "score": 3, "msi": true },
+                  "b": { "seed": "2위", "short": "T1", "score": 1 }
+                },
                 {
                   "title": "4라운드",
-                  "a": {
-                    "seed": "2라운드 승자",
-                    "short": "KT"
-                  },
-                  "b": {
-                    "seed": "3위",
-                    "short": "GEN"
-                  }
+                  "startRow": 2,
+                  "a": { "seed": "3위", "short": "GEN" },
+                  "b": { "seed": "2라운드 승자", "short": "KT" }
                 }
               ]
             },
             {
-              "title": "",
               "matches": [
                 {
                   "title": "5라운드",
-                  "a": {
-                    "seed": "4라운드 승자"
-                  },
-                  "b": {
-                    "seed": "3라운드 패자",
-                    "short": "T1"
-                  }
+                  "startRow": 1,
+                  "a": { "seed": "3라운드 패자", "short": "T1" },
+                  "b": { "seed": "4라운드 승자" }
                 }
               ]
             }
