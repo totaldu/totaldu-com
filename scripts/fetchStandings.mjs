@@ -79,16 +79,39 @@ function bracketFromColumns(columns) {
     if (done && t.result?.gameWins != null) o.score = t.result.gameWins;
     return { ...o, ...flag };
   };
-  const rounds = [];
-  for (const col of columns) {
-    const matches = [];
-    for (const cell of col.cells || []) for (const m of cell.matches || []) {
-      const [a, b] = m.teams || [];
-      matches.push({ title: cell.name, a: slotOf(m, a), b: slotOf(m, b) });
+  // structuralId → {colIdx, matchIdx} (connector 계산용)
+  const matchPos = {};
+  for (let ci = 0; ci < columns.length; ci++) {
+    let mi = 0;
+    for (const cell of columns[ci].cells || []) {
+      for (const m of cell.matches || []) { matchPos[m.structuralId] = { ci, mi }; mi++; }
     }
-    if (matches.length) rounds.push({ title: '', matches });
   }
-  return rounds;
+
+  const rounds = [];
+  const connectors = [];
+  let roundIdx = 0;
+  for (let ci = 0; ci < columns.length; ci++) {
+    const matches = [];
+    let mi = 0;
+    for (const cell of columns[ci].cells || []) {
+      for (const m of cell.matches || []) {
+        const [a, b] = m.teams || [];
+        matches.push({ title: cell.name, a: slotOf(m, a), b: slotOf(m, b) });
+        // origin이 다른 match인 팀 슬롯 → connector 생성
+        for (const [t, slot] of [[a, 'a'], [b, 'b']]) {
+          const o = t?.origin;
+          if (o?.type === 'match' && matchPos[o.structuralId] != null) {
+            const src = matchPos[o.structuralId];
+            connectors.push([src.ci, src.mi, 'mid', ci, mi, slot]);
+          }
+        }
+        mi++;
+      }
+    }
+    if (matches.length) { rounds.push({ title: '', matches }); roundIdx++; }
+  }
+  return { rounds, connectors };
 }
 
 async function api(endpoint, params) {
@@ -201,13 +224,14 @@ async function buildLeague(lg) {
     if (cols?.length) {
       const top6 = [...rows].sort((a, b) => a.rank - b.rank).slice(0, 6)
         .map(({ group, ...r }) => r); // 진출 6팀(그룹 라벨 제거)
-      const rounds = bracketFromColumns(cols);
+      const { rounds, connectors } = bracketFromColumns(cols);
       road = {
         stage: `${standing.name} · MSI 선발전 (상위 6팀)`,
         rows: top6,
         bracket: {
           desc: '상위 6팀 사다리식 · 전 경기 Bo5 · 금색=MSI 진출, 파랑=라운드 승리, 빨강=탈락',
           rounds,
+          connectors,
         },
       };
       // Road to MSI 우승팀 추출 (msi: true 플래그)
