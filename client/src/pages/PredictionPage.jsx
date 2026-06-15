@@ -81,7 +81,7 @@ const connY = (rounds, col, match, slot) => {
   return slot === 'a' ? aC : slot === 'b' ? bC : (aC + bC) / 2;
 };
 
-const MsiBracket = ({ rounds, totalRows, connectors: connData }) => {
+const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '' }) => {
   const useGrid = !!totalRows;
   const colH = useGrid ? gridSlotTop(totalRows - 1) + 2 * ACTUAL_SLOT_H + 2 : undefined;
   const totalW = rounds.length * COL_W + (rounds.length - 1) * COL_GAP;
@@ -197,7 +197,7 @@ const MsiBracket = ({ rounds, totalRows, connectors: connData }) => {
             {r.matches.map((m, mi) => {
               if (!useGrid) {
                 return (
-                  <div key={mi} data-card={`${ri}-${mi}`} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
+                  <div key={mi} data-card={`${ri}-${mi}`} {...(cardPrefix && { 'data-xcard': `${cardPrefix}${ri}-${mi}` })} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
                     {m.title && <div data-title="" className="px-2.5 py-1.5 bg-white/10 text-[11px] font-black text-white/70">{m.title}</div>}
                     <MsiSlot s={m.a} />
                     <div className="h-px bg-white/10" />
@@ -231,6 +231,74 @@ const MsiBracket = ({ rounds, totalRows, connectors: connData }) => {
           </div>
         ))}
       </div>
+    </div>
+  );
+};
+
+// 섹션 간 연결선을 그리는 브래킷 그룹 컨테이너
+const BracketGroup = ({ sections, crossConnectors }) => {
+  const wrapRef = useRef(null);
+  const [crossPaths, setCrossPaths] = useState([]);
+
+  const slotY = (el, slot, wRect) => {
+    if (!el) return null;
+    const first = el.firstElementChild;
+    const hasTitleEl = first?.hasAttribute('data-title');
+    const slotAEl = hasTitleEl ? first.nextElementSibling : first;
+    const slotBEl = slotAEl?.nextElementSibling?.nextElementSibling;
+    if (!slotAEl || !slotBEl) {
+      const r = el.getBoundingClientRect();
+      return (r.top + r.bottom) / 2 - wRect.top;
+    }
+    const rA = slotAEl.getBoundingClientRect();
+    const rB = slotBEl.getBoundingClientRect();
+    const aCy = (rA.top + rA.bottom) / 2 - wRect.top;
+    const bCy = (rB.top + rB.bottom) / 2 - wRect.top;
+    if (slot === 'a') return aCy;
+    if (slot === 'b') return bCy;
+    return (aCy + bCy) / 2;
+  };
+
+  useLayoutEffect(() => {
+    if (!crossConnectors?.length || !wrapRef.current) { setCrossPaths([]); return; }
+    const wrap = wrapRef.current;
+    const wRect = wrap.getBoundingClientRect();
+    const paths = crossConnectors.map(([fSec, fR, fM, fSlot, tSec, tR, tM, tSlot]) => {
+      const fromEl = wrap.querySelector(`[data-xcard="s${fSec}-${fR}-${fM}"]`);
+      const toEl = wrap.querySelector(`[data-xcard="s${tSec}-${tR}-${tM}"]`);
+      if (!fromEl || !toEl) return null;
+      const fRect = fromEl.getBoundingClientRect();
+      const tRect = toEl.getBoundingClientRect();
+      const fx = fRect.right - wRect.left;
+      const tx = tRect.left - wRect.left;
+      const fy = slotY(fromEl, fSlot, wRect);
+      const ty = slotY(toEl, tSlot, wRect);
+      if (fy == null || ty == null) return null;
+      const mx = (fx + tx) / 2;
+      const flat = Math.abs(fy - ty) <= 2;
+      const d = flat
+        ? `M ${fx} ${fy} L ${tx} ${ty}`
+        : `M ${fx} ${fy} L ${mx} ${fy} L ${mx} ${ty} L ${tx} ${ty}`;
+      return d;
+    }).filter(Boolean);
+    setCrossPaths(paths);
+  }, [sections, crossConnectors]);
+
+  return (
+    <div ref={wrapRef} className="flex flex-col gap-8" style={{ position: 'relative' }}>
+      {crossPaths.length > 0 && (
+        <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible' }}>
+          {crossPaths.map((d, i) => (
+            <path key={i} d={d} stroke="rgba(255,255,255,0.2)" strokeWidth={1.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          ))}
+        </svg>
+      )}
+      {sections.map((sec, si) => (
+        <div key={si}>
+          {sec.name && <p className="text-xs font-black text-white/55 mb-3 pb-2 border-b border-white/10">{sec.name}</p>}
+          <MsiBracket rounds={sec.rounds} totalRows={sec.totalRows} connectors={sec.connectors} cardPrefix={`s${si}-`} />
+        </div>
+      ))}
     </div>
   );
 };
@@ -552,14 +620,7 @@ const SimulationView = ({ comp, sub, stage }) => {
             <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">대진표</h3>
             {official.bracket.desc && <span className="text-xs text-white/40">{official.bracket.desc}</span>}
           </div>
-          <div className="flex flex-col gap-8">
-            {bracketSections.map((sec, si) => (
-              <div key={si}>
-                {sec.name && <p className="text-xs font-black text-white/55 mb-3 pb-2 border-b border-white/10">{sec.name}</p>}
-                <MsiBracket rounds={sec.rounds} totalRows={sec.totalRows} connectors={sec.connectors} />
-              </div>
-            ))}
-          </div>
+          <BracketGroup sections={bracketSections} crossConnectors={official.bracket.crossConnectors} />
           {official.bracket.legend?.length > 0 && (
             <div className="flex flex-wrap gap-4 mt-4 text-[11px] text-white/50">
               {official.bracket.legend.map((lg, i) => (
