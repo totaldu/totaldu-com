@@ -83,7 +83,7 @@ const connY = (rounds, col, match, slot) => {
 
 const MsiBracket = ({ rounds, totalRows, connectors: connData }) => {
   const useGrid = !!totalRows;
-  const colH = useGrid ? 2 * LABEL_H + totalRows * SLOT_H : undefined;
+  const colH = useGrid ? gridSlotTop(totalRows - 1) + 2 * ACTUAL_SLOT_H + 2 : undefined;
   const totalW = rounds.length * COL_W + (rounds.length - 1) * COL_GAP;
   const wrapRef = useRef(null);
   const [connPaths, setConnPaths] = useState([]);
