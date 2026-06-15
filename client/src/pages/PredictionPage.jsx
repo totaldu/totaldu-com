@@ -500,7 +500,7 @@ const SimulationView = ({ comp, sub, stage }) => {
                 {sec.name && (
                   <p className="text-xs font-black text-white/55 mb-3">{sec.name}</p>
                 )}
-                <MsiBracket rounds={sec.rounds} connectors={sec.connectors} />
+                <MsiBracket rounds={sec.rounds} totalRows={sec.totalRows} connectors={sec.connectors} />
               </div>
             ))}
           </div>
@@ -556,7 +556,7 @@ const SimulationView = ({ comp, sub, stage }) => {
             {bracketSections.map((sec, si) => (
               <div key={si}>
                 {sec.name && <p className="text-xs font-black text-white/55 mb-3 pb-2 border-b border-white/10">{sec.name}</p>}
-                <MsiBracket rounds={sec.rounds} connectors={sec.connectors} />
+                <MsiBracket rounds={sec.rounds} totalRows={sec.totalRows} connectors={sec.connectors} />
               </div>
             ))}
           </div>
