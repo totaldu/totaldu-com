@@ -20,7 +20,7 @@ permissions:
 # "in progress deployment" 충돌 방지.
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 # upload-pages-artifact 내부의 upload-artifact가 아직 Node.js 20을 사용함
 # 해당 액션이 공식 업데이트될 때까지 강제로 Node.js 24에서 실행
