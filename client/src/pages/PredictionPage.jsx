@@ -63,7 +63,7 @@ const MsiSlot = ({ s, predPct }) => {
     <div className="flex items-center gap-2 px-2.5 py-2 min-h-[36px]" style={{ backgroundColor: bg }}>
       {s?.short ? (
         <>
-          {label && <span className="text-[10px] text-white/40 shrink-0 w-[80px] truncate">{label}</span>}
+          {label && <span className="text-[10px] text-white/40 shrink-0 max-w-[80px] truncate">{label}</span>}
           <TeamLogo src={logoByShort[s.short]} size={16} />
           <span className="text-xs font-bold truncate" style={{ color: accent || 'rgba(255,255,255,0.88)' }}>{s.short}</span>
         </>
@@ -623,21 +623,30 @@ const SimulationView = ({ comp, sub, stage }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {official.qualifiers.map((q, i) => {
               const p = q.short ? probByShort[q.short] : null;
+              const probRow = (label, v, color, strong) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-[10px] text-white/40 w-8 shrink-0">{label}</span>
+                  <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${Math.min(v, 100)}%`, backgroundColor: color }} />
+                  </div>
+                  <span className="font-mono tabular-nums text-[11px] w-12 text-right shrink-0" style={{ color, fontWeight: strong ? 800 : 600 }}>{v}%</span>
+                </div>
+              );
               return (
-                <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/10 text-sm">
+                <div key={i} className="flex flex-col gap-2 p-2.5 rounded-xl bg-white/5 border border-white/10 text-sm">
                   {q.short ? (
                     <>
-                      <TeamLogo src={logoByShort[q.short]} size={20} />
-                      <span className="font-bold text-white/90 truncate">{nameByShort[q.short] || q.short}</span>
-                      {q.seed && <span className="text-[10px] text-white/40 shrink-0">{q.seed}</span>}
-                      <span className="ml-auto flex items-center gap-2 shrink-0">
-                        {p?.advance != null && (
-                          <span className="text-[10px] font-bold text-white/45">진출 {p.advance}%</span>
-                        )}
-                        {p?.champ != null && (
-                          <span className="text-[10px] font-black text-[#34D399]">우승 {p.champ}%</span>
-                        )}
-                      </span>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <TeamLogo src={logoByShort[q.short]} size={20} />
+                        <span className="font-bold text-white/90 truncate">{nameByShort[q.short] || q.short}</span>
+                        {q.seed && <span className="text-[10px] text-white/40 shrink-0 ml-auto">{q.seed}</span>}
+                      </div>
+                      {(p?.advance != null || p?.champ != null) && (
+                        <div className="flex flex-col gap-1">
+                          {p?.advance != null && probRow('진출', p.advance, comp.color)}
+                          {p?.champ != null && probRow('우승', p.champ, '#E8C77E', true)}
+                        </div>
+                      )}
                     </>
                   ) : (
                     <span className="text-white/55 truncate">{q.label}</span>
