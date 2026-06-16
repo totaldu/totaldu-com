@@ -1004,9 +1004,6 @@ const PredictionPage = () => {
 
         {/* 안내 · 레이팅 출처 (하단) */}
         <div className="mt-10 pt-6 border-t border-white/10">
-          <p className="text-white/50 text-sm font-medium mb-1">
-            9개 대회의 몬테카를로 시뮬레이션 예측과 종료 대회의 실제 결과를 한곳에서.
-          </p>
           <a
             href={sim.source}
             target="_blank"
