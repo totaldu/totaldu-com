@@ -81,7 +81,7 @@ const connY = (rounds, col, match, slot) => {
   return slot === 'a' ? aC : slot === 'b' ? bC : (aC + bC) / 2;
 };
 
-const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '' }) => {
+const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '', wrapScroll = true }) => {
   const useGrid = !!totalRows;
   const colH = useGrid ? gridSlotTop(totalRows - 1) + 2 * ACTUAL_SLOT_H + 2 : undefined;
   const totalW = rounds.length * COL_W + (rounds.length - 1) * COL_GAP;
@@ -138,7 +138,7 @@ const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '' }
   }, [useGrid, rounds, connData]);
 
   return (
-    <div className="pb-1" style={useGrid ? { overflowX: 'auto' } : {}}>
+    <div className="pb-1" style={useGrid && wrapScroll ? { overflowX: 'auto' } : {}}>
       <div ref={wrapRef} style={{
         position: 'relative',
         display: 'flex',
@@ -219,6 +219,8 @@ const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '' }
                     }}>{m.title}</span>
                   )}
                   <div
+                    data-card={`${ri}-${mi}`}
+                    {...(cardPrefix && { 'data-xcard': `${cardPrefix}${ri}-${mi}` })}
                     className="rounded-xl bg-white/5 border border-white/10 overflow-hidden"
                     style={{ position: 'absolute', top: cardTop, left: 0, right: 0 }}>
                     <MsiSlot s={m.a} />
@@ -285,20 +287,22 @@ const BracketGroup = ({ sections, crossConnectors }) => {
   }, [sections, crossConnectors]);
 
   return (
-    <div ref={wrapRef} className="flex flex-col gap-8" style={{ position: 'relative' }}>
-      {crossPaths.length > 0 && (
-        <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible' }}>
-          {crossPaths.map((d, i) => (
-            <path key={i} d={d} stroke="rgba(255,255,255,0.2)" strokeWidth={1.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          ))}
-        </svg>
-      )}
-      {sections.map((sec, si) => (
-        <div key={si}>
-          {sec.name && <p className="text-xs font-black text-white/55 mb-3 pb-2 border-b border-white/10">{sec.name}</p>}
-          <MsiBracket rounds={sec.rounds} totalRows={sec.totalRows} connectors={sec.connectors} cardPrefix={`s${si}-`} />
-        </div>
-      ))}
+    <div className="pb-1" style={{ overflowX: 'auto' }}>
+      <div ref={wrapRef} className="flex flex-col gap-8" style={{ position: 'relative', width: 'max-content' }}>
+        {crossPaths.length > 0 && (
+          <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible' }}>
+            {crossPaths.map((d, i) => (
+              <path key={i} d={d} stroke="rgba(255,255,255,0.2)" strokeWidth={1.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            ))}
+          </svg>
+        )}
+        {sections.map((sec, si) => (
+          <div key={si}>
+            {sec.name && <p className="text-xs font-black text-white/55 mb-3 pb-2 border-b border-white/10">{sec.name}</p>}
+            <MsiBracket rounds={sec.rounds} totalRows={sec.totalRows} connectors={sec.connectors} cardPrefix={`s${si}-`} wrapScroll={false} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -594,7 +598,7 @@ const SimulationView = ({ comp, sub, stage }) => {
       {/* 진출 팀 (MSI 스테이지) — 확정 팀은 로고, 미확정은 조건 텍스트 */}
       {official?.qualifiers?.length > 0 && (
         <section className="flex flex-col gap-3">
-          <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">진출 팀</h3>
+          <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">참가 팀</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {official.qualifiers.map((q, i) => (
               <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/10 text-sm">
