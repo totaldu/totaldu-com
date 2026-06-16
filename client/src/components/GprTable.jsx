@@ -75,12 +75,12 @@ const GprTable = ({ showIntro = true }) => {
           </tr>
         </thead>
         <tbody>
-          {visible.map((t, i) => {
+          {visible.map((t) => {
             const col = leagueColor[t.league] || '#888';
             const barCol = col;
             return (
               <tr key={t.short} className="border-b border-white/5">
-                <td className="py-2 px-2 text-center text-white/40 font-mono">{i + 1}</td>
+                <td className="py-2 px-2 text-center text-white/40 font-mono">{gprRanked.indexOf(t) + 1}</td>
                 <td className="py-2 pr-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <TeamLogo src={t.logo} />
