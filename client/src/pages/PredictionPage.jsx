@@ -825,12 +825,16 @@ const SUB_STATUS = {
   'lpl|Split 3': 'upcoming',
   'lec|Versus': 'finished',
   'lec|Spring': 'finished',
+  'lec|Summer': 'upcoming',
   'lcp|Split 1': 'finished',
   'lcp|Split 2': 'finished',
+  'lcp|Split 3': 'upcoming',
   'lcs|Lock-In': 'finished',
   'lcs|Spring': 'finished',
+  'lcs|Summer': 'upcoming',
   'cblol|Copa': 'finished',
   'cblol|Split 1': 'finished',
+  'cblol|Split 2': 'upcoming',
   'lck|Road to MSI': 'finished',
 };
 // 세부대회 안에서 단계(스테이지) 선택 — `${comp.key}|${sub}` → 단계 목록
