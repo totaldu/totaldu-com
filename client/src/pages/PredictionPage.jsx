@@ -7,6 +7,7 @@ import gpr from '../data/lolGpr.json';
 import gprTeams from '../data/gprTeams.json';
 import officialStandings from '../data/lolStandings.json';
 import GprTable, { TeamLogo } from '../components/GprTable';
+import TeamModal from '../components/TeamModal';
 import { textOn, lighten } from '../utils/colorContrast';
 
 const statusMeta = {
@@ -54,13 +55,18 @@ const matchPrediction = (a, b) => {
 };
 
 // Road to MSI(선발전) 사다리식 대진표 — 실제 점수·진출/MSI 결과 표기
-const MsiSlot = ({ s, predPct }) => {
+const MsiSlot = ({ s, predPct, onTeamClick }) => {
   // MSI(토너먼트) 진출 = 금색, 하위 라운드 승자 = 파랑, 탈락 = 빨강 배경
   const accent = s?.msi ? '#E8C77E' : s?.win ? '#60A5FA' : null;
   const bg = s?.msi ? 'rgba(232,199,126,0.16)' : s?.win ? 'rgba(96,165,250,0.14)' : s?.elim ? 'rgba(248,113,113,0.18)' : 'transparent';
   const label = s?.seed || s?.label || '';
+  const clickable = !!(s?.short && onTeamClick);
   return (
-    <div className="flex items-center gap-2 px-2.5 py-2 min-h-[36px]" style={{ backgroundColor: bg }}>
+    <div
+      className={`flex items-center gap-2 px-2.5 py-2 min-h-[36px]${clickable ? ' cursor-pointer hover:brightness-125 transition-all' : ''}`}
+      style={{ backgroundColor: bg }}
+      onClick={clickable ? () => onTeamClick(s.short) : undefined}
+    >
       {s?.short ? (
         <>
           {label && <span className="text-[10px] text-white/40 shrink-0 max-w-[80px] truncate">{label}</span>}
@@ -101,7 +107,7 @@ const connY = (rounds, col, match, slot) => {
   return slot === 'a' ? aC : slot === 'b' ? bC : (aC + bC) / 2;
 };
 
-const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '', wrapScroll = true }) => {
+const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '', wrapScroll = true, onTeamClick }) => {
   const useGrid = !!totalRows;
   const colH = useGrid ? gridSlotTop(totalRows - 1) + 2 * ACTUAL_SLOT_H + 2 : undefined;
   const totalW = rounds.length * COL_W + (rounds.length - 1) * COL_GAP;
@@ -220,9 +226,9 @@ const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '', 
                 return (
                   <div key={mi} data-card={`${ri}-${mi}`} {...(cardPrefix && { 'data-xcard': `${cardPrefix}${ri}-${mi}` })} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
                     {m.title && <div data-title="" className="px-2.5 py-1.5 bg-white/10 text-[11px] font-black text-white/70">{m.title}</div>}
-                    <MsiSlot s={m.a} predPct={pred?.pA} />
+                    <MsiSlot s={m.a} predPct={pred?.pA} onTeamClick={onTeamClick} />
                     <div className="h-px bg-white/10" />
-                    <MsiSlot s={m.b} predPct={pred?.pB} />
+                    <MsiSlot s={m.b} predPct={pred?.pB} onTeamClick={onTeamClick} />
                   </div>
                 );
               }
@@ -244,9 +250,9 @@ const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '', 
                     {...(cardPrefix && { 'data-xcard': `${cardPrefix}${ri}-${mi}` })}
                     className="rounded-xl bg-white/5 border border-white/10 overflow-hidden"
                     style={{ position: 'absolute', top: cardTop, left: 0, right: 0 }}>
-                    <MsiSlot s={m.a} predPct={pred?.pA} />
+                    <MsiSlot s={m.a} predPct={pred?.pA} onTeamClick={onTeamClick} />
                     <div className="h-px bg-white/10" />
-                    <MsiSlot s={m.b} predPct={pred?.pB} />
+                    <MsiSlot s={m.b} predPct={pred?.pB} onTeamClick={onTeamClick} />
                   </div>
                 </React.Fragment>
               );
@@ -259,7 +265,7 @@ const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '', 
 };
 
 // 섹션 간 연결선을 그리는 브래킷 그룹 컨테이너
-const BracketGroup = ({ sections, crossConnectors }) => {
+const BracketGroup = ({ sections, crossConnectors, onTeamClick }) => {
   const wrapRef = useRef(null);
   const [crossPaths, setCrossPaths] = useState([]);
 
@@ -349,7 +355,7 @@ const BracketGroup = ({ sections, crossConnectors }) => {
         {sections.map((sec, si) => (
           <div key={si}>
             {sec.name && <p className="text-xs font-black text-white/55 mb-3 pb-2 border-b border-white/10">{sec.name}</p>}
-            <MsiBracket rounds={sec.rounds} totalRows={sec.totalRows} connectors={sec.connectors} cardPrefix={`s${si}-`} wrapScroll={false} />
+            <MsiBracket rounds={sec.rounds} totalRows={sec.totalRows} connectors={sec.connectors} cardPrefix={`s${si}-`} wrapScroll={false} onTeamClick={onTeamClick} />
           </div>
         ))}
       </div>
@@ -359,7 +365,7 @@ const BracketGroup = ({ sections, crossConnectors }) => {
 
 // 현재 순위 표 (그룹 단위로 재사용) — 승률 대신 예측 확률(PI+/PO/Worlds/우승)을 표기
 // cols 가 주어지면 그 컬럼만 표시(단계별 뷰), 없으면 데이터 유무로 자동 판단
-const StandingsTable = ({ rows, color, hasDiff, cols }) => {
+const StandingsTable = ({ rows, color, hasDiff, cols, onTeamClick }) => {
   const showDiff = cols ? !!cols.diff : hasDiff;
   const hasPiPlus = cols ? !!cols.piPlus : rows.some((r) => r.prob?.piPlus != null);
   const hasAdvance = cols ? !!cols.advance : rows.some((r) => r.prob);
@@ -398,7 +404,11 @@ const StandingsTable = ({ rows, color, hasDiff, cols }) => {
         </thead>
         <tbody>
           {rows.map((t) => (
-            <tr key={t.short} className="border-b border-white/5">
+            <tr
+              key={t.short}
+              className="border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors"
+              onClick={() => onTeamClick?.(t.short)}
+            >
               <td className="py-2 px-2 text-center text-white/40 font-mono">{t.rank}</td>
               <td className="py-2 pr-2">
                 <div className="flex items-center gap-2 min-w-0">
@@ -446,6 +456,8 @@ const STAGE_CFG = {
 
 // 시뮬레이션 결과(예측) 렌더
 const SimulationView = ({ comp, sub, stage }) => {
+  const [modalTeam, setModalTeam] = useState(null);
+  const onTeamClick = (short) => setModalTeam(short);
   const cfg = stage ? STAGE_CFG[stage] : null;
   // 현재 순위 — 해당 세부대회 공식 순위표가 있으면 우선, 없으면 GPR 전적으로 산출
   const leagueStd = officialStandings.standings[comp.key];
@@ -606,7 +618,7 @@ const SimulationView = ({ comp, sub, stage }) => {
                   {grp.name}
                 </span>
               )}
-              <StandingsTable rows={grp.rows} color={comp.color} hasDiff={hasDiff} cols={cfg?.cols} />
+              <StandingsTable rows={grp.rows} color={comp.color} hasDiff={hasDiff} cols={cfg?.cols} onTeamClick={onTeamClick} />
             </div>
           ))}
         </section>
@@ -625,7 +637,7 @@ const SimulationView = ({ comp, sub, stage }) => {
                 {sec.name && (
                   <p className="text-xs font-black text-white/55 mb-3">{sec.name}</p>
                 )}
-                <MsiBracket rounds={sec.rounds} totalRows={sec.totalRows} connectors={sec.connectors} />
+                <MsiBracket rounds={sec.rounds} totalRows={sec.totalRows} connectors={sec.connectors} onTeamClick={onTeamClick} />
               </div>
             ))}
           </div>
@@ -697,7 +709,7 @@ const SimulationView = ({ comp, sub, stage }) => {
             <h3 className="text-sm font-black text-[#E8C77E] uppercase tracking-wider">대진표</h3>
             {official.bracket.desc && <span className="text-xs text-white/40">{official.bracket.desc}</span>}
           </div>
-          <BracketGroup sections={bracketSections} crossConnectors={official.bracket.crossConnectors} />
+          <BracketGroup sections={bracketSections} crossConnectors={official.bracket.crossConnectors} onTeamClick={onTeamClick} />
           {official.bracket.legend?.length > 0 && (
             <div className="flex flex-wrap gap-4 mt-4 text-[11px] text-white/50">
               {official.bracket.legend.map((lg, i) => (
@@ -765,6 +777,7 @@ const ResultView = ({ comp }) => {
           </div>
         </section>
       )}
+    {modalTeam && <TeamModal teamShort={modalTeam} onClose={() => setModalTeam(null)} />}
     </div>
   );
 };
