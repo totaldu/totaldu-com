@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import gpr from '../data/lolGpr.json';
 import gprTeams from '../data/gprTeams.json';
 import { textOn, lighten } from '../utils/colorContrast';
-import TeamModal from './TeamModal';
 
 const leagueColor = Object.fromEntries(gpr.regions.map((r) => [r.key, r.color]));
 const gprRanked = [...gprTeams.teams].sort((a, b) => b.score - a.score);
@@ -26,9 +25,8 @@ export const TeamLogo = ({ src, size = 20 }) =>
     <span className="shrink-0" style={{ width: size, height: size }} />
   );
 
-const GprTable = ({ showIntro = true }) => {
+const GprTable = ({ showIntro = true, selectedTeam, onTeamClick }) => {
   const [selected, setSelected] = useState([]);
-  const [modalTeam, setModalTeam] = useState(null);
   const toggleLeague = (key) =>
     setSelected((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
   const visible = selected.length > 0 ? gprRanked.filter((t) => selected.includes(t.league)) : gprRanked;
@@ -83,8 +81,8 @@ const GprTable = ({ showIntro = true }) => {
             return (
               <tr
                 key={t.short}
-                className="border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors"
-                onClick={() => setModalTeam(t.short)}
+                className={`border-b border-white/5 cursor-pointer transition-colors ${selectedTeam === t.short ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                onClick={() => onTeamClick?.(t.short)}
               >
                 <td className="py-2 px-2 text-center text-white/40 font-mono">{gprRanked.indexOf(t) + 1}</td>
                 <td className="py-2 pr-2">
@@ -124,7 +122,6 @@ const GprTable = ({ showIntro = true }) => {
         </tbody>
       </table>
     </div>
-    {modalTeam && <TeamModal teamShort={modalTeam} onClose={() => setModalTeam(null)} />}
   </div>
   );
 };

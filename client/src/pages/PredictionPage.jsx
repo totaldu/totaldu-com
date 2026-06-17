@@ -7,7 +7,7 @@ import gpr from '../data/lolGpr.json';
 import gprTeams from '../data/gprTeams.json';
 import officialStandings from '../data/lolStandings.json';
 import GprTable, { TeamLogo } from '../components/GprTable';
-import TeamModal from '../components/TeamModal';
+import TeamPanel from '../components/TeamPanel';
 import { textOn, lighten } from '../utils/colorContrast';
 
 const statusMeta = {
@@ -455,9 +455,7 @@ const STAGE_CFG = {
 };
 
 // 시뮬레이션 결과(예측) 렌더
-const SimulationView = ({ comp, sub, stage }) => {
-  const [modalTeam, setModalTeam] = useState(null);
-  const onTeamClick = (short) => setModalTeam(short);
+const SimulationView = ({ comp, sub, stage, onTeamClick }) => {
   const cfg = stage ? STAGE_CFG[stage] : null;
   // 현재 순위 — 해당 세부대회 공식 순위표가 있으면 우선, 없으면 GPR 전적으로 산출
   const leagueStd = officialStandings.standings[comp.key];
@@ -777,7 +775,6 @@ const ResultView = ({ comp }) => {
           </div>
         </section>
       )}
-    {modalTeam && <TeamModal teamShort={modalTeam} onClose={() => setModalTeam(null)} />}
     </div>
   );
 };
@@ -866,6 +863,14 @@ const PredictionPage = () => {
   const { tab } = useParams();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const handleTeamClick = (short) => {
+    if (selectedTeam === short) {
+      navigate(`/lol/prediction/team/${short}`);
+    } else {
+      setSelectedTeam(short);
+    }
+  };
 
   const activeKey = tab && validKeys.includes(tab) ? tab : 'gpr';
   // 알 수 없는 탭 경로는 기본 탭으로 정리
@@ -961,7 +966,7 @@ const PredictionPage = () => {
                   <p className="text-xs text-white/40">Global Power Rankings · {gprTeams.teams.length}팀 · 갱신 {gprTeams.updatedAt}</p>
                 </div>
               </div>
-              <GprTable />
+              <GprTable selectedTeam={selectedTeam} onTeamClick={handleTeamClick} />
             </>
           ) : (
             <>
@@ -1039,7 +1044,7 @@ const PredictionPage = () => {
               ) : comp.status === 'finished' ? (
                 <ResultView comp={comp} />
               ) : (
-                <SimulationView comp={comp} sub={activeSub} stage={activeStage} />
+                <SimulationView comp={comp} sub={activeSub} stage={activeStage} onTeamClick={handleTeamClick} />
               )}
             </>
           )}
@@ -1083,6 +1088,13 @@ const PredictionPage = () => {
           </p>
         </div>
       </div>
+      {selectedTeam && (
+        <TeamPanel
+          teamShort={selectedTeam}
+          onClose={() => setSelectedTeam(null)}
+          onNavigate={() => navigate(`/lol/prediction/team/${selectedTeam}`)}
+        />
+      )}
     </div>
   );
 };
