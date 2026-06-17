@@ -11,6 +11,7 @@ import AbilityListPage from './pages/AbilityListPage';
 import AbilityDetailPage from './pages/AbilityDetailPage';
 import PredictionPage from './pages/PredictionPage';
 import TeamPage from './pages/TeamPage';
+import MyPredictionPage from './pages/MyPredictionPage';
 
 const HOST = typeof window !== 'undefined' ? window.location.hostname : '';
 
@@ -550,6 +551,7 @@ const App = () => {
             </>
           )}
 
+          <Route path="/lol/prediction/my" element={<MyPredictionPage />} />
           <Route path="/lol/prediction/team/:teamShort" element={<TeamPage />} />
           <Route path="/lol/prediction" element={<PredictionPage />} />
           <Route path="/lol/prediction/:tab" element={<PredictionPage />} />
