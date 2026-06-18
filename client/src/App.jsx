@@ -509,7 +509,10 @@ const App = () => {
                   <Link to="/community" className="hover:text-[#005596] transition-colors">커뮤니티</Link>
                 </>
               ) : (
-                <Link to="/lol/prediction" className="hover:text-[#C8963E] transition-colors">승부예측</Link>
+                <>
+                  <Link to="/lol/prediction" className="hover:text-[#C8963E] transition-colors">승부예측</Link>
+                  <Link to="/lol/prediction/my" className="hover:text-[#C8963E] transition-colors">나만의 예측</Link>
+                </>
               )}
             </nav>
             <div className="flex items-center gap-3">
