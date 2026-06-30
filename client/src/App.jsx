@@ -11,7 +11,6 @@ import AbilityListPage from './pages/AbilityListPage';
 import AbilityDetailPage from './pages/AbilityDetailPage';
 import PredictionPage from './pages/PredictionPage';
 import TeamPage from './pages/TeamPage';
-import MyPredictionPage from './pages/MyPredictionPage';
 
 const HOST = typeof window !== 'undefined' ? window.location.hostname : '';
 
@@ -509,10 +508,7 @@ const App = () => {
                   <Link to="/community" className="hover:text-[#005596] transition-colors">커뮤니티</Link>
                 </>
               ) : (
-                <>
-                  <Link to="/lol/prediction" className="hover:text-[#C8963E] transition-colors">승부예측</Link>
-                  <Link to="/lol/prediction/my" className="hover:text-[#C8963E] transition-colors">나만의 예측</Link>
-                </>
+                <Link to="/lol/prediction" className="hover:text-[#C8963E] transition-colors">승부예측</Link>
               )}
             </nav>
             <div className="flex items-center gap-3">
@@ -554,7 +550,6 @@ const App = () => {
             </>
           )}
 
-          <Route path="/lol/prediction/my" element={<MyPredictionPage />} />
           <Route path="/lol/prediction/team/:teamShort" element={<TeamPage />} />
           <Route path="/lol/prediction" element={<PredictionPage />} />
           <Route path="/lol/prediction/:tab" element={<PredictionPage />} />

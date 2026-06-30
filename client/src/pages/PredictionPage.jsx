@@ -930,7 +930,7 @@ const PredictionPage = () => {
           <h1 className="text-3xl md:text-4xl font-black text-white">LoL 승부예측</h1>
         </div>
 
-        {/* 탭 선택 (GPR 순위 + 9개 대회 + 나만의 예측) */}
+        {/* 탭 선택 (GPR 순위 + 9개 대회) */}
         <div className="flex flex-wrap gap-2 mb-8">
           {tabs.map((c) => {
             const active = c.key === activeKey;
@@ -951,13 +951,6 @@ const PredictionPage = () => {
               </button>
             );
           })}
-          <button
-            onClick={() => navigate('/lol/prediction/my')}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-black border transition-all text-white/60 border-white/15 hover:border-white/40 hover:text-white/90 bg-transparent"
-          >
-            <Target size={16} className="shrink-0" />
-            나만의 예측
-          </button>
         </div>
 
         {/* 선택된 탭 카드 */}
