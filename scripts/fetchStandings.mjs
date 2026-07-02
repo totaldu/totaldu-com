@@ -561,6 +561,122 @@ async function fillMsiPlayinResults(prevMsi) {
   return changed;
 }
 
+// MSI 브래킷 스테이지(8팀 더블 엘리미네이션) 대진·결과 자동 반영.
+//   라운드1(M1~M4)은 스케줄의 확정 대진을 날짜순으로 배정하고, 이후 라운드는 라벨
+//   의존관계(M# 승자/패자)로 해석한다. 완료 경기는 점수·플래그, 미진행은 팀만 채운다.
+async function fillMsiBracketResults(prevMsi) {
+  const stage = prevMsi['브래킷 스테이지'];
+  const sections = stage?.bracket?.sections;
+  if (!sections) return false;
+
+  const seedByShort = {};
+  for (const q of stage.qualifiers || []) if (q.short && q.seed) seedByShort[q.short] = q.seed;
+
+  // 1) 스케줄에서 브래킷(토너먼트)·결승 경기 수집 — 팀이 배정된 경기만, 시간순
+  const sched = [];
+  let token = null;
+  for (let guard = 0; guard < 8; guard++) {
+    const params = { leagueId: MSI_LEAGUE_ID };
+    if (token) params.pageToken = token;
+    const { data: d } = await api('getSchedule', params);
+    for (const e of d.schedule.events || []) {
+      if (e.type !== 'match' || !e.startTime || e.startTime < '2026-07-01') continue;
+      const blk = e.blockName || '';
+      if (/플레이|play/i.test(blk)) continue;                 // 플레이-인 제외
+      if (!/토너먼트|bracket|결승|final/i.test(blk)) continue; // 브래킷·결승만
+      const teams = e.match?.teams || [];
+      if (teams.length !== 2) continue;
+      const [x, y] = teams;
+      if (!x.code || !y.code || x.code === 'TBD' || y.code === 'TBD') continue;
+      sched.push({
+        date: e.startTime.slice(0, 10),
+        startTime: e.startTime,
+        a: x.code, b: y.code,
+        completed: e.state === 'completed',
+        score: { [x.code]: x.result?.gameWins ?? 0, [y.code]: y.result?.gameWins ?? 0 },
+        winner: teams.find((t) => t.result?.outcome === 'win')?.code || null,
+        loser: teams.find((t) => t.result?.outcome === 'loss')?.code || null,
+      });
+    }
+    token = d.schedule.pages?.older;
+    if (!token) break;
+  }
+  sched.sort((p, q) => (p.startTime < q.startTime ? -1 : 1));
+
+  const dateOf = (title) => {
+    const m = (title || '').match(/\((\d{1,2})\/(\d{1,2})\)/);
+    return m ? `2026-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}` : null;
+  };
+
+  // 2) 매치 수집: "Match N" / "Grand Finals"(결승)→'GF'
+  const byNum = {};
+  for (const sec of sections)
+    for (const r of sec.rounds || [])
+      for (const m of r.matches || []) {
+        const mm = (m.title || '').match(/Match\s*(\d+)/);
+        const key = mm ? mm[1] : (/Grand\s*Finals|결승/i.test(m.title || '') ? 'GF' : null);
+        if (key) byNum[key] = m;
+      }
+
+  // 3) 라벨 참조 집합(승자#1/패자#2가 이후 경기에 쓰이는지)
+  const referenced = new Set();
+  const addRef = (lbl) => { const m = (lbl || '').match(/^M(\d+)\s*(승자|패자)$/); if (m) referenced.add(`${m[1]}#${m[2] === '승자' ? 1 : 2}`); };
+  for (const k of Object.keys(byNum)) { addRef(byNum[k].a?.label); addRef(byNum[k].b?.label); }
+
+  const isSeedPlaceholder = (sl) => !sl.short && !/^M\d+\s*(승자|패자)$/.test(sl.label || '');
+  const resolved = {};
+  const resolveShort = (slot) => {
+    if (slot?.short) return slot.short;
+    const m = (slot?.label || '').match(/^M(\d+)\s*(승자|패자)$/);
+    if (m) { const r = resolved[m[1]]; return r ? (m[2] === '승자' ? r.winner : r.loser) : null; }
+    return null;
+  };
+
+  const snap = (sl) => JSON.stringify([sl.short, sl.score, !!sl.win, !!sl.elim, !!sl.msi, sl.seed]);
+  const usedSched = new Set();
+  let changed = false;
+
+  // 4) 숫자 오름차순(M1..M13) → 결승(GF) 순으로 처리 (의존관계 만족)
+  const order = Object.keys(byNum).filter((k) => k !== 'GF').sort((a, b) => +a - +b).concat(byNum.GF ? ['GF'] : []);
+  for (const num of order) {
+    const mt = byNum[num];
+    const date = dateOf(mt.title);
+    let ta, tb, s = null;
+    if (isSeedPlaceholder(mt.a) && isSeedPlaceholder(mt.b)) {
+      // 라운드1: 스케줄 확정 대진을 날짜로 배정
+      s = sched.find((x) => !usedSched.has(x) && x.date === date);
+      if (!s) continue;
+      ta = s.a; tb = s.b;
+    } else {
+      ta = resolveShort(mt.a); tb = resolveShort(mt.b);
+      if (!ta || !tb) continue;
+      s = sched.find((x) => !usedSched.has(x) && x.date === date && ((x.a === ta && x.b === tb) || (x.a === tb && x.b === ta)))
+       || sched.find((x) => !usedSched.has(x) && ((x.a === ta && x.b === tb) || (x.a === tb && x.b === ta)));
+    }
+    if (s) usedSched.add(s);
+    const flagNum = num === 'GF' ? null : num;
+    const setSlot = (slot, short) => {
+      const before = snap(slot);
+      slot.short = short;
+      if (seedByShort[short]) slot.seed = seedByShort[short];
+      else if (slot.seed && /\?\?\?/.test(slot.seed)) delete slot.seed; // "??? #1" 플레이스홀더 제거
+      if (s && s.completed && s.winner) {
+        slot.score = s.score[short];
+        delete slot.win; delete slot.elim; delete slot.msi;
+        if (short === s.winner) { if (flagNum && referenced.has(`${flagNum}#1`)) slot.win = true; else slot.msi = true; }
+        else if (!(flagNum && referenced.has(`${flagNum}#2`))) slot.elim = true;
+      } else {
+        delete slot.score; delete slot.win; delete slot.elim; delete slot.msi;
+      }
+      if (snap(slot) !== before) changed = true;
+    };
+    setSlot(mt.a, ta);
+    setSlot(mt.b, tb);
+    if (s && s.completed && s.winner) resolved[num] = { winner: s.winner, loser: s.loser };
+  }
+  return changed;
+}
+
 try {
   const prevMsi = data.standings.msi || {};
   let anyChanged = false;
@@ -626,15 +742,17 @@ try {
   console.warn(`MSI API 갱신 실패 — 기존 값 유지: ${e.message}`);
 }
 
-// 3단계: MSI 플레이-인 브래킷 경기 결과(점수·승패) 자동 반영
+// 3단계: MSI 플레이-인 + 브래킷 스테이지 대진·결과(점수·승패) 자동 반영
 try {
   const prevMsi = data.standings.msi || {};
-  const changed = await fillMsiPlayinResults(prevMsi);
+  const piChanged = await fillMsiPlayinResults(prevMsi);
+  const brChanged = await fillMsiBracketResults(prevMsi);
+  const changed = piChanged || brChanged;
   if (changed) {
     data.standings.msi = prevMsi;
-    console.log('MSI 플레이-인 브래킷 결과 갱신됨');
+    console.log(`MSI 브래킷 갱신됨 (플레이-인 ${piChanged ? 'O' : 'X'} / 브래킷 스테이지 ${brChanged ? 'O' : 'X'})`);
   } else {
-    console.log('MSI 플레이-인 브래킷 결과 변경 없음');
+    console.log('MSI 브래킷 결과 변경 없음');
   }
 } catch (e) {
   console.warn(`MSI 브래킷 결과 갱신 실패 — 기존 값 유지: ${e.message}`);

@@ -82,7 +82,10 @@ try {
   const simPath = path.join(__dirname, '..', 'client', 'src', 'data', 'lolSim.json');
   const st = JSON.parse(fs.readFileSync(stPath, 'utf8'));
   const simData = JSON.parse(fs.readFileSync(simPath, 'utf8'));
-  const sig = JSON.stringify(st.standings?.msi?.['플레이-인 스테이지']?.bracket ?? null);
+  const sig = JSON.stringify({
+    pi: st.standings?.msi?.['플레이-인 스테이지']?.bracket ?? null,
+    br: st.standings?.msi?.['브래킷 스테이지']?.bracket ?? null,
+  });
   msiChanged = simData.msiBracketSig !== sig;
 } catch (e) {
   console.warn(`MSI 변화 감지 실패(무시): ${e.message}`);

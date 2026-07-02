@@ -328,18 +328,49 @@ function extractMsiPlayinFixed() {
   return out;
 }
 
+// 브래킷 스테이지(8팀 더블 엘리미네이션) 실제 대진·결과 추출.
+//   pairing[n]=[a,b] : 라운드1(M1~M4) 확정 대진, fixed[key]=승자 short (Match N / 결승 'GF').
+//   라운드1 4경기 대진이 모두 확정되면 ready=true → 실제 대진으로 시뮬레이션.
+function extractMsiBracketFixed() {
+  const out = { pairing: {}, fixed: {}, ready: false };
+  const bracket = standingsData.standings?.msi?.['브래킷 스테이지']?.bracket;
+  if (!bracket?.sections) return out;
+  const winnerOf = (m) => {
+    const { a, b } = m;
+    if (!a?.short || !b?.short) return null;
+    if (a.win || a.msi) return a.short;
+    if (b.win || b.msi) return b.short;
+    if (a.score != null && b.score != null && a.score !== b.score) return a.score > b.score ? a.short : b.short;
+    return null;
+  };
+  for (const sec of bracket.sections)
+    for (const r of sec.rounds || [])
+      for (const m of r.matches || []) {
+        const mm = (m.title || '').match(/Match\s*(\d+)/);
+        const key = mm ? mm[1] : (/Grand\s*Finals|결승/i.test(m.title || '') ? 'GF' : null);
+        if (!key) continue;
+        if (m.a?.short && m.b?.short && +key <= 4) out.pairing[key] = [m.a.short, m.b.short];
+        const w = winnerOf(m);
+        if (w) out.fixed[key] = w;
+      }
+  out.ready = ['1', '2', '3', '4'].every((n) => out.pairing[n]);
+  return out;
+}
+
 // ---- 2026 MSI 전용 시뮬레이션 ----
 // 플레이-인(4팀, 더블 엘리미네이션 변형): M1·M2 → M3 승자전(M1w-M2w),
 //   M4 하위조1R(M1l-M2l) → M5 하위조2R(M3l-M4w) → 최종 진출전(M3w-M5w) → 1팀만 브래킷 진출.
 //   이미 끝난 경기(fixed)는 그 결과로 고정하고 남은 경기만 시뮬레이션한다.
-// 브래킷 스테이지(8팀, 표준 더블 엘리미네이션): 직행 7팀 + 플레이-인 생존팀을 GPR 점수로 시드.
-function simulateMSI(direct, playIn, fixedInfo = { pairing: {}, fixed: {} }) {
+// 브래킷 스테이지(8팀, 표준 더블 엘리미네이션): 실제 대진(bracketInfo.ready)이 확정되면
+//   그 대진·확정 결과로 시뮬레이션하고, 미확정이면 직행 7팀+생존팀을 GPR 점수로 시드(폴백).
+function simulateMSI(direct, playIn, fixedInfo = { pairing: {}, fixed: {} }, bracketInfo = { pairing: {}, fixed: {}, ready: false }) {
   const champCount = {};
   const advanceCount = {};
   [...direct, ...playIn].forEach((t) => { champCount[t.short] = 0; });
   playIn.forEach((t) => { advanceCount[t.short] = 0; });
 
   const byS = Object.fromEntries(playIn.map((t) => [t.short, t]));
+  const byAll = Object.fromEntries([...direct, ...playIn].map((t) => [t.short, t]));
   const [kc, dcg, t1, tlaw] = playIn;
   // 1라운드 대진: 실제 브래킷(Match1·Match2) 기준, 없으면 기본 순서
   const pairFor = (key, defA, defB) => {
@@ -349,39 +380,70 @@ function simulateMSI(direct, playIn, fixedInfo = { pairing: {}, fixed: {} }) {
   const [m1a, m1b] = pairFor('1', t1, tlaw);
   const [m2a, m2b] = pairFor('2', kc, dcg);
   // 확정 경기는 그 승자 반환, 아니면 시뮬레이션
-  const decide = (key, A, B) => {
-    const w = fixedInfo.fixed[key];
+  const decide = (fx) => (key, A, B) => {
+    const w = fx[key];
     if (w && (A.short === w || B.short === w)) return A.short === w ? A : B;
     return simSeries(A, B, 3);
   };
+  const piDecide = decide(fixedInfo.fixed);
+  const brDecide = decide(bracketInfo.fixed);
   const other = (w, A, B) => (w === A ? B : A);
+
+  // 브래킷 스테이지 실제 대진(라운드1 팀). 8팀이 모두 해석되면 사용.
+  const BP = bracketInfo.ready ? {
+    1: (bracketInfo.pairing['1'] || []).map((s) => byAll[s]),
+    2: (bracketInfo.pairing['2'] || []).map((s) => byAll[s]),
+    3: (bracketInfo.pairing['3'] || []).map((s) => byAll[s]),
+    4: (bracketInfo.pairing['4'] || []).map((s) => byAll[s]),
+  } : null;
+  const useActualBracket = !!BP && [1, 2, 3, 4].every((n) => BP[n][0] && BP[n][1]);
 
   for (let it = 0; it < ITER; it++) {
     // 플레이-인 (확정 결과 우선)
-    const m1w = decide('1', m1a, m1b), m1l = other(m1w, m1a, m1b);
-    const m2w = decide('2', m2a, m2b), m2l = other(m2w, m2a, m2b);
-    const m3w = decide('3', m1w, m2w), m3l = other(m3w, m1w, m2w);
-    const m4w = decide('4', m1l, m2l);
-    const m5w = decide('5', m3l, m4w);
-    const survivor = decide('F', m3w, m5w);
+    const m1w = piDecide('1', m1a, m1b), m1l = other(m1w, m1a, m1b);
+    const m2w = piDecide('2', m2a, m2b), m2l = other(m2w, m2a, m2b);
+    const m3w = piDecide('3', m1w, m2w), m3l = other(m3w, m1w, m2w);
+    const m4w = piDecide('4', m1l, m2l);
+    const m5w = piDecide('5', m3l, m4w);
+    const survivor = piDecide('F', m3w, m5w);
     advanceCount[survivor.short]++;
 
-    // 브래킷 스테이지: 직행 7팀 + 생존팀 = 8팀, GPR 점수로 시드
-    const [s1, s2, s3, s4, s5, s6, s7, s8] = [...direct, survivor].sort((a, b) => b.score - a.score);
-    const wb1aW = simSeries(s1, s8, 3), wb1aL = wb1aW === s1 ? s8 : s1;
-    const wb1bW = simSeries(s4, s5, 3), wb1bL = wb1bW === s4 ? s5 : s4;
-    const wb1cW = simSeries(s2, s7, 3), wb1cL = wb1cW === s2 ? s7 : s2;
-    const wb1dW = simSeries(s3, s6, 3), wb1dL = wb1dW === s3 ? s6 : s3;
-    const wb2aW = simSeries(wb1aW, wb1bW, 3), wb2aL = wb2aW === wb1aW ? wb1bW : wb1aW;
-    const wb2bW = simSeries(wb1cW, wb1dW, 3), wb2bL = wb2bW === wb1cW ? wb1dW : wb1cW;
-    const lb1aW = simSeries(wb1aL, wb1bL, 3);
-    const lb1bW = simSeries(wb1cL, wb1dL, 3);
-    const wbFinalW = simSeries(wb2aW, wb2bW, 3), wbFinalL = wbFinalW === wb2aW ? wb2bW : wb2aW;
-    const lb2aW = simSeries(wb2aL, lb1bW, 3);
-    const lb2bW = simSeries(wb2bL, lb1aW, 3);
-    const lb3W = simSeries(lb2aW, lb2bW, 3);
-    const lowerFinalW = simSeries(wbFinalL, lb3W, 3);
-    const champ = simSeries(wbFinalW, lowerFinalW, 3);
+    let champ;
+    if (useActualBracket) {
+      // 실제 브래킷 대진 + 확정 결과 (M1~M13 → 결승 GF)
+      const [b1a, b1b] = BP[1], [b2a, b2b] = BP[2], [b3a, b3b] = BP[3], [b4a, b4b] = BP[4];
+      const w1 = brDecide('1', b1a, b1b), l1 = other(w1, b1a, b1b);
+      const w2 = brDecide('2', b2a, b2b), l2 = other(w2, b2a, b2b);
+      const w3 = brDecide('3', b3a, b3b), l3 = other(w3, b3a, b3b);
+      const w4 = brDecide('4', b4a, b4b), l4 = other(w4, b4a, b4b);
+      const w5 = brDecide('5', w1, w2), l5 = other(w5, w1, w2);   // 상위 2R
+      const w6 = brDecide('6', w3, w4), l6 = other(w6, w3, w4);
+      const w7 = brDecide('7', l1, l2);                            // 하위 1R
+      const w8 = brDecide('8', l3, l4);
+      const w9 = brDecide('9', l5, w8);                            // 하위 2R
+      const w10 = brDecide('10', l6, w7);
+      const w11 = brDecide('11', w5, w6), l11 = other(w11, w5, w6); // 상위 결승
+      const w12 = brDecide('12', w9, w10);                         // 하위 3R
+      const w13 = brDecide('13', l11, w12);                        // 하위 결승
+      champ = brDecide('GF', w11, w13);                            // 그랜드 파이널
+    } else {
+      // 폴백: 직행 7팀 + 생존팀 = 8팀, GPR 점수로 시드
+      const [s1, s2, s3, s4, s5, s6, s7, s8] = [...direct, survivor].sort((a, b) => b.score - a.score);
+      const wb1aW = simSeries(s1, s8, 3), wb1aL = wb1aW === s1 ? s8 : s1;
+      const wb1bW = simSeries(s4, s5, 3), wb1bL = wb1bW === s4 ? s5 : s4;
+      const wb1cW = simSeries(s2, s7, 3), wb1cL = wb1cW === s2 ? s7 : s2;
+      const wb1dW = simSeries(s3, s6, 3), wb1dL = wb1dW === s3 ? s6 : s3;
+      const wb2aW = simSeries(wb1aW, wb1bW, 3), wb2aL = wb2aW === wb1aW ? wb1bW : wb1aW;
+      const wb2bW = simSeries(wb1cW, wb1dW, 3), wb2bL = wb2bW === wb1cW ? wb1dW : wb1cW;
+      const lb1aW = simSeries(wb1aL, wb1bL, 3);
+      const lb1bW = simSeries(wb1cL, wb1dL, 3);
+      const wbFinalW = simSeries(wb2aW, wb2bW, 3), wbFinalL = wbFinalW === wb2aW ? wb2bW : wb2aW;
+      const lb2aW = simSeries(wb2aL, lb1bW, 3);
+      const lb2bW = simSeries(wb2bL, lb1aW, 3);
+      const lb3W = simSeries(lb2aW, lb2bW, 3);
+      const lowerFinalW = simSeries(wbFinalL, lb3W, 3);
+      champ = simSeries(wbFinalW, lowerFinalW, 3);
+    }
     champCount[champ.short]++;
   }
 
@@ -472,9 +534,11 @@ if (lplAscend.length === 8 && lplNirvana.length === 4) {
 const msiDirect = ['G2', 'HLE', 'TSW', 'FUR', 'TES', 'BLG', 'LYON'].map(byShort);
 const msiPlayIn = ['KC', 'DCG', 'T1', 'TLAW'].map(byShort);
 const msiFixed = extractMsiPlayinFixed();
-const msiStandings = simulateMSI(msiDirect, msiPlayIn, msiFixed);
+const msiBracketInfo = extractMsiBracketFixed();
+const msiStandings = simulateMSI(msiDirect, msiPlayIn, msiFixed, msiBracketInfo);
 const fixedKeys = Object.keys(msiFixed.fixed);
 if (fixedKeys.length) console.log(`MSI 플레이-인 확정 반영: ${fixedKeys.map((k) => `${k}=${msiFixed.fixed[k]}`).join(', ')}`);
+if (msiBracketInfo.ready) console.log(`MSI 브래킷 실제 대진 반영 (확정 ${Object.keys(msiBracketInfo.fixed).length}경기)`);
 const msi = sim.competitions.find((c) => c.key === 'msi');
 msi.ready = true;
 msi.status = 'upcoming';
@@ -504,7 +568,10 @@ console.log(`FST: 우승 ${fstTeams[0].name}`);
 
 // MSI 플레이-인 브래킷 시그니처 저장 — fetchGpr가 "GPR 변화 없이 경기 결과만 바뀐 경우"를
 // 감지해 시뮬을 재실행하도록 하는 기준값.
-sim.msiBracketSig = JSON.stringify(standingsData.standings?.msi?.['플레이-인 스테이지']?.bracket ?? null);
+sim.msiBracketSig = JSON.stringify({
+  pi: standingsData.standings?.msi?.['플레이-인 스테이지']?.bracket ?? null,
+  br: standingsData.standings?.msi?.['브래킷 스테이지']?.bracket ?? null,
+});
 
 sim.updatedAt = new Date().toISOString(); // 시간까지 포함(페이지에서 KST로 표시)
 fs.writeFileSync(path.join(dataDir, 'lolSim.json'), JSON.stringify(sim, null, 2) + '\n');

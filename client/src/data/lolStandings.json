@@ -456,40 +456,47 @@
                       "title": "1라운드 · Match 1 (7/3)",
                       "startRow": 0,
                       "a": {
-                        "seed": "??? #1"
+                        "seed": "LCK #1",
+                        "short": "HLE"
                       },
                       "b": {
-                        "seed": "??? #1"
+                        "seed": "LCP #1",
+                        "short": "TSW"
                       }
                     },
                     {
                       "title": "1라운드 · Match 2 (7/3)",
                       "startRow": 2,
                       "a": {
-                        "seed": "??? #1"
+                        "seed": "LEC #1",
+                        "short": "G2"
                       },
                       "b": {
-                        "seed": "??? #1"
+                        "seed": "LPL #2",
+                        "short": "TES"
                       }
                     },
                     {
                       "title": "1라운드 · Match 3 (7/4)",
                       "startRow": 4,
                       "a": {
-                        "seed": "??? #1"
+                        "seed": "LCS #1",
+                        "short": "LYON"
                       },
                       "b": {
-                        "seed": "??? #1"
+                        "seed": "CBLOL #1",
+                        "short": "FUR"
                       }
                     },
                     {
                       "title": "1라운드 · Match 4 (7/4)",
                       "startRow": 6,
                       "a": {
-                        "seed": "??? #1"
+                        "seed": "LPL #1",
+                        "short": "BLG"
                       },
                       "b": {
-                        "seed": "??? #1"
+                        "short": "T1"
                       }
                     }
                   ]

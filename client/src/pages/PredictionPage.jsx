@@ -821,7 +821,7 @@ const SUBTABS = {
   msi: ['플레이-인 스테이지', '브래킷 스테이지'],
 };
 // 세부 대회 기본 선택(현재 진행/직전 완료된 대회)
-const SUBTAB_DEFAULT = { lck: 'LCK', lpl: 'Split 3', lec: 'Summer', lcp: 'Split 3', lcs: 'Summer', cblol: 'Split 2', msi: '플레이-인 스테이지' };
+const SUBTAB_DEFAULT = { lck: 'LCK', lpl: 'Split 3', lec: 'Summer', lcp: 'Split 3', lcs: 'Summer', cblol: 'Split 2', msi: '브래킷 스테이지' };
 // 아직 시작하지 않은 세부 대회 → "예정" 표시
 const SUB_UPCOMING = {
   lec: ['Summer'],
