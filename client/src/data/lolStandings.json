@@ -472,11 +472,14 @@
                       "startRow": 2,
                       "a": {
                         "seed": "LEC #1",
-                        "short": "G2"
+                        "short": "G2",
+                        "score": 3,
+                        "win": true
                       },
                       "b": {
                         "seed": "LPL #2",
-                        "short": "TES"
+                        "short": "TES",
+                        "score": 2
                       }
                     },
                     {
@@ -511,10 +514,14 @@
                       "title": "2라운드 · Match 5 (7/5)",
                       "startRow": 1,
                       "a": {
-                        "label": "M1 승자"
+                        "label": "M1 승자",
+                        "short": "HLE",
+                        "seed": "LCK #1"
                       },
                       "b": {
-                        "label": "M2 승자"
+                        "label": "M2 승자",
+                        "short": "G2",
+                        "seed": "LEC #1"
                       }
                     },
                     {
@@ -626,10 +633,14 @@
                       "title": "1라운드 · Match 7 (7/5)",
                       "startRow": 0,
                       "a": {
-                        "label": "M1 패자"
+                        "label": "M1 패자",
+                        "short": "TSW",
+                        "seed": "LCP #1"
                       },
                       "b": {
-                        "label": "M2 패자"
+                        "label": "M2 패자",
+                        "short": "TES",
+                        "seed": "LPL #2"
                       }
                     },
                     {
