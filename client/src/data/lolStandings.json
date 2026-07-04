@@ -487,11 +487,14 @@
                       "startRow": 4,
                       "a": {
                         "seed": "LCS #1",
-                        "short": "LYON"
+                        "short": "LYON",
+                        "score": 3,
+                        "win": true
                       },
                       "b": {
                         "seed": "CBLOL #1",
-                        "short": "FUR"
+                        "short": "FUR",
+                        "score": 0
                       }
                     },
                     {
@@ -499,10 +502,13 @@
                       "startRow": 6,
                       "a": {
                         "seed": "LPL #1",
-                        "short": "BLG"
+                        "short": "BLG",
+                        "score": 3,
+                        "win": true
                       },
                       "b": {
-                        "short": "T1"
+                        "short": "T1",
+                        "score": 2
                       }
                     }
                   ]
@@ -528,10 +534,14 @@
                       "title": "2라운드 · Match 6 (7/6)",
                       "startRow": 5,
                       "a": {
-                        "label": "M3 승자"
+                        "label": "M3 승자",
+                        "short": "LYON",
+                        "seed": "LCS #1"
                       },
                       "b": {
-                        "label": "M4 승자"
+                        "label": "M4 승자",
+                        "short": "BLG",
+                        "seed": "LPL #1"
                       }
                     }
                   ]
@@ -647,10 +657,13 @@
                       "title": "1라운드 · Match 8 (7/6)",
                       "startRow": 2,
                       "a": {
-                        "label": "M3 패자"
+                        "label": "M3 패자",
+                        "short": "FUR",
+                        "seed": "CBLOL #1"
                       },
                       "b": {
-                        "label": "M4 패자"
+                        "label": "M4 패자",
+                        "short": "T1"
                       }
                     }
                   ]
