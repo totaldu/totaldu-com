@@ -117,7 +117,7 @@
                   "title": "1라운드",
                   "matches": [
                     {
-                      "title": "1라운드 · Match 1 (6/28)",
+                      "title": "1라운드 · Match 1 (6/28 12:00)",
                       "startRow": 0,
                       "a": {
                         "seed": "LCK #2",
@@ -132,7 +132,7 @@
                       }
                     },
                     {
-                      "title": "1라운드 · Match 2 (6/28)",
+                      "title": "1라운드 · Match 2 (6/28 17:00)",
                       "startRow": 2,
                       "a": {
                         "seed": "LEC #2",
@@ -152,7 +152,7 @@
                   "title": "2라운드 (승자전)",
                   "matches": [
                     {
-                      "title": "2라운드 (승자전) · Match 3 (6/29)",
+                      "title": "2라운드 (승자전) · Match 3 (6/29 12:00)",
                       "startRow": 1,
                       "a": {
                         "label": "M1 승자",
@@ -176,7 +176,7 @@
                   "title": "4라운드",
                   "matches": [
                     {
-                      "title": "4라운드 · 최종 진출전 (7/1)",
+                      "title": "4라운드 · 최종 진출전 (7/1 17:00)",
                       "startRow": 1,
                       "a": {
                         "label": "M3 승자",
@@ -217,7 +217,7 @@
                   "title": "2라운드",
                   "matches": [
                     {
-                      "title": "2라운드 · Match 4 (6/29)",
+                      "title": "2라운드 · Match 4 (6/29 17:00)",
                       "startRow": 2,
                       "a": {
                         "label": "M1 패자",
@@ -238,7 +238,7 @@
                   "title": "3라운드",
                   "matches": [
                     {
-                      "title": "3라운드 · Match 5 (6/30)",
+                      "title": "3라운드 · Match 5 (6/30 17:00)",
                       "startRow": 2,
                       "a": {
                         "label": "M3 패자",
@@ -293,7 +293,8 @@
             "seed": "LCS #1"
           },
           {
-            "label": "플레이-인 스테이지 생존팀"
+            "short": "T1",
+            "seed": "플레이-인"
           }
         ],
         "bracket": {
@@ -453,7 +454,7 @@
                   "title": "1라운드",
                   "matches": [
                     {
-                      "title": "1라운드 · Match 1 (7/3)",
+                      "title": "1라운드 · Match 1 (7/3 12:00)",
                       "startRow": 0,
                       "a": {
                         "seed": "LCK #1",
@@ -468,7 +469,7 @@
                       }
                     },
                     {
-                      "title": "1라운드 · Match 2 (7/3)",
+                      "title": "1라운드 · Match 2 (7/3 17:00)",
                       "startRow": 2,
                       "a": {
                         "seed": "LEC #1",
@@ -483,7 +484,7 @@
                       }
                     },
                     {
-                      "title": "1라운드 · Match 3 (7/4)",
+                      "title": "1라운드 · Match 3 (7/4 12:00)",
                       "startRow": 4,
                       "a": {
                         "seed": "LCS #1",
@@ -498,7 +499,7 @@
                       }
                     },
                     {
-                      "title": "1라운드 · Match 4 (7/4)",
+                      "title": "1라운드 · Match 4 (7/4 17:00)",
                       "startRow": 6,
                       "a": {
                         "seed": "LPL #1",
@@ -517,7 +518,7 @@
                   "title": "2라운드",
                   "matches": [
                     {
-                      "title": "2라운드 · Match 5 (7/5)",
+                      "title": "2라운드 · Match 5 (7/5 17:00)",
                       "startRow": 1,
                       "a": {
                         "label": "M1 승자",
@@ -531,7 +532,7 @@
                       }
                     },
                     {
-                      "title": "2라운드 · Match 6 (7/6)",
+                      "title": "2라운드 · Match 6 (7/6 12:00)",
                       "startRow": 5,
                       "a": {
                         "label": "M3 승자",
@@ -550,7 +551,7 @@
                   "title": "3라운드",
                   "matches": [
                     {
-                      "title": "3라운드 · Match 11 (7/9)",
+                      "title": "3라운드 · Match 11 (7/9 17:00)",
                       "startRow": 3,
                       "a": {
                         "label": "M5 승자"
@@ -573,7 +574,7 @@
                   "title": "결승",
                   "matches": [
                     {
-                      "title": "결승 · Grand Finals (7/12)",
+                      "title": "결승 · Grand Finals (7/12 15:00)",
                       "startRow": 3,
                       "a": {
                         "label": "M11 승자"
@@ -640,7 +641,7 @@
                   "title": "1라운드",
                   "matches": [
                     {
-                      "title": "1라운드 · Match 7 (7/5)",
+                      "title": "1라운드 · Match 7 (7/5 12:00)",
                       "startRow": 0,
                       "a": {
                         "label": "M1 패자",
@@ -654,7 +655,7 @@
                       }
                     },
                     {
-                      "title": "1라운드 · Match 8 (7/6)",
+                      "title": "1라운드 · Match 8 (7/6 17:00)",
                       "startRow": 2,
                       "a": {
                         "label": "M3 패자",
@@ -672,7 +673,7 @@
                   "title": "2라운드",
                   "matches": [
                     {
-                      "title": "2라운드 · Match 9 (7/8)",
+                      "title": "2라운드 · Match 9 (7/8 12:00)",
                       "startRow": 2,
                       "a": {
                         "label": "M5 패자"
@@ -682,7 +683,7 @@
                       }
                     },
                     {
-                      "title": "2라운드 · Match 10 (7/8)",
+                      "title": "2라운드 · Match 10 (7/8 17:00)",
                       "startRow": 0,
                       "a": {
                         "label": "M6 패자"
@@ -697,7 +698,7 @@
                   "title": "3라운드",
                   "matches": [
                     {
-                      "title": "3라운드 · Match 12 (7/10)",
+                      "title": "3라운드 · Match 12 (7/10 17:00)",
                       "startRow": 1,
                       "a": {
                         "label": "M9 승자"
@@ -712,7 +713,7 @@
                   "title": "4라운드",
                   "matches": [
                     {
-                      "title": "4라운드 · Match 13 (7/11)",
+                      "title": "4라운드 · Match 13 (7/11 17:00)",
                       "startRow": 1,
                       "a": {
                         "label": "M11 패자"
