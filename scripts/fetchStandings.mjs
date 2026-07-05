@@ -471,7 +471,7 @@ async function fillMsiPlayinResults(prevMsi) {
   }
   // 브래킷 매치 제목의 "(M/D)" → 2026-MM-DD (같은 대진이 여러 번 열릴 때 날짜로 구분)
   const dateOf = (title) => {
-    const m = (title || '').match(/\((\d{1,2})\/(\d{1,2})\)/);
+    const m = (title || '').match(/\((\d{1,2})\/(\d{1,2})/); // 시간 접미사(HH:MM) 허용
     return m ? `2026-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}` : null;
   };
   // 날짜가 주어지면 그 날짜의 완료 경기만 인정(예: T1-TLAW 가 6/28 M1·7/1 최종전 두 번 열려도
@@ -604,7 +604,7 @@ async function fillMsiBracketResults(prevMsi) {
   sched.sort((p, q) => (p.startTime < q.startTime ? -1 : 1));
 
   const dateOf = (title) => {
-    const m = (title || '').match(/\((\d{1,2})\/(\d{1,2})\)/);
+    const m = (title || '').match(/\((\d{1,2})\/(\d{1,2})/); // 시간 접미사(HH:MM) 허용
     return m ? `2026-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}` : null;
   };
 
@@ -742,12 +742,96 @@ try {
   console.warn(`MSI API 갱신 실패 — 기존 값 유지: ${e.message}`);
 }
 
+// MSI 브래킷 매치 제목의 "(M/D)"에 경기 시각(KST)을 붙여 "(M/D HH:MM)"로 표기.
+//   팀이 확정된 경기는 팀+날짜로, 미확정 경기는 날짜+순서로 스케줄과 매칭한다.
+async function applyMsiScheduleTimes(prevMsi) {
+  // 모든 MSI 경기(플레이-인·브래킷·결승) 수집 — TBD 포함, startTime 기준 정렬
+  const games = [];
+  const seen = new Set();
+  let token = null;
+  for (let guard = 0; guard < 8; guard++) {
+    const params = { leagueId: MSI_LEAGUE_ID };
+    if (token) params.pageToken = token;
+    const { data: d } = await api('getSchedule', params);
+    for (const e of d.schedule.events || []) {
+      if (e.type !== 'match' || !e.startTime || e.startTime < '2026-01-01') continue;
+      const teams = (e.match?.teams || []).map((t) => t.code).filter((c) => c && c !== 'TBD');
+      const key = `${e.startTime}|${teams.slice().sort().join(',')}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      games.push({ startTime: e.startTime, teams });
+    }
+    token = d.schedule.pages?.older;
+    if (!token) break;
+  }
+  games.sort((a, b) => (a.startTime < b.startTime ? -1 : 1));
+
+  // UTC ISO → KST "M/D HH:MM"
+  const kst = (iso) => new Date(new Date(iso).getTime() + 9 * 3600 * 1000);
+  const mdOf = (iso) => { const k = kst(iso); return `${k.getUTCMonth() + 1}/${k.getUTCDate()}`; };
+  const labelOf = (iso) => {
+    const k = kst(iso);
+    return `${k.getUTCMonth() + 1}/${k.getUTCDate()} ${String(k.getUTCHours()).padStart(2, '0')}:${String(k.getUTCMinutes()).padStart(2, '0')}`;
+  };
+
+  const used = new Set();
+  let changed = false;
+  const assign = (m) => {
+    const md = (m.title || '').match(/\((\d{1,2}\/\d{1,2})[^)]*\)/);
+    if (!md) return;
+    const wantMD = md[1];
+    const shorts = [m.a?.short, m.b?.short].filter(Boolean);
+    // 팀 확정 시 팀+날짜 우선, 아니면 날짜순으로 매칭
+    let g = shorts.length === 2
+      ? games.find((x) => !used.has(x) && x.teams.length === 2 && x.teams.includes(shorts[0]) && x.teams.includes(shorts[1]) && mdOf(x.startTime) === wantMD)
+      : null;
+    if (!g) g = games.find((x) => !used.has(x) && mdOf(x.startTime) === wantMD);
+    if (!g) return;
+    used.add(g);
+    const nt = (m.title || '').replace(/\(\d{1,2}\/\d{1,2}[^)]*\)/, `(${labelOf(g.startTime)})`);
+    if (nt !== m.title) { m.title = nt; changed = true; }
+  };
+
+  for (const stageKey of ['플레이-인 스테이지', '브래킷 스테이지']) {
+    const secs = prevMsi[stageKey]?.bracket?.sections;
+    if (!secs) continue;
+    for (const sec of secs)
+      for (const r of sec.rounds || [])
+        for (const m of r.matches || []) assign(m);
+  }
+  return changed;
+}
+
+// 플레이-인 생존팀(최종 진출전 승자)을 브래킷 스테이지 참가팀 목록의 "생존팀" 슬롯에 반영
+function fillMsiSurvivorQualifier(prevMsi) {
+  const pi = prevMsi['플레이-인 스테이지']?.bracket;
+  const br = prevMsi['브래킷 스테이지'];
+  if (!pi?.sections || !br?.qualifiers) return false;
+  let survivor = null;
+  for (const sec of pi.sections)
+    for (const r of sec.rounds || [])
+      for (const m of r.matches || [])
+        if (/최종\s*진출전/.test(m.title || '')) {
+          if (m.a?.msi && m.a?.short) survivor = m.a.short;
+          if (m.b?.msi && m.b?.short) survivor = m.b.short;
+        }
+  if (!survivor) return false;
+  const slot = br.qualifiers.find((q) => !q.short && /생존팀/.test(q.label || ''));
+  if (!slot) return false;
+  delete slot.label;
+  slot.short = survivor;
+  slot.seed = '플레이-인';
+  return true;
+}
+
 // 3단계: MSI 플레이-인 + 브래킷 스테이지 대진·결과(점수·승패) 자동 반영
 try {
   const prevMsi = data.standings.msi || {};
   const piChanged = await fillMsiPlayinResults(prevMsi);
   const brChanged = await fillMsiBracketResults(prevMsi);
-  const changed = piChanged || brChanged;
+  const survChanged = fillMsiSurvivorQualifier(prevMsi);
+  const timeChanged = await applyMsiScheduleTimes(prevMsi);
+  const changed = piChanged || brChanged || survChanged || timeChanged;
   if (changed) {
     data.standings.msi = prevMsi;
     console.log(`MSI 브래킷 갱신됨 (플레이-인 ${piChanged ? 'O' : 'X'} / 브래킷 스테이지 ${brChanged ? 'O' : 'X'})`);

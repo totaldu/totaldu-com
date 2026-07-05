@@ -88,24 +88,14 @@ const MsiSlot = ({ s, predPct, onTeamClick }) => {
     </div>
   );
 };
-const SLOT_H = 46;
+const SLOT_H = 54;
 const LABEL_H = 20;
 const GAP_ROW = 2;
 const COL_W = 200;
 const COL_GAP = 16;
-const ACTUAL_SLOT_H = 44;
+const ACTUAL_SLOT_H = 39; // 실제 슬롯(팀 한 줄) 렌더 높이 — connY 슬롯 중심 계산 기준
 
 const gridSlotTop = (r) => LABEL_H + r * SLOT_H + (r >= GAP_ROW ? LABEL_H : 0);
-
-// 특정 슬롯의 y 중심값: slot='a'|'b'|'mid'
-const connY = (rounds, col, match, slot) => {
-  const m = rounds[col]?.matches?.[match];
-  if (!m) return 0;
-  const base = gridSlotTop(m.startRow ?? 0);
-  const aC = base + 1 + ACTUAL_SLOT_H / 2;
-  const bC = base + 1 + ACTUAL_SLOT_H + 1 + ACTUAL_SLOT_H / 2;
-  return slot === 'a' ? aC : slot === 'b' ? bC : (aC + bC) / 2;
-};
 
 const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '', wrapScroll = true, onTeamClick }) => {
   const useGrid = !!totalRows;
@@ -116,13 +106,15 @@ const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '', 
   const [svgSize, setSvgSize] = useState({ w: 0, h: 0 });
 
   useLayoutEffect(() => {
-    if (useGrid || !connData?.length || !wrapRef.current) {
+    if (!connData?.length || !wrapRef.current) {
       setConnPaths([]);
       return;
     }
     const wrap = wrapRef.current;
     const wRect = wrap.getBoundingClientRect();
-    setSvgSize({ w: wrap.scrollWidth, h: wrap.scrollHeight });
+    // 슬롯 높이가 카드마다 달라(팀 39px·라벨 32px) 수식으로는 중심이 어긋나므로
+    // 그리드 모드에서도 실제 DOM 위치를 측정해 연결선을 그린다.
+    setSvgSize({ w: useGrid ? totalW : wrap.scrollWidth, h: useGrid ? colH : wrap.scrollHeight });
 
     const slotCenterY = (el, slot) => {
       const first = el.firstElementChild;
@@ -171,34 +163,8 @@ const MsiBracket = ({ rounds, totalRows, connectors: connData, cardPrefix = '', 
         gap: COL_GAP,
         ...(useGrid ? { width: totalW, height: colH } : {}),
       }}>
-        {/* 그리드 모드 연결선 */}
-        {useGrid && connData?.length > 0 && (
-          <svg style={{
-            position: 'absolute', top: 0, left: 0,
-            width: totalW, height: colH,
-            pointerEvents: 'none', overflow: 'visible',
-          }}>
-            {connData.map(([fC, fM, fS, tC, tM, tS], i) => {
-              const fx = fC * (COL_W + COL_GAP) + COL_W;
-              const tx = tC * (COL_W + COL_GAP);
-              const fy = connY(rounds, fC, fM, fS);
-              const ty = connY(rounds, tC, tM, tS);
-              const mx = (fx + tx) / 2;
-              const flat = Math.abs(fy - ty) <= 2;
-              const d = flat
-                ? `M ${fx} ${fy} L ${tx} ${ty}`
-                : `M ${fx} ${fy} L ${mx} ${fy} L ${mx} ${ty} L ${tx} ${ty}`;
-              return (
-                <path key={i} d={d}
-                  stroke="rgba(255,255,255,0.2)" strokeWidth={1.5}
-                  fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              );
-            })}
-          </svg>
-        )}
-
-        {/* 비그리드 모드 연결선 */}
-        {!useGrid && connPaths.length > 0 && (
+        {/* 연결선 (그리드·비그리드 모두 DOM 실측 기반) */}
+        {connPaths.length > 0 && (
           <svg style={{
             position: 'absolute', top: 0, left: 0,
             width: svgSize.w, height: svgSize.h,
