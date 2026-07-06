@@ -541,12 +541,15 @@
                       "a": {
                         "label": "M3 승자",
                         "short": "LYON",
-                        "seed": "LCS #1"
+                        "seed": "LCS #1",
+                        "score": 0
                       },
                       "b": {
                         "label": "M4 승자",
                         "short": "BLG",
-                        "seed": "LPL #1"
+                        "seed": "LPL #1",
+                        "score": 3,
+                        "win": true
                       }
                     }
                   ]
@@ -558,10 +561,14 @@
                       "title": "3라운드 · Match 11 (7/9 17:00)",
                       "startRow": 3,
                       "a": {
-                        "label": "M5 승자"
+                        "label": "M5 승자",
+                        "short": "HLE",
+                        "seed": "LCK #1"
                       },
                       "b": {
-                        "label": "M6 승자"
+                        "label": "M6 승자",
+                        "short": "BLG",
+                        "seed": "LPL #1"
                       }
                     }
                   ]
@@ -695,10 +702,14 @@
                       "title": "2라운드 · Match 10 (7/8 17:00)",
                       "startRow": 0,
                       "a": {
-                        "label": "M6 패자"
+                        "label": "M6 패자",
+                        "short": "LYON",
+                        "seed": "LCS #1"
                       },
                       "b": {
-                        "label": "M7 승자"
+                        "label": "M7 승자",
+                        "short": "TSW",
+                        "seed": "LCP #1"
                       }
                     }
                   ]
