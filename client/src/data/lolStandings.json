@@ -993,27 +993,27 @@
             "rank": 1,
             "team": "BFX",
             "w": 7,
-            "l": 12,
-            "gw": 16,
-            "gl": 25,
-            "group": "라이즈 그룹"
+            "l": 13,
+            "group": "라이즈 그룹",
+            "gw": 14,
+            "gl": 25
           },
           {
             "rank": 2,
+            "team": "NS",
+            "w": 7,
+            "l": 13,
+            "group": "라이즈 그룹",
+            "gw": 13,
+            "gl": 28
+          },
+          {
+            "rank": 3,
             "team": "BRO",
             "w": 6,
             "l": 13,
             "gw": 17,
             "gl": 26,
-            "group": "라이즈 그룹"
-          },
-          {
-            "rank": 3,
-            "team": "NS",
-            "w": 6,
-            "l": 13,
-            "gw": 15,
-            "gl": 28,
             "group": "라이즈 그룹"
           },
           {
@@ -1642,8 +1642,10 @@
           {
             "rank": 2,
             "team": "AL",
-            "w": 4,
+            "w": 5,
             "l": 1,
+            "gw": 11,
+            "gl": 3,
             "group": "Group Ascend"
           },
           {
@@ -1671,16 +1673,18 @@
           },
           {
             "rank": 6,
-            "team": "TT",
+            "team": "LGD",
             "w": 1,
             "l": 3,
             "group": "Group Ascend"
           },
           {
-            "rank": 6,
-            "team": "LGD",
+            "rank": 7,
+            "team": "TT",
             "w": 1,
-            "l": 3,
+            "l": 4,
+            "gw": 5,
+            "gl": 8,
             "group": "Group Ascend"
           },
           {
@@ -2127,11 +2131,11 @@
                   "title": "1승 1패",
                   "a": {
                     "seed": "",
-                    "short": "DCG"
+                    "short": "DFM"
                   },
                   "b": {
                     "seed": "",
-                    "short": "DFM"
+                    "short": "DCG"
                   },
                   "recordKey": "1-1"
                 },
